@@ -12,22 +12,26 @@ async function fetchText(path) {
 }
 
 async function buildGame() {
-  const [html, css, extraCss, workstationCss, game, economy, workstation] = await Promise.all([
+  const [html, css, extraCss, workstationCss, momentumCss, game, economy, workstation, momentum] = await Promise.all([
     fetchText("index.html"),
     fetchText("styles.css"),
     fetchText("v3-extra.css"),
     fetchText("workstation.css"),
+    fetchText("momentum.css"),
     fetchText("frontier-lab.js"),
     fetchText("economy.js"),
-    fetchText("workstation.js")
+    fetchText("workstation.js"),
+    fetchText("momentum.js")
   ]);
   return html
     .replace('<link rel="stylesheet" href="styles.css" />', `<style>${css}</style>`)
     .replace('<link rel="stylesheet" href="v3-extra.css" />', `<style>${extraCss}</style>`)
     .replace('<link rel="stylesheet" href="workstation.css" />', `<style>${workstationCss}</style>`)
+    .replace('<link rel="stylesheet" href="momentum.css" />', `<style>${momentumCss}</style>`)
     .replace('<script src="frontier-lab.js"></script>', `<script>${game}<\/script>`)
     .replace('<script src="economy.js"></script>', `<script>${economy}<\/script>`)
-    .replace('<script src="workstation.js"></script>', `<script>${workstation}<\/script>`);
+    .replace('<script src="workstation.js"></script>', `<script>${workstation}<\/script>`)
+    .replace('<script src="momentum.js"></script>', `<script>${momentum}<\/script>`);
 }
 
 try {
