@@ -2,7 +2,7 @@
 // Run directly in Scriptable or from an iOS Shortcut using “Run Script”.
 // Loads the same V3 browser game into a native Scriptable WebView.
 
-const BRANCH = "feature/frontier-lab-v3";
+const BRANCH = "feature/frontier-lab-workstation-update-v3";
 const BASE = `https://raw.githubusercontent.com/neffer77/frontier-model-simulator-rpg/${BRANCH}/`;
 
 async function fetchText(path) {
@@ -12,7 +12,7 @@ async function fetchText(path) {
 }
 
 async function buildGame() {
-  const [html, css, extraCss, workstationCss, momentumCss, game, economy, workstation, momentum] = await Promise.all([
+  const [html, css, extraCss, workstationCss, momentumCss, game, economy, workstation, momentum, engagement] = await Promise.all([
     fetchText("index.html"),
     fetchText("styles.css"),
     fetchText("v3-extra.css"),
@@ -21,7 +21,8 @@ async function buildGame() {
     fetchText("frontier-lab.js"),
     fetchText("economy.js"),
     fetchText("workstation.js"),
-    fetchText("momentum.js")
+    fetchText("momentum.js"),
+    fetchText("engagement.js")
   ]);
   return html
     .replace('<link rel="stylesheet" href="styles.css" />', `<style>${css}</style>`)
@@ -31,7 +32,8 @@ async function buildGame() {
     .replace('<script src="frontier-lab.js"></script>', `<script>${game}<\/script>`)
     .replace('<script src="economy.js"></script>', `<script>${economy}<\/script>`)
     .replace('<script src="workstation.js"></script>', `<script>${workstation}<\/script>`)
-    .replace('<script src="momentum.js"></script>', `<script>${momentum}<\/script>`);
+    .replace('<script src="momentum.js"></script>', `<script>${momentum}<\/script>`)
+    .replace('<script src="engagement.js"></script>', `<script>${engagement}<\/script>`);
 }
 
 try {
