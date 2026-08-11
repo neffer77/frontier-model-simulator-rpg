@@ -1,189 +1,270 @@
-// Frontier Lab V3 workstation: discovery-driven technical debugging + mastery feedback.
-// Rewards are earned through investigation quality rather than random engagement mechanics.
+// Frontier Lab V3 — Engineering Workstation
+// Loaded after frontier-lab.js and economy.js. Replaces the incident quiz overlay
+// with an investigative debugging loop while preserving company/training systems.
 
-const WS_TOOLS=[
-  ["overview","Mission Control","◉"],
-  ["metrics","TensorBoard","⌁"],
-  ["profiler","Profiler","▥"],
-  ["nccl","NCCL","⇄"],
-  ["data","Data Pipeline","◫"],
-  ["config","Train Config","⚙"],
-  ["checkpoint","Checkpoints","◇"],
-  ["terminal","Terminal",">_"]
+const WORKSTATION_CASES={
+  nan:{
+    title:"Run 1842 / numerical instability",
+    summary:"Loss diverged and the run halted. Find the primary trigger before resuming expensive pretraining.",
+    decisive:["metrics","data"],
+    correctHypothesis:"data_pathology",
+    correctAction:"data",
+    hypotheses:[
+      ["lr_instability","Optimizer / learning-rate instability"],
+      ["data_pathology","Pathological data or preprocessing output"],
+      ["collective_fault","Distributed communication fault"],
+      ["hardware_fault","GPU / node hardware failure"]
+    ],
+    tools:{
+      metrics:{cost:0,minutes:1,signal:true,title:"TensorBoard",lines:["loss 1.923 → 1.928 → 2.741 → 6.883 → NaN","grad_norm 0.81 → 0.84 → 7.94 → 81.2 → NaN","MFU remains ~51% until failure"]},
+      profiler:{cost:2,minutes:3,title:"Profiler",lines:["activation magnitude jumps sharply in blocks 57–63","kernel timing remains otherwise stable"]},
+      gpu:{cost:1,minutes:2,title:"GPU Fleet",lines:["2,048 / 2,048 workers healthy","SM clocks nominal","no ECC spike around failing step"]},
+      nccl:{cost:1,minutes:2,title:"NCCL",lines:["collective latency stays inside baseline band","no rank timeout or topology change"]},
+      data:{cost:12,minutes:4,signal:true,title:"Data Pipeline + Replay",lines:["web_en_091778 becomes active at the first bad step","256-example replay reproduces the activation spike","neighboring shard web_en_091777 does not reproduce"]},
+      checkpoint:{cost:1,minutes:2,title:"Checkpoints",lines:["step_440500 checksum valid","optimizer state loads cleanly","replay from checkpoint is deterministic"]},
+      config:{cost:0,minutes:1,title:"Training Config",lines:["AdamW β1=.9 β2=.95 wd=.1","learning rate is smoothly decaying; no schedule discontinuity","grad clipping = 1.0"]}
+    }
+  },
+  bubble:{
+    title:"Scale-up / throughput collapse",
+    summary:"Eight times the GPUs produced only 2.1× throughput. Identify the dominant systems bottleneck.",
+    decisive:["metrics","profiler"],
+    correctHypothesis:"pipeline_bubble",
+    correctAction:"mb",
+    hypotheses:[
+      ["pipeline_bubble","Pipeline bubble / insufficient in-flight microbatches"],
+      ["tp_collective","Tensor-parallel collective saturation"],
+      ["dataloader","Input pipeline starvation"],
+      ["gpu_clocks","GPU clocks / thermal throttling"]
+    ],
+    tools:{
+      metrics:{cost:0,minutes:1,signal:true,title:"TensorBoard",lines:["MFU 54% → 31%","step time 1.22s → 2.31s","global batch unchanged"]},
+      profiler:{cost:4,minutes:4,signal:true,title:"Distributed Profiler",lines:["pipeline idle / bubble = 38%","long fill/drain idle windows repeat every optimizer step","compute kernels are healthy while active"]},
+      gpu:{cost:1,minutes:2,title:"GPU Fleet",lines:["GPU clocks nominal","thermals inside normal range","utilization oscillates with pipeline stage idle periods"]},
+      nccl:{cost:2,minutes:3,title:"NCCL",lines:["TP collective latency within expected range","fabric packet loss: none"]},
+      data:{cost:0,minutes:2,title:"Input Pipeline",lines:["dataloader wait <1%","prefetch queues remain populated"]},
+      checkpoint:{cost:0,minutes:1,title:"Checkpoints",lines:["checkpointing is disabled inside profiled window"]},
+      config:{cost:0,minutes:1,title:"Parallelism Config",lines:["PP stages: 2 → 8","microbatch count did not increase","TP=8; global batch held constant"]}
+    }
+  },
+  contam:{
+    title:"Evaluation anomaly / +14 points",
+    summary:"A private benchmark jumped dramatically after a data refresh. Determine whether the gain is real capability.",
+    decisive:["metrics","data"],
+    correctHypothesis:"contamination",
+    correctAction:"clean",
+    hypotheses:[
+      ["capability","Genuine capability improvement"],
+      ["contamination","Train/eval contamination or leakage"],
+      ["sampling","Sampling configuration artifact"],
+      ["harness","Evaluation harness regression"]
+    ],
+    tools:{
+      metrics:{cost:0,minutes:1,signal:true,title:"Eval Dashboard",lines:["private holdout: 61 → 75 (+14)","controls: +2 / +1 / +3","newer temporal holdout: +2.4"]},
+      profiler:{cost:0,minutes:2,title:"Eval Trace",lines:["generation lengths and stop reasons unchanged","no timeout-rate shift"]},
+      gpu:{cost:0,minutes:1,title:"Serving Fleet",lines:["identical inference image and hardware used for before/after evals"]},
+      nccl:{cost:0,minutes:1,title:"Distributed Runtime",lines:["not material to this single-replica eval path"]},
+      data:{cost:6,minutes:4,signal:true,title:"Provenance + Similarity Search",lines:["312 prompts have >0.85 MinHash similarity to training documents","196 solutions contain long matching spans from scraped tutorials","overlap entered in data refresh v43"]},
+      checkpoint:{cost:0,minutes:1,title:"Model Checkpoints",lines:["same evaluation harness reproduces the score jump across two v43 checkpoints"]},
+      config:{cost:0,minutes:1,title:"Eval Config",lines:["temperature 0.2 unchanged","prompt template and pass@1 calculation unchanged"]}
+    }
+  },
+  ttft:{
+    title:"Serving incident / p99 TTFT",
+    summary:"Burst traffic sends time-to-first-token to 11.4s while decode latency barely changes.",
+    decisive:["metrics","profiler"],
+    correctHypothesis:"prefill_queue",
+    correctAction:"route",
+    hypotheses:[
+      ["prefill_queue","Prefill queue / scheduling contention"],
+      ["decode_kernel","Decode kernel regression"],
+      ["kv_fragmentation","KV-cache fragmentation is primary"],
+      ["sampling","Sampling overhead"]
+    ],
+    tools:{
+      metrics:{cost:0,minutes:1,signal:true,title:"Serving Dashboard",lines:["TTFT p99: 1.8s → 11.4s","ITL p99: 31ms → 35ms","GPU utilization: 72% → 96%"]},
+      profiler:{cost:2,minutes:3,signal:true,title:"Queue + Prefill Profiler",lines:["prefill queue = 8.2s","decode queue = 0.4s","long prompts monopolize large contiguous prefill bursts"]},
+      gpu:{cost:1,minutes:2,title:"GPU Fleet",lines:["decode kernels remain near steady-state throughput","burst utilization increase is dominated by prefill work"]},
+      nccl:{cost:1,minutes:2,title:"Interconnect",lines:["no replica communication anomaly detected"]},
+      data:{cost:0,minutes:2,title:"Traffic Shape",lines:["long-context requests share the same pool as short interactive prompts","burst mix has 2.7× more >16K-token prompts"]},
+      checkpoint:{cost:0,minutes:1,title:"Deployment",lines:["same model artifact before and during burst"]},
+      config:{cost:0,minutes:1,title:"Scheduler Config",lines:["continuous batching enabled","no prefill-token cap","least-loaded routing ignores prompt cost"]}
+    }
+  },
+  dpo:{
+    title:"Post-training regression / tool reliability",
+    summary:"Preference win-rate improved, but structured tool output and refusal calibration regressed.",
+    decisive:["metrics","data","config"],
+    correctHypothesis:"objective_data",
+    correctAction:"target",
+    hypotheses:[
+      ["objective_data","Preference-data / objective tradeoff shifted behavior"],
+      ["serving","Serving stack corrupted structured output"],
+      ["loader","Training dataloader malfunction"],
+      ["eval_noise","All regressions are eval noise"]
+    ],
+    tools:{
+      metrics:{cost:0,minutes:1,signal:true,title:"Post-training Evals",lines:["helpfulness +6.2 pts","tool exactness -9.0 pts","benign refusal +4.1 pts","adversarial safety +0.8 pts"]},
+      profiler:{cost:1,minutes:2,title:"Training Trace",lines:["loss is smooth","no numerical instability or optimizer spike"]},
+      gpu:{cost:0,minutes:1,title:"GPU Fleet",lines:["training hardware healthy; no worker loss"]},
+      nccl:{cost:0,minutes:1,title:"Distributed Runtime",lines:["collective timing normal throughout run"]},
+      data:{cost:4,minutes:3,signal:true,title:"Preference Dataset",lines:["conversation/style pairs are overrepresented","structured tool trajectories are underrepresented","safety slices have limited coverage"]},
+      checkpoint:{cost:1,minutes:2,title:"Checkpoint Comparison",lines:["behavior shift appears after DPO, not in SFT checkpoint 27","higher-β pilot recovers ~5 tool points"]},
+      config:{cost:0,minutes:1,signal:true,title:"DPO Config",lines:["β=0.1","1.8M pairs, 1 epoch, lr=5e-7","higher-β pilot constrains drift more strongly"]}
+    }
+  }
+};
+
+const WORKSTATION_TOOLS=[
+  ["metrics","▥","Metrics"],["profiler","⌁","Profiler"],["gpu","▦","GPU Fleet"],["nccl","⇄","NCCL"],
+  ["data","◫","Data"],["checkpoint","◇","Checkpoint"],["config","{ }","Config"],["terminal",">_","Terminal"]
 ];
 
-function ensureWorkstationState(){
-  state.ws ||= {tool:"overview",visited:[],commands:[],minutes:0,computeCost:0,terminalOutput:["Frontier Lab diagnostic shell ready. Type `help` for commands."],celebration:null};
-  state.goals ||= {completed:0,cleanSolves:0,bestEfficiency:0};
+function wsJuice(kind,message){
+  try{
+    document.body.classList.remove("signal-flash","success-flash");
+    void document.body.offsetWidth;
+    document.body.classList.add(kind==="success"?"success-flash":"signal-flash");
+    setTimeout(()=>document.body.classList.remove("signal-flash","success-flash"),650);
+    const old=document.querySelector(".ws-toast");if(old)old.remove();
+    const toast=document.createElement("div");toast.className=`ws-toast ${kind}`;toast.textContent=message;document.body.appendChild(toast);setTimeout(()=>toast.remove(),1500);
+    if(navigator.vibrate)navigator.vibrate(kind==="success"?[24,30,45]:20);
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(AC){const ac=new AC(),o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.frequency.value=kind==="success"?660:520;g.gain.setValueAtTime(.025,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.12);o.start();o.stop(ac.currentTime+.13);}
+  }catch(e){}
 }
 
-function resetWorkstation(){
-  state.ws={tool:"overview",visited:["overview"],commands:[],minutes:0,computeCost:0,terminalOutput:["Frontier Lab diagnostic shell ready. Type `help` for commands."],celebration:null};
+function ensureWorkstation(){
+  if(!state.workstation) state.workstation=null;
+  if(!state.diagnosticMastery) state.diagnosticMastery={};
 }
 
-const baseOpenIncident=openIncident;
+function newWorkstation(id){
+  return {incidentId:id,tool:"metrics",investigated:[],evidence:[],minutes:0,computeSpent:0,falseMoves:0,hints:0,hypothesis:null,terminalOutput:["Frontier Lab diagnostic shell. Type 'help' for commands."],resolved:false,debrief:null};
+}
+
+const _legacyOpenIncident=openIncident;
 openIncident=function(id){
+  ensureWorkstation();
   state.selectedIncident=id;
-  resetWorkstation();
-  save();
-  render();
+  if(!state.workstation||state.workstation.incidentId!==id||state.workstation.resolved) state.workstation=newWorkstation(id);
+  save();render();
 };
 
-function wsTool(name){
-  ensureWorkstationState();
-  state.ws.tool=name;
-  if(!state.ws.visited.includes(name)){
-    state.ws.visited.push(name);
-    state.ws.minutes += name==="terminal"?1:3;
-    if(["profiler","data","checkpoint"].includes(name)) state.ws.computeCost += name==="data"?0.2:0.1;
+function wsCase(){return WORKSTATION_CASES[state.selectedIncident]||null}
+function ws(){ensureWorkstation();return state.workstation}
+
+function inspectWorkstationTool(tool){
+  const w=ws(),c=wsCase(); if(!w||!c)return;
+  w.tool=tool;
+  if(tool==="terminal"){save();render();return}
+  const spec=c.tools[tool]; if(!spec)return;
+  if(!w.investigated.includes(tool)){
+    if(spec.cost>0&&state.compute<spec.cost){log(`Need ${spec.cost} H100h to run ${spec.title}.`);save();render();return}
+    state.compute-=spec.cost;
+    w.computeSpent+=spec.cost;
+    w.minutes+=spec.minutes;
+    w.investigated.push(tool);
+    spec.lines.forEach(line=>w.evidence.push({tool,title:spec.title,text:line,signal:!!spec.signal}));
+    log(`${spec.signal?"✨ SIGNAL":"🔎"} ${spec.title}: investigation complete${spec.cost?` (-${spec.cost} H100h)`:""}.`);if(spec.signal)setTimeout(()=>wsJuice("signal","SIGNAL FOUND · "+spec.title),0);
   }
   save();render();
 }
 
-function incidentToolEvidence(inc,tool){
-  const generic={
-    overview:[`SEV-2 · ${inc.role}`,inc.brief,"The decisive evidence is not preselected. Choose what to inspect."],
-    profiler:inc.id==="bubble"?["Pipeline stage idle: 38%","Long fill/drain gaps visible across PP stages","Kernel durations otherwise healthy"]:inc.id==="nan"?["Activation magnitude jumps sharply in blocks 57–63 at the failing step","Kernel timings remain stable before failure"]:["No dominant kernel regression in sampled window","Inspect another subsystem if the symptom is not compute-bound."],
-    nccl:inc.id==="bubble"?["TP collective latency within expected range","No fabric retransmit anomaly"]:inc.id==="nan"?["All-reduce / all-gather latency nominal","No communicator timeout or rank loss"]:["Collective health nominal","No evidence of a communication-driven incident."],
-    config:inc.id==="dpo"?["objective: DPO","beta: 0.1","reference policy: SFT checkpoint 27","learning rate: 5e-7"]:inc.id==="bubble"?["TP=8 · PP=8","microbatch=1 sequence/GPU","global batch held constant"]:inc.id==="nan"?["precision: BF16 matmuls / FP32 optimizer","gradient_clip: 1.0","LR follows smooth cosine decay"]:["Configuration snapshot is internally valid","No obvious syntax/configuration failure."],
-    checkpoint:inc.id==="nan"?["step_440500: checksum valid","optimizer state finite","deterministic replay available from preserved batch IDs"]:["Latest checkpoint verifies successfully","Rollback is available but root cause remains unresolved."],
-    terminal:["Use commands to interrogate the incident. Try `help`."]
-  };
-  if(tool==="metrics") return inc.tabs.metrics||[];
-  if(tool==="data") return inc.tabs.data||[];
-  return generic[tool]||[];
-}
-
-function terminalHelp(){return [
-  "help                         show commands",
-  "run status                   active run + incident state",
-  "metrics tail                 recent metric window",
-  "gpu profile                  compute / pipeline profile",
-  "nccl health                  collective health",
-  "data current                 current shard / request class",
-  "data replay                  replay suspect data (costs simulated compute)",
-  "checkpoint verify            validate latest recovery point",
-  "config show                  inspect relevant training/serving config",
-  "hypothesis <text>             record your working theory"
-];}
-
-function wsCommand(){
-  ensureWorkstationState();
-  const input=document.getElementById("wsCommand"); if(!input)return;
-  const cmd=input.value.trim(); if(!cmd)return;
-  const inc=INCIDENTS.find(x=>x.id===state.selectedIncident); if(!inc)return;
-  state.ws.commands.push(cmd); state.ws.minutes+=1;
-  let out=[];
-  const c=cmd.toLowerCase();
-  if(c==="help") out=terminalHelp();
-  else if(c==="run status") out=[`${state.activeRun?.name||"simulation"}: ${inc.title}`,`role owner: ${inc.role}`,"diagnosis pending"];
-  else if(c==="metrics tail") out=incidentToolEvidence(inc,"metrics");
-  else if(c==="gpu profile") out=incidentToolEvidence(inc,"profiler");
-  else if(c==="nccl health") out=incidentToolEvidence(inc,"nccl");
-  else if(c==="data current") out=incidentToolEvidence(inc,"data").slice(0,2);
-  else if(c==="data replay"){
-    state.ws.computeCost+=2;
-    out=inc.id==="nan"?["replay batch: REPRODUCED","activation spike repeats in blocks 57–63","failure follows suspect shard deterministically"]:["replay completed","No deterministic training-data failure reproduced for this incident."];
-  }
-  else if(c==="checkpoint verify") out=incidentToolEvidence(inc,"checkpoint");
-  else if(c==="config show") out=incidentToolEvidence(inc,"config");
-  else if(c.startsWith("hypothesis ")) out=[`hypothesis recorded: ${cmd.slice(11)}`,"Now seek evidence that could falsify it."];
-  else out=[`command not found: ${cmd}`,"Type `help` for the diagnostic command set."];
-  state.ws.terminalOutput.push(`$ ${cmd}`,...out); state.ws.terminalOutput=state.ws.terminalOutput.slice(-28);
+function takeWorkstationHint(){
+  const w=ws(),c=wsCase(); if(!w||!c)return;
+  w.hints++;
+  const unseen=c.decisive.find(t=>!w.investigated.includes(t));
+  w.terminalOutput.push(unseen?`HINT: A senior engineer suggests checking ${unseen.toUpperCase()} next.`:"HINT: You have the decisive evidence. Commit a hypothesis and make the call.");
+  w.tool="terminal";
   save();render();
-  setTimeout(()=>{const el=document.getElementById("wsCommand");if(el)el.focus()},0);
 }
 
-function workstationEvidence(inc){
-  ensureWorkstationState();
-  const tool=state.ws.tool;
-  const lines=incidentToolEvidence(inc,tool);
-  if(tool==="terminal"){
-    return `<div class="terminal-screen">${state.ws.terminalOutput.map(x=>`<div class="terminal-line">${esc(x)}</div>`).join("")}<div class="terminal-entry"><span>$</span><input id="wsCommand" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="help" onkeydown="if(event.key==='Enter')wsCommand()"><button onclick="wsCommand()">RUN</button></div></div>`;
-  }
-  return `<div class="ws-evidence">${lines.map((x,i)=>`<div class="evidence-row" style="--delay:${i}"><span>${String(i+1).padStart(2,"0")}</span><p>${esc(x)}</p></div>`).join("")}</div>`;
+function commitWorkstationHypothesis(id){const w=ws();if(!w)return;w.hypothesis=id;w.minutes+=1;save();render()}
+
+function diagnosticGrade(c,w,correctHypothesis){
+  const extra=Math.max(0,w.investigated.length-c.decisive.length);
+  if(w.hints===0&&w.falseMoves===0&&correctHypothesis&&extra<=1)return"S";
+  if(w.falseMoves===0&&correctHypothesis&&extra<=3)return"A";
+  if(w.falseMoves<=1)return"B";
+  return"C";
 }
 
-function diagnosticEfficiency(){
-  ensureWorkstationState();
-  const inspections=Math.max(1,state.ws.visited.length-1);
-  const commandCount=state.ws.commands.length;
-  return Math.max(20,Math.round(100-inspections*6-commandCount*2-state.ws.minutes*.7));
-}
-
-const baseSolveIncident=solveIncident;
-solveIncident=function(id){
-  ensureWorkstationState();
-  const inc=INCIDENTS.find(i=>i.id===state.selectedIncident); if(!inc)return;
-  const c=inc.choices.find(x=>x[0]===id),ok=!!c[3];
-  const efficiency=diagnosticEfficiency();
-  if(ok){
-    const before=state.knowledge[inc.term]||0;
-    state.knowledge[inc.term]=Math.min(6,before+(state.ws.visited.length>=3?2:1));
-    state.research++;
-    state.reputation+=2;
-    state.goals.completed++;
-    if(efficiency>=80){state.goals.cleanSolves++;state.reputation++;}
-    state.goals.bestEfficiency=Math.max(state.goals.bestEfficiency,efficiency);
-    if(state.activeRun&&state.activeRun.incident===inc.id){state.runHistory.push({run:state.activeRun.name,incident:inc.id,day:state.day,efficiency,tools:[...state.ws.visited]});state.activeRun.incident=null;}
-    state.ws.celebration={title:"INCIDENT RESOLVED",term:inc.term,efficiency,detail:c[2],mastery:state.knowledge[inc.term]};
-    log(`⚡ ${inc.title} resolved · ${efficiency}% diagnostic efficiency · ${inc.term} mastery advanced.`);
-    save();render();
-  }else{
+function executeWorkstationAction(actionId){
+  const w=ws(),c=wsCase(),inc=INCIDENTS.find(i=>i.id===state.selectedIncident);if(!w||!c||!inc)return;
+  const choice=inc.choices.find(x=>x[0]===actionId);if(!choice)return;
+  const correctAction=actionId===c.correctAction;
+  const correctHypothesis=w.hypothesis===c.correctHypothesis;
+  if(!correctAction){
+    w.falseMoves++;w.minutes+=4;state.day++;if(state.activeRun)state.activeRun.progress=Math.max(0,state.activeRun.progress-1);
+    w.terminalOutput.push(`ACTION REJECTED: ${choice[2]}`);
     state.knowledge[inc.term]=(state.knowledge[inc.term]||0)+1;
-    state.day++;
-    if(state.activeRun)state.activeRun.progress=Math.max(0,state.activeRun.progress-2);
-    state.ws.terminalOutput.push(`DECISION REVIEW: ${c[2]}`);
-    log(`⚠️ Decision did not resolve ${inc.title}. New evidence has been added to your mental model.`);
-    save();render();
+    log(`⚠️ ${inc.title}: production action did not address the dominant cause.`);save();render();return;
   }
-};
-
-function closeCelebration(){
-  ensureWorkstationState();
-  state.selectedIncident=null;
-  state.ws.celebration=null;
+  const grade=diagnosticGrade(c,w,correctHypothesis);
+  const mastery={S:3,A:2,B:2,C:1}[grade];
+  state.knowledge[inc.term]=(state.knowledge[inc.term]||0)+mastery;
+  state.diagnosticMastery[inc.term]=(state.diagnosticMastery[inc.term]||0)+mastery;
+  state.research+=grade==="S"?2:1;
+  state.reputation+=grade==="S"?3:grade==="A"?2:1;
+  if(state.activeRun&&state.activeRun.incident===inc.id){
+    state.runHistory.push({run:state.activeRun.name,incident:inc.id,day:state.day,grade,minutes:w.minutes,compute:w.computeSpent,tools:[...w.investigated]});
+    state.activeRun.incident=null;
+  }
+  w.resolved=true;
+  w.debrief={grade,correctHypothesis,choice:choice[1],why:choice[2],tools:w.investigated.length,minutes:w.minutes,compute:w.computeSpent,falseMoves:w.falseMoves,hints:w.hints,mastery};
+  log(`🏅 CLEAN DIAGNOSIS ${grade}: ${inc.title}. ${choice[2]}`);setTimeout(()=>wsJuice("success",`CLEAN DIAGNOSIS ${grade}`),0);
   save();render();
 }
 
-function wsDecisionPanel(inc){
-  return `<div class="ws-decisions"><div class="eyebrow">PRODUCTION DECISION</div><h3>Commit your diagnosis</h3><p class="muted-copy">Strong engineers investigate enough to falsify alternatives, then act decisively.</p>${inc.choices.map(c=>`<button onclick="solveIncident('${c[0]}')"><span>${esc(c[1])}</span><i>→</i></button>`).join("")}</div>`;
+function closeWorkstationDebrief(){state.selectedIncident=null;state.workstation=null;save();render()}
+
+function runDiagnosticCommand(){
+  const input=document.getElementById("wsCommand");if(!input)return;
+  const cmd=input.value.trim();if(!cmd)return;const w=ws();w.terminalOutput.push(`$ ${cmd}`);
+  const x=cmd.toLowerCase();
+  if(x==="help") w.terminalOutput.push("commands: metrics | profile | gpu stragglers | nccl profile | data current | data replay | checkpoint verify | config show | evidence | hint");
+  else if(x==="metrics"||x.startsWith("run inspect")){inspectWorkstationTool("metrics");return}
+  else if(x.startsWith("profile")){inspectWorkstationTool("profiler");return}
+  else if(x.startsWith("gpu")){inspectWorkstationTool("gpu");return}
+  else if(x.startsWith("nccl")){inspectWorkstationTool("nccl");return}
+  else if(x.startsWith("data")){inspectWorkstationTool("data");return}
+  else if(x.startsWith("checkpoint")){inspectWorkstationTool("checkpoint");return}
+  else if(x.startsWith("config")){inspectWorkstationTool("config");return}
+  else if(x==="evidence") w.terminalOutput.push(`${w.evidence.length} evidence records collected from ${w.investigated.length} tools.`);
+  else if(x==="hint"){takeWorkstationHint();return}
+  else w.terminalOutput.push("command not recognized; type 'help'");
+  save();render();
 }
 
-function celebrationOverlay(){
-  ensureWorkstationState(); const x=state.ws.celebration;if(!x)return"";
-  const level=["Unseen","Seen","Explained","Applied","Diagnosed","Transferred","Mastered"][Math.min(6,x.mastery)]||"Mastered";
-  return `<div class="celebrate-back"><div class="celebrate-card"><div class="success-rings"><i></i><i></i><i></i><b>✓</b></div><div class="eyebrow">${x.title}</div><h2>${x.efficiency}% diagnostic efficiency</h2><div class="reward-row"><div><span>Concept</span><b>${x.term}</b></div><div><span>Mastery</span><b>${level}</b></div><div><span>Reward</span><b>+ Insight · + Rep</b></div></div><p>${esc(x.detail)}</p><button class="primary huge" onclick="closeCelebration()">Return to the lab →</button></div></div>`;
+function wsToolView(c,w){
+  if(w.tool==="terminal")return `<div class="ws-terminal"><div class="terminal-scroll">${w.terminalOutput.slice(-12).map(x=>`<div>${esc(x)}</div>`).join("")}</div><div class="terminal-input"><span>$</span><input id="wsCommand" autocomplete="off" placeholder="data replay --step 441198" onkeydown="if(event.key==='Enter')runDiagnosticCommand()"><button onclick="runDiagnosticCommand()">RUN</button></div></div>`;
+  const spec=c.tools[w.tool];const seen=w.investigated.includes(w.tool);
+  if(!spec)return"";
+  if(!seen)return `<div class="ws-locked-tool"><div class="tool-glyph">${WORKSTATION_TOOLS.find(x=>x[0]===w.tool)?.[1]||"◈"}</div><h3>${spec.title}</h3><p>This diagnostic has not been run yet.</p><div class="tool-cost">${spec.cost?`${spec.cost} H100h · `:""}${spec.minutes} diagnostic min</div><button class="primary" onclick="inspectWorkstationTool('${w.tool}')">RUN DIAGNOSTIC</button></div>`;
+  return `<div class="ws-result"><div class="result-head"><div><div class="eyebrow">${spec.signal?"SIGNAL ACQUIRED":"DIAGNOSTIC RESULT"}</div><h3>${spec.title}</h3></div>${spec.signal?`<div class="signal-badge">◆ SIGNAL</div>`:""}</div>${spec.lines.map((x,i)=>`<div class="result-row ${spec.signal&&i===0?"hot":""}"><span>${String(i+1).padStart(2,"0")}</span><code>${esc(x)}</code></div>`).join("")}</div>`;
 }
 
-incidentOverlay=function(){
-  const inc=INCIDENTS.find(x=>x.id===state.selectedIncident);if(!inc)return"";
-  ensureWorkstationState();
-  if(state.ws.celebration)return celebrationOverlay();
-  return `<div class="workstation-back"><div class="workstation"><header class="ws-header"><div><div class="eyebrow">ENGINEERING WORKSTATION · LIVE INCIDENT</div><h2>${inc.title}</h2><p>${inc.brief}</p></div><div class="ws-severity"><span>SEV</span><b>2</b></div></header><div class="ws-body"><aside class="ws-tools">${WS_TOOLS.map(t=>`<button class="${state.ws.tool===t[0]?"active":""} ${state.ws.visited.includes(t[0])?"visited":""}" onclick="wsTool('${t[0]}')"><i>${t[2]}</i><span>${t[1]}</span>${state.ws.visited.includes(t[0])?"<em>•</em>":""}</button>`).join("")}</aside><section class="ws-console"><div class="ws-console-head"><div><span>${WS_TOOLS.find(x=>x[0]===state.ws.tool)?.[2]||"◉"}</span><b>${WS_TOOLS.find(x=>x[0]===state.ws.tool)?.[1]||"Mission Control"}</b></div><div class="investigation-stats"><span>${state.ws.minutes}m investigation</span><span>${state.ws.computeCost.toFixed(1)} simulated H100h</span><span>${diagnosticEfficiency()}% efficiency</span></div></div>${workstationEvidence(inc)}</section><aside class="ws-right"><div class="hypothesis-card"><div class="eyebrow">INVESTIGATION TRAIL</div>${state.ws.visited.map((x,i)=>`<div><span>${i+1}</span>${WS_TOOLS.find(t=>t[0]===x)?.[1||0]||x}</div>`).join("")}<small>Efficiency rewards focused diagnosis, but there is no punishment for exploring while learning.</small></div>${wsDecisionPanel(inc)}<div class="ws-tip">${termButton(inc.term)} opens the explainer without revealing which production action is correct.</div></aside></div></div></div>`;
-};
-
-// Add a low-pressure return loop: visible next objective, never a punitive streak.
-function currentMission(){
-  ensureWorkstationState();
-  if(state.activeRun?.incident)return {title:"Resolve the live incident",detail:"Use the workstation to diagnose before more compute burns.",reward:"Engineering mastery"};
-  if(state.activeRun)return {title:`Ship ${state.activeRun.name}`,detail:`Training is ${state.activeRun.progress}% complete.`,reward:"Model lineage + reputation"};
-  if(!state.models.length)return {title:"Train your first model",detail:"Launch the first model that will permanently enter your company history.",reward:"First lineage model"};
-  const weak=Object.entries(state.knowledge).sort((a,b)=>a[1]-b[1])[0]?.[0];
-  return {title:weak?`Strengthen ${weak}`:"Push the frontier",detail:weak?"Future incidents will revisit weak concepts in different contexts.":"Research, scale infrastructure, and launch the next model.",reward:"Transfer learning"};
+function wsEvidence(w){
+  if(!w.evidence.length)return `<div class="empty-evidence">No evidence pinned yet. Choose a diagnostic tool.</div>`;
+  return w.evidence.slice(-8).map(e=>`<div class="evidence-chip ${e.signal?"signal":""}"><b>${esc(e.title)}</b><span>${esc(e.text)}</span></div>`).join("");
 }
 
-const baseRender=render;
-render=function(){
-  ensureWorkstationState();
-  baseRender();
-  if(!state.started)return;
-  const shell=document.querySelector('.game-shell'); if(!shell)return;
-  const mission=currentMission();
-  const card=document.createElement('div');
-  card.className='next-mission';
-  card.innerHTML=`<div><span>NEXT OBJECTIVE</span><b>${esc(mission.title)}</b><small>${esc(mission.detail)}</small></div><em>${esc(mission.reward)} →</em>`;
-  shell.insertBefore(card,shell.children[1]||null);
-};
+function workstationDebrief(c,w,inc){const d=w.debrief;return `<div class="incident-back"><div class="ws-debrief grade-${d.grade}"><div class="grade-orb">${d.grade}</div><div class="eyebrow">INCIDENT RESOLVED</div><h2>Clean Diagnosis — ${d.grade}</h2><p>${esc(d.why)}</p><div class="debrief-grid"><div><span>Tools opened</span><b>${d.tools}</b></div><div><span>False moves</span><b>${d.falseMoves}</b></div><div><span>Diagnostic time</span><b>${d.minutes}m</b></div><div><span>Compute spent</span><b>${d.compute} H100h</b></div><div><span>Hints</span><b>${d.hints}</b></div><div><span>${inc.term} mastery</span><b>+${d.mastery}</b></div></div><div class="debrief-note"><b>Production action</b><br>${esc(d.choice)}</div><button class="primary resume-btn" onclick="closeWorkstationDebrief()">RESUME TRAINING →</button></div></div>`}
 
-render();
+function incidentOverlay(){
+  ensureWorkstation();const inc=INCIDENTS.find(x=>x.id===state.selectedIncident),c=wsCase(),w=ws();if(!inc||!c||!w)return"";
+  if(w.resolved&&w.debrief)return workstationDebrief(c,w,inc);
+  const hasHyp=!!w.hypothesis;
+  return `<div class="incident-back workstation-back"><div class="workstation">
+    <header class="ws-header"><div><div class="eyebrow">ENGINEERING WORKSTATION · ${inc.role}</div><h2>${esc(c.title)}</h2><p>${esc(c.summary)}</p></div><div class="burn-card"><span>DIAG TIME</span><b>${w.minutes}m</b><small>${w.computeSpent} H100h spent</small></div></header>
+    <div class="ws-body"><aside class="ws-tools">${WORKSTATION_TOOLS.map(t=>`<button class="${w.tool===t[0]?"active":""} ${w.investigated.includes(t[0])?"seen":""}" onclick="inspectWorkstationTool('${t[0]}')"><i>${t[1]}</i><span>${t[2]}</span>${w.investigated.includes(t[0])?"<em>✓</em>":""}</button>`).join("")}<button class="hint-btn" onclick="takeWorkstationHint()">? Senior hint</button></aside>
+      <section class="ws-main"><div class="scope-line"><span class="alarm-dot"></span>RUN HALTED · INVESTIGATION ACTIVE</div>${wsToolView(c,w)}</section>
+      <aside class="ws-board"><div class="eyebrow">EVIDENCE BOARD</div><h3>${w.evidence.length} observations</h3><div class="evidence-stack">${wsEvidence(w)}</div></aside>
+    </div>
+    <footer class="ws-decision"><div class="hypothesis"><div class="eyebrow">1 · COMMIT HYPOTHESIS</div><div class="hyp-grid">${c.hypotheses.map(h=>`<button class="${w.hypothesis===h[0]?"selected":""}" onclick="commitWorkstationHypothesis('${h[0]}')">${esc(h[1])}</button>`).join("")}</div></div><div class="production ${hasHyp?"ready":"locked"}"><div class="eyebrow">2 · PRODUCTION ACTION</div>${hasHyp?`<div class="action-grid">${inc.choices.map(ch=>`<button onclick="executeWorkstationAction('${ch[0]}')"><span>${esc(ch[1])}</span><i>→</i></button>`).join("")}</div>`:`<p>Commit a hypothesis before changing production.</p>`}</div></footer>
+  </div></div>`;
+}
+
+// Ensure old saves can enter the workstation seamlessly.
+ensureWorkstation();save();render();
