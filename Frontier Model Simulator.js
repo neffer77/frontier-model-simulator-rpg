@@ -2,7 +2,7 @@
 // Run directly in Scriptable or from an iOS Shortcut using “Run Script”.
 // Loads the same browser game into a native Scriptable WebView.
 
-const BRANCH = "feature/phase-4a-model-lab";
+const BRANCH = "feature/phase-4b-npc-team";
 const BASE = `https://raw.githubusercontent.com/neffer77/frontier-model-simulator-rpg/${BRANCH}/`;
 
 async function fetchText(path) {
@@ -12,19 +12,21 @@ async function fetchText(path) {
 }
 
 async function buildGame() {
-  const [html, css, extraCss, workstationCss, momentumCss, modelLabCss, game, economy, workstation, momentum, engagement, modelLab] = await Promise.all([
+  const [html, css, extraCss, workstationCss, momentumCss, modelLabCss, npcCss, game, economy, workstation, momentum, engagement, modelLab, npcTeam] = await Promise.all([
     fetchText("index.html"),
     fetchText("styles.css"),
     fetchText("v3-extra.css"),
     fetchText("workstation.css"),
     fetchText("momentum.css"),
     fetchText("model-lab.css"),
+    fetchText("npc-team.css"),
     fetchText("frontier-lab.js"),
     fetchText("economy.js"),
     fetchText("workstation.js"),
     fetchText("momentum.js"),
     fetchText("engagement.js"),
-    fetchText("model-lab.js")
+    fetchText("model-lab.js"),
+    fetchText("npc-team.js")
   ]);
   return html
     .replace('<link rel="stylesheet" href="styles.css" />', `<style>${css}</style>`)
@@ -32,12 +34,14 @@ async function buildGame() {
     .replace('<link rel="stylesheet" href="workstation.css" />', `<style>${workstationCss}</style>`)
     .replace('<link rel="stylesheet" href="momentum.css" />', `<style>${momentumCss}</style>`)
     .replace('<link rel="stylesheet" href="model-lab.css" />', `<style>${modelLabCss}</style>`)
+    .replace('<link rel="stylesheet" href="npc-team.css" />', `<style>${npcCss}</style>`)
     .replace('<script src="frontier-lab.js"></script>', `<script>${game}<\/script>`)
     .replace('<script src="economy.js"></script>', `<script>${economy}<\/script>`)
     .replace('<script src="workstation.js"></script>', `<script>${workstation}<\/script>`)
     .replace('<script src="momentum.js"></script>', `<script>${momentum}<\/script>`)
     .replace('<script src="engagement.js"></script>', `<script>${engagement}<\/script>`)
-    .replace('<script src="model-lab.js"></script>', `<script>${modelLab}<\/script>`);
+    .replace('<script src="model-lab.js"></script>', `<script>${modelLab}<\/script>`)
+    .replace('<script src="npc-team.js"></script>', `<script>${npcTeam}<\/script>`);
 }
 
 try {
