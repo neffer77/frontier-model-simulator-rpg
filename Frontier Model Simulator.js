@@ -12,18 +12,22 @@ async function fetchText(path) {
 }
 
 async function buildGame() {
-  const [html, css, extraCss, game, economy] = await Promise.all([
+  const [html, css, extraCss, workstationCss, game, economy, workstation] = await Promise.all([
     fetchText("index.html"),
     fetchText("styles.css"),
     fetchText("v3-extra.css"),
+    fetchText("workstation.css"),
     fetchText("frontier-lab.js"),
-    fetchText("economy.js")
+    fetchText("economy.js"),
+    fetchText("workstation.js")
   ]);
   return html
     .replace('<link rel="stylesheet" href="styles.css" />', `<style>${css}</style>`)
     .replace('<link rel="stylesheet" href="v3-extra.css" />', `<style>${extraCss}</style>`)
+    .replace('<link rel="stylesheet" href="workstation.css" />', `<style>${workstationCss}</style>`)
     .replace('<script src="frontier-lab.js"></script>', `<script>${game}<\/script>`)
-    .replace('<script src="economy.js"></script>', `<script>${economy}<\/script>`);
+    .replace('<script src="economy.js"></script>', `<script>${economy}<\/script>`)
+    .replace('<script src="workstation.js"></script>', `<script>${workstation}<\/script>`);
 }
 
 try {
