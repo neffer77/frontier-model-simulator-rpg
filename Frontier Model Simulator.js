@@ -2,13 +2,13 @@
 // Run directly in Scriptable or from an iOS Shortcut using “Run Script”.
 // Loads the same browser game into a native Scriptable WebView.
 
-const BRANCH = "feature/phase-4d14-executive-politics-culture";
+const BRANCH = "feature/phase-4d15-employee-sentiment-memory";
 const BASE = `https://raw.githubusercontent.com/neffer77/frontier-model-simulator-rpg/${BRANCH}/`;
 const STYLE_FILES = [
-  "styles.css","v3-extra.css","workstation.css","momentum.css","model-lab.css","npc-team.css","npc-beliefs.css","postmortems.css","knowledge.css","career.css","hiring.css","engineering-artifacts.css","incident-artifacts.css","code-lab.css","data-evals.css","tech-debt.css","debt-consequences.css","architecture-migrations.css","family-forks.css","maintenance-economics.css","operations-ownership.css","slo-reliability.css","release-governance.css","roadmap-enterprise.css","quarterly-board.css","financing-strategy.css","macro-restructuring.css","governance-board.css","executive-politics.css"
+  "styles.css","v3-extra.css","workstation.css","momentum.css","model-lab.css","npc-team.css","npc-beliefs.css","postmortems.css","knowledge.css","career.css","hiring.css","engineering-artifacts.css","incident-artifacts.css","code-lab.css","data-evals.css","tech-debt.css","debt-consequences.css","architecture-migrations.css","family-forks.css","maintenance-economics.css","operations-ownership.css","slo-reliability.css","release-governance.css","roadmap-enterprise.css","quarterly-board.css","financing-strategy.css","macro-restructuring.css","governance-board.css","executive-politics.css","employee-talent-memory.css"
 ];
 const SCRIPT_FILES = [
-  "frontier-lab.js","economy.js","workstation.js","momentum.js","engagement.js","model-lab.js","npc-team.js","npc-beliefs.js","postmortems.js","knowledge.js","career.js","hiring.js","engineering-artifacts.js","incident-artifacts.js","code-lab.js","data-evals.js","tech-debt.js","debt-consequences.js","architecture-migrations.js","family-forks.js","maintenance-economics.js","maintenance-deadline-guard.js","operations-ownership.js","slo-reliability.js","release-governance.js","roadmap-enterprise.js","quarterly-board.js","financing-strategy.js","macro-restructuring.js","governance-board.js","executive-politics.js"
+  "frontier-lab.js","economy.js","workstation.js","momentum.js","engagement.js","model-lab.js","npc-team.js","npc-beliefs.js","postmortems.js","knowledge.js","career.js","hiring.js","engineering-artifacts.js","incident-artifacts.js","code-lab.js","data-evals.js","tech-debt.js","debt-consequences.js","architecture-migrations.js","family-forks.js","maintenance-economics.js","maintenance-deadline-guard.js","operations-ownership.js","slo-reliability.js","release-governance.js","roadmap-enterprise.js","quarterly-board.js","financing-strategy.js","macro-restructuring.js","governance-board.js","executive-politics.js","employee-talent-memory.js"
 ];
 async function fetchText(path){const req=new Request(BASE+path);req.timeoutInterval=20;return await req.loadString()}
 async function buildGame(){
