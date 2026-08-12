@@ -2,7 +2,7 @@
 // Run directly in Scriptable or from an iOS Shortcut using “Run Script”.
 // Loads the same browser game into a native Scriptable WebView.
 
-const BRANCH = "feature/phase-4b2-npc-beliefs";
+const BRANCH = "feature/phase-4b3a-postmortems";
 const BASE = `https://raw.githubusercontent.com/neffer77/frontier-model-simulator-rpg/${BRANCH}/`;
 
 async function fetchText(path) {
@@ -12,7 +12,7 @@ async function fetchText(path) {
 }
 
 async function buildGame() {
-  const [html, css, extraCss, workstationCss, momentumCss, modelLabCss, npcCss, npcBeliefsCss, game, economy, workstation, momentum, engagement, modelLab, npcTeam, npcBeliefs] = await Promise.all([
+  const [html, css, extraCss, workstationCss, momentumCss, modelLabCss, npcCss, npcBeliefsCss, postmortemsCss, game, economy, workstation, momentum, engagement, modelLab, npcTeam, npcBeliefs, postmortems] = await Promise.all([
     fetchText("index.html"),
     fetchText("styles.css"),
     fetchText("v3-extra.css"),
@@ -21,6 +21,7 @@ async function buildGame() {
     fetchText("model-lab.css"),
     fetchText("npc-team.css"),
     fetchText("npc-beliefs.css"),
+    fetchText("postmortems.css"),
     fetchText("frontier-lab.js"),
     fetchText("economy.js"),
     fetchText("workstation.js"),
@@ -28,7 +29,8 @@ async function buildGame() {
     fetchText("engagement.js"),
     fetchText("model-lab.js"),
     fetchText("npc-team.js"),
-    fetchText("npc-beliefs.js")
+    fetchText("npc-beliefs.js"),
+    fetchText("postmortems.js")
   ]);
   return html
     .replace('<link rel="stylesheet" href="styles.css" />', `<style>${css}</style>`)
@@ -38,6 +40,7 @@ async function buildGame() {
     .replace('<link rel="stylesheet" href="model-lab.css" />', `<style>${modelLabCss}</style>`)
     .replace('<link rel="stylesheet" href="npc-team.css" />', `<style>${npcCss}</style>`)
     .replace('<link rel="stylesheet" href="npc-beliefs.css" />', `<style>${npcBeliefsCss}</style>`)
+    .replace('<link rel="stylesheet" href="postmortems.css" />', `<style>${postmortemsCss}</style>`)
     .replace('<script src="frontier-lab.js"></script>', `<script>${game}<\/script>`)
     .replace('<script src="economy.js"></script>', `<script>${economy}<\/script>`)
     .replace('<script src="workstation.js"></script>', `<script>${workstation}<\/script>`)
@@ -45,7 +48,8 @@ async function buildGame() {
     .replace('<script src="engagement.js"></script>', `<script>${engagement}<\/script>`)
     .replace('<script src="model-lab.js"></script>', `<script>${modelLab}<\/script>`)
     .replace('<script src="npc-team.js"></script>', `<script>${npcTeam}<\/script>`)
-    .replace('<script src="npc-beliefs.js"></script>', `<script>${npcBeliefs}<\/script>`);
+    .replace('<script src="npc-beliefs.js"></script>', `<script>${npcBeliefs}<\/script>`)
+    .replace('<script src="postmortems.js"></script>', `<script>${postmortems}<\/script>`);
 }
 
 try {
