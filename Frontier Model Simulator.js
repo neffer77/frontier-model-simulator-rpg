@@ -2,7 +2,7 @@
 // Run directly in Scriptable or from an iOS Shortcut using “Run Script”.
 // Loads the same browser game into a native Scriptable WebView.
 
-const BRANCH = "feature/phase-4b3c-careers-mentoring";
+const BRANCH = "feature/phase-4c-engineering-artifacts";
 const BASE = `https://raw.githubusercontent.com/neffer77/frontier-model-simulator-rpg/${BRANCH}/`;
 
 async function fetchText(path) {
@@ -12,7 +12,7 @@ async function fetchText(path) {
 }
 
 async function buildGame() {
-  const [html, css, extraCss, workstationCss, momentumCss, modelLabCss, npcCss, npcBeliefsCss, postmortemsCss, knowledgeCss, careerCss, game, economy, workstation, momentum, engagement, modelLab, npcTeam, npcBeliefs, postmortems, knowledge, career] = await Promise.all([
+  const [html, css, extraCss, workstationCss, momentumCss, modelLabCss, npcCss, npcBeliefsCss, postmortemsCss, knowledgeCss, careerCss, hiringCss, artifactCss, game, economy, workstation, momentum, engagement, modelLab, npcTeam, npcBeliefs, postmortems, knowledge, career, hiring, artifacts] = await Promise.all([
     fetchText("index.html"),
     fetchText("styles.css"),
     fetchText("v3-extra.css"),
@@ -24,6 +24,8 @@ async function buildGame() {
     fetchText("postmortems.css"),
     fetchText("knowledge.css"),
     fetchText("career.css"),
+    fetchText("hiring.css"),
+    fetchText("engineering-artifacts.css"),
     fetchText("frontier-lab.js"),
     fetchText("economy.js"),
     fetchText("workstation.js"),
@@ -34,7 +36,9 @@ async function buildGame() {
     fetchText("npc-beliefs.js"),
     fetchText("postmortems.js"),
     fetchText("knowledge.js"),
-    fetchText("career.js")
+    fetchText("career.js"),
+    fetchText("hiring.js"),
+    fetchText("engineering-artifacts.js")
   ]);
   return html
     .replace('<link rel="stylesheet" href="styles.css" />', `<style>${css}</style>`)
@@ -47,6 +51,8 @@ async function buildGame() {
     .replace('<link rel="stylesheet" href="postmortems.css" />', `<style>${postmortemsCss}</style>`)
     .replace('<link rel="stylesheet" href="knowledge.css" />', `<style>${knowledgeCss}</style>`)
     .replace('<link rel="stylesheet" href="career.css" />', `<style>${careerCss}</style>`)
+    .replace('<link rel="stylesheet" href="hiring.css" />', `<style>${hiringCss}</style>`)
+    .replace('<link rel="stylesheet" href="engineering-artifacts.css" />', `<style>${artifactCss}</style>`)
     .replace('<script src="frontier-lab.js"></script>', `<script>${game}<\/script>`)
     .replace('<script src="economy.js"></script>', `<script>${economy}<\/script>`)
     .replace('<script src="workstation.js"></script>', `<script>${workstation}<\/script>`)
@@ -57,7 +63,9 @@ async function buildGame() {
     .replace('<script src="npc-beliefs.js"></script>', `<script>${npcBeliefs}<\/script>`)
     .replace('<script src="postmortems.js"></script>', `<script>${postmortems}<\/script>`)
     .replace('<script src="knowledge.js"></script>', `<script>${knowledge}<\/script>`)
-    .replace('<script src="career.js"></script>', `<script>${career}<\/script>`);
+    .replace('<script src="career.js"></script>', `<script>${career}<\/script>`)
+    .replace('<script src="hiring.js"></script>', `<script>${hiring}<\/script>`)
+    .replace('<script src="engineering-artifacts.js"></script>', `<script>${artifacts}<\/script>`);
 }
 
 try {
