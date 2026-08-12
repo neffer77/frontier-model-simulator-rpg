@@ -2,7 +2,7 @@
 // Run directly in Scriptable or from an iOS Shortcut using “Run Script”.
 // Loads the same browser game into a native Scriptable WebView.
 
-const BRANCH = "feature/phase-4c4-data-evals-lab";
+const BRANCH = "feature/phase-4d-tech-debt-consequences";
 const BASE = `https://raw.githubusercontent.com/neffer77/frontier-model-simulator-rpg/${BRANCH}/`;
 
 async function fetchText(path) {
@@ -12,8 +12,8 @@ async function fetchText(path) {
 }
 
 async function buildGame() {
-  const [html, css, extraCss, workstationCss, momentumCss, modelLabCss, npcCss, npcBeliefsCss, postmortemsCss, knowledgeCss, careerCss, hiringCss, artifactCss, incidentArtifactCss, codeCss, dataEvalsCss, game, economy, workstation, momentum, engagement, modelLab, npcTeam, npcBeliefs, postmortems, knowledge, career, hiring, artifacts, incidentArtifacts, codeLab, dataEvals] = await Promise.all([
-    fetchText("index.html"),fetchText("styles.css"),fetchText("v3-extra.css"),fetchText("workstation.css"),fetchText("momentum.css"),fetchText("model-lab.css"),fetchText("npc-team.css"),fetchText("npc-beliefs.css"),fetchText("postmortems.css"),fetchText("knowledge.css"),fetchText("career.css"),fetchText("hiring.css"),fetchText("engineering-artifacts.css"),fetchText("incident-artifacts.css"),fetchText("code-lab.css"),fetchText("data-evals.css"),fetchText("frontier-lab.js"),fetchText("economy.js"),fetchText("workstation.js"),fetchText("momentum.js"),fetchText("engagement.js"),fetchText("model-lab.js"),fetchText("npc-team.js"),fetchText("npc-beliefs.js"),fetchText("postmortems.js"),fetchText("knowledge.js"),fetchText("career.js"),fetchText("hiring.js"),fetchText("engineering-artifacts.js"),fetchText("incident-artifacts.js"),fetchText("code-lab.js"),fetchText("data-evals.js")
+  const [html, css, extraCss, workstationCss, momentumCss, modelLabCss, npcCss, npcBeliefsCss, postmortemsCss, knowledgeCss, careerCss, hiringCss, artifactCss, incidentArtifactCss, codeCss, dataEvalsCss, techDebtCss, game, economy, workstation, momentum, engagement, modelLab, npcTeam, npcBeliefs, postmortems, knowledge, career, hiring, artifacts, incidentArtifacts, codeLab, dataEvals, techDebt] = await Promise.all([
+    fetchText("index.html"),fetchText("styles.css"),fetchText("v3-extra.css"),fetchText("workstation.css"),fetchText("momentum.css"),fetchText("model-lab.css"),fetchText("npc-team.css"),fetchText("npc-beliefs.css"),fetchText("postmortems.css"),fetchText("knowledge.css"),fetchText("career.css"),fetchText("hiring.css"),fetchText("engineering-artifacts.css"),fetchText("incident-artifacts.css"),fetchText("code-lab.css"),fetchText("data-evals.css"),fetchText("tech-debt.css"),fetchText("frontier-lab.js"),fetchText("economy.js"),fetchText("workstation.js"),fetchText("momentum.js"),fetchText("engagement.js"),fetchText("model-lab.js"),fetchText("npc-team.js"),fetchText("npc-beliefs.js"),fetchText("postmortems.js"),fetchText("knowledge.js"),fetchText("career.js"),fetchText("hiring.js"),fetchText("engineering-artifacts.js"),fetchText("incident-artifacts.js"),fetchText("code-lab.js"),fetchText("data-evals.js"),fetchText("tech-debt.js")
   ]);
   return html
     .replace('<link rel="stylesheet" href="styles.css" />', `<style>${css}</style>`)
@@ -31,6 +31,7 @@ async function buildGame() {
     .replace('<link rel="stylesheet" href="incident-artifacts.css" />', `<style>${incidentArtifactCss}</style>`)
     .replace('<link rel="stylesheet" href="code-lab.css" />', `<style>${codeCss}</style>`)
     .replace('<link rel="stylesheet" href="data-evals.css" />', `<style>${dataEvalsCss}</style>`)
+    .replace('<link rel="stylesheet" href="tech-debt.css" />', `<style>${techDebtCss}</style>`)
     .replace('<script src="frontier-lab.js"></script>', `<script>${game}<\/script>`)
     .replace('<script src="economy.js"></script>', `<script>${economy}<\/script>`)
     .replace('<script src="workstation.js"></script>', `<script>${workstation}<\/script>`)
@@ -46,7 +47,8 @@ async function buildGame() {
     .replace('<script src="engineering-artifacts.js"></script>', `<script>${artifacts}<\/script>`)
     .replace('<script src="incident-artifacts.js"></script>', `<script>${incidentArtifacts}<\/script>`)
     .replace('<script src="code-lab.js"></script>', `<script>${codeLab}<\/script>`)
-    .replace('<script src="data-evals.js"></script>', `<script>${dataEvals}<\/script>`);
+    .replace('<script src="data-evals.js"></script>', `<script>${dataEvals}<\/script>`)
+    .replace('<script src="tech-debt.js"></script>', `<script>${techDebt}<\/script>`);
 }
 
 try {
