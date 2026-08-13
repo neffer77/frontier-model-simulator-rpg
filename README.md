@@ -4,9 +4,9 @@ A browser-based career simulator where you roleplay inside a frontier AI lab and
 
 ## Play
 
-Open `index.html` in a browser. No build step or dependencies are required. Progress is stored in `localStorage`.
+Play it at **https://neffer77.github.io/frontier-model-simulator-rpg/**, or open `index.html` in a browser. No build step or dependencies are required. Progress is stored in `localStorage`.
 
-For GitHub Pages, enable Pages for the repository and publish the `main` branch root.
+Every push to `main` republishes the site automatically — see [Deployment](#deployment).
 
 ## Roles
 
@@ -145,3 +145,36 @@ As mechanics grow, split data and systems into modules such as `src/data/roles.j
 ## Design principle
 
 The game should reward the same behaviors a strong frontier-model engineer needs in real work: forming hypotheses, measuring carefully, debugging systematically, understanding systems constraints, documenting experiments, learning from failures, and collaborating across specialties.
+
+---
+
+## Deployment
+
+Every push to `main` publishes to https://neffer77.github.io/frontier-model-simulator-rpg/
+via `.github/workflows/pages.yml`, which runs `validate → build → deploy`. A commit that
+fails validation never reaches the live site.
+
+**validate**
+
+- syntax-checks every JavaScript file
+- confirms every local asset referenced by `index.html` exists
+- confirms the Scriptable launcher's `STYLE_FILES` / `SCRIPT_FILES` lists still match the
+  stylesheets and scripts `index.html` actually loads
+- confirms the branch the Scriptable launcher fetches from still exists
+
+**build** — stages the runtime site into `_site/` (excluding `.github/`), adds `.nojekyll`,
+and writes a `build-info.json` stamped with the commit SHA.
+
+**deploy** — publishes the artifact to GitHub Pages.
+
+### Why the launcher checks exist
+
+`Frontier Model Simulator.js` rebuilds the game for iOS by fetching `index.html` plus every
+stylesheet and script *by name* from a hardcoded branch on raw.githubusercontent.com. Both
+halves rot silently and neither breaks the website, so only iOS players would ever notice:
+
+- adding a phase introduces files the launcher's lists do not know about, so the WebView
+  renders the new game with pieces missing
+- the branch in `BASE` gets deleted after its PR merges, and every fetch 404s
+
+The launcher now tracks `main`, which is also what GitHub Pages serves.

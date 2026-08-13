@@ -2,7 +2,7 @@
 // Run directly in Scriptable or from an iOS Shortcut using “Run Script”.
 // Loads the same browser game into a native Scriptable WebView.
 
-const BRANCH = "feature/phase-4d27-public-communications";
+const BRANCH = "main";
 const BASE = `https://raw.githubusercontent.com/neffer77/frontier-model-simulator-rpg/${BRANCH}/`;
 const STYLE_FILES = [
   "styles.css","v3-extra.css","workstation.css","momentum.css","model-lab.css","npc-team.css","npc-beliefs.css","postmortems.css","knowledge.css","career.css","hiring.css","engineering-artifacts.css","incident-artifacts.css","code-lab.css","data-evals.css","tech-debt.css","debt-consequences.css","architecture-migrations.css","family-forks.css","maintenance-economics.css","operations-ownership.css","slo-reliability.css","release-governance.css","roadmap-enterprise.css","quarterly-board.css","financing-strategy.css","macro-restructuring.css","governance-board.css","executive-politics.css","employee-talent-memory.css","org-management.css","workforce-planning.css","project-portfolio.css","critical-path.css","program-management.css","program-learning.css","portfolio-strategy.css","investment-committee.css","competitive-intelligence.css","ecosystem-strategy.css","policy-regulatory.css","public-communications.css"
