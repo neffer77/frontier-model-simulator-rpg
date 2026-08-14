@@ -1,0 +1,24 @@
+name: Cross-device browser QA
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      - name: Start local game server
+        run: python3 -m http.server 4173 >/tmp/frontier-http.log 2>&1 &
+      - name: Run mobile and desktop smoke tests
+        run: node tests/browser-smoke.mjs
