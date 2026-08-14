@@ -18,7 +18,7 @@
     capital:{name:'Capital Discipline',tag:'Scale without losing control',baseDeadline:100,desc:'Ship ≥7B while maintaining ≥3 months runway and no more than 2 unresolved/accepted debt items.',progress(){const p=maxParams(),r=runway(),d=debtCount();return {success:p>=7&&r>=3&&d<=2,lines:[`Model scale: ${fmt(p,1)}B / 7B`,`Runway: ${r.toFixed(1)} / 3.0 months`,`Debt pressure: ${d} / 2 max`,`Deadline: Day ${deadline()}`]}}},
     incident:{name:'Incident Commander',tag:'Evidence under pressure',baseDeadline:110,desc:'Resolve 4 incidents with at most 1 wrong diagnosis and ship at least one model.',progress(){const s=state.balancePacing?.stats||{},models=state.models?.length||0;return {success:(s.incidentsResolved||0)>=4&&(s.wrongIncidentChoices||0)<=1&&models>=1,lines:[`Resolved: ${s.incidentsResolved||0} / 4`,`Wrong diagnoses: ${s.wrongIncidentChoices||0} / 1 max`,`Models shipped: ${models} / 1`,`Deadline: Day ${deadline()}`]}}},
     generalist:{name:'Frontier Generalist',tag:'Build transferable mastery',baseDeadline:130,desc:'Reach Applied-or-better in 4 concepts and ship a 7B-or-larger model.',progress(){const n=Object.values(state.knowledge||{}).filter(v=>Number(v)>=3).length,p=maxParams();return {success:n>=4&&p>=7,lines:[`Applied+ concepts: ${n} / 4`,`Largest model: ${fmt(p,1)}B / 7B`,`Deadline: Day ${deadline()}`]}}},
-    legacy:{name:'Legacy Company',tag:'Continue an existing save',baseDeadline:null,desc:'Ship a 30B-or-larger model. No deadline is imposed on migrated saves.',progress(){const p=maxParams();return {success:p>=30,lines:[`Largest shipped model: ${fmt(p,1)}B / 30B`,`No deadline — existing-save compatibility challenge`]} }}
+    legacy:{name:'Legacy Company',tag:'Continue an existing save',baseDeadline:null,desc:'Ship a 30B-or-larger model. No deadline is imposed on migrated saves.',progress(){const p=maxParams();return {success:p>=30,lines:[`Largest shipped model: ${fmt(p,1)}B / 30B`,`No deadline — existing-save compatibility challenge`]}}}
   };
   const PERKS={none:{name:'No legacy perk',desc:'Pure new run.'},lesson:{name:'Carry One Lesson',desc:'+1 starting insight.'},compute:{name:'Supplier Relationship',desc:'+8,000 starting H100h.'},network:{name:'Founder Network',desc:'+$0.30M starting cash.'}};
   window.REPLAY_DIFFICULTIES=DIFFICULTIES;window.REPLAY_ARCHETYPES=ARCHETYPES;window.REPLAY_CHALLENGES=CHALLENGES;
@@ -43,7 +43,7 @@
   }
 
   function applySetup(){
-    const s=setup(),d=DIFFICULTIES[s.difficulty],a=ARCHETYPES[s.archetype],m=meta(),perk=m.completedRuns.length?PERKS[s.perk]?s.perk:'none':'none';
+    const s=setup(),d=DIFFICULTIES[s.difficulty],a=ARCHETYPES[s.archetype],m=meta(),perk=m.completedRuns.length?(PERKS[s.perk]?s.perk:'none'):'none';
     state.replay={version:VERSION,runId:makeRunId(),difficulty:s.difficulty,archetype:s.archetype,challenge:s.challenge,perk,startedDay:1,deadlineDay:Math.round(CHALLENGES[s.challenge].baseDeadline*d.deadline),completed:false,failed:false,migrated:false,rewards:[]};
     state.cashM=Number((state.cashM*d.cash*a.cash).toFixed(3));state.compute=Math.round(state.compute*d.compute*a.compute);state.research=(state.research||0)+(a.research||0);state.reputation=(state.reputation||0)+(a.reputation||0);
     if(perk==='lesson')state.research++;else if(perk==='compute')state.compute+=8000;else if(perk==='network')state.cashM=Number((state.cashM+.30).toFixed(3));
@@ -71,7 +71,7 @@
     const base=runReleaseGate;runReleaseGate=function(...args){const out=base(...args),r=ensure();if(r?.archetype==='data'&&state.dataEvals?.lastGate?.pass){const model=state.models?.at(-1),key=`eval-${model?.id||model?.name||'none'}`;if(!r.rewards.some(x=>x.key===key)){state.research=(state.research||0)+1;state.reputation=(state.reputation||0)+1;r.rewards.push({day:state.day,type:'data-gate',key,value:1});log?.('Data & Evals Lab: trusted release evidence earned +1 insight and +1 reputation.');save?.();render()}}return out};
   }
 
-  function progress(){const r=ensure();if(!r)return null;const c=challenge(),p=c.progress();const dl=deadline(),failed=Number.isFinite(dl)&&(state.day||1)>dl&&!p.success;return {...p,failed,deadline:dl,challenge:c}}
+  function progress(){const r=ensure();if(!r)return null;const c=challenge(),p=c.progress(),dl=deadline(),expired=Number.isFinite(dl)&&(state.day||1)>dl&&!r.completed;return {...p,success:!!p.success&&!expired,failed:expired,deadline:dl,challenge:c}}
   function medal(day,dl){if(!Number.isFinite(dl))return'bronze';const x=day/dl;return x<=.65?'gold':x<=.85?'silver':'bronze'}
   function recordCompletion(){
     const r=ensure();if(!r||r.completed)return;const p=progress();if(!p?.success){if(p?.failed&&!r.failed){r.failed=true;save?.()}return}
