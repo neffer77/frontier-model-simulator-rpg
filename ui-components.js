@@ -13,11 +13,11 @@
   class LabDisclosure extends HTMLElement{
     connectedCallback(){
       if(this.dataset.ready)return;this.dataset.ready='1';
-      const label=this.getAttribute('label')||'Details',open=this.hasAttribute('open');
-      this.innerHTML=`<button class="lab-disclosure-toggle" type="button" aria-expanded="${open}"><span>${label}</span><i>${open?'−':'+'}</i></button><div class="lab-disclosure-body" ${open?'':'hidden'}></div>`;
-      const body=this.querySelector('.lab-disclosure-body');
-      for(const n of [...this.childNodes].filter(n=>n!==this.firstChild&&n!==body))body.appendChild(n);
-      this.querySelector('.lab-disclosure-toggle').onclick=()=>{const hidden=body.hasAttribute('hidden');body.toggleAttribute('hidden',!hidden);this.querySelector('button').setAttribute('aria-expanded',String(hidden));this.querySelector('i').textContent=hidden?'−':'+'};
+      const original=[...this.childNodes],label=this.getAttribute('label')||'Details',open=this.hasAttribute('open');
+      this.replaceChildren();
+      const toggle=document.createElement('button');toggle.className='lab-disclosure-toggle';toggle.type='button';toggle.setAttribute('aria-expanded',String(open));toggle.innerHTML=`<span>${label}</span><i>${open?'−':'+'}</i>`;
+      const body=document.createElement('div');body.className='lab-disclosure-body';body.hidden=!open;original.forEach(n=>body.appendChild(n));this.append(toggle,body);
+      toggle.onclick=()=>{body.hidden=!body.hidden;toggle.setAttribute('aria-expanded',String(!body.hidden));toggle.querySelector('i').textContent=body.hidden?'+':'−'};
     }
   }
   class LabInstallPrompt extends HTMLElement{
