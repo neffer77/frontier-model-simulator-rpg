@@ -9,6 +9,15 @@ await page.goto(url,{waitUntil:'networkidle'});
 
 assert(await page.locator('.replay-founder').isVisible(),'fresh founder screen should expose run configuration');
 assert.equal(await page.locator('.replay-choice-grid').count()>=3,true,'difficulty, archetype, and challenge choices should render');
+const defaults=await page.evaluate(()=>({setup:JSON.parse(localStorage.getItem('frontier-run-setup-v1')),canonical:replayCanonicalDefault(),balanced:REPLAY_ARCHETYPES.balanced,archetypes:Object.keys(REPLAY_ARCHETYPES).length}));
+assert.equal(defaults.setup.difficulty,'standard','new players should start on Standard difficulty');
+assert.equal(defaults.setup.archetype,'balanced','new players should get the canonical no-modifier archetype');
+assert.equal(defaults.setup.challenge,'generalist','guided mastery should remain the default challenge');
+assert.deepEqual(defaults.setup,defaults.canonical,'persisted first-run defaults should match the canonical declaration');
+assert.equal(defaults.balanced.cash,1);assert.equal(defaults.balanced.compute,1);assert.equal(defaults.balanced.research,0);assert.equal(defaults.balanced.reputation,0);
+assert.equal(defaults.archetypes,5,'Item 11 should expose canonical plus four specialized lab archetypes');
+assert((await page.getByRole('button',{name:/Balanced Lab/}).getAttribute('class')||'').includes('selected'),'Balanced Lab should be visibly selected for a fresh player');
+
 await page.getByRole('button',{name:/Redline/}).click();
 await page.getByRole('button',{name:/Systems Lab/}).click();
 await page.getByRole('button',{name:/Scale Race/}).click();
@@ -27,8 +36,29 @@ assert.equal(configured.physics.flopsMethod,'6 × parameters × tokens','difficu
 assert(await page.locator('.replay-hud').isVisible(),'active run challenge should remain visible during play');
 assert((await page.evaluate(()=>REALISM_AUDIT.some(x=>x.domain==='Replay difficulty / archetypes'&&x.status==='game'))),'replay values should register as game abstractions in the realism audit');
 
+const funding=await page.evaluate(()=>{
+  const before={cash:state.cashM,compute:state.compute};state.reputation=2;checkFunding();
+  return {cash:Number((state.cashM-before.cash).toFixed(2)),compute:state.compute-before.compute,claims:[...(state.fundingClaimed||[])],feed:(state.feed||[]).slice(0,8)};
+});
+assert(funding.claims.includes('seed'),'seed funding should unlock at the canonical technical milestone');
+assert.equal(funding.cash,2.4,'Redline should receive 80% of the canonical $3M seed round');
+assert.equal(funding.compute,16000,'Redline should receive 80% of the canonical 20,000 H100h seed grant');
+assert(funding.feed.some(x=>/Seed round closed \(Redline\): \+\$2\.4M/.test(x)),'funding log should report the scaled payout actually received');
+assert(!funding.feed.some(x=>/Seed round closed: \+\$3M/.test(x)),'funding log must not claim the unscaled canonical payout');
+
+const wrong=await page.evaluate(()=>{
+  state.activeRun={name:'PENALTY-TEST',tier:'350m',progress:35,phase:'pretraining',physics:trainingPhysics(MODEL_TIERS[0]),startedDay:state.day,loss:2.5,incident:'nan'};state.selectedIncident='nan';
+  const before={day:state.day,cash:state.cashM};solveIncident('lr');const result={days:state.day-before.day,cashLoss:Number((before.cash-state.cashM).toFixed(3)),wrong:state.balancePacing?.stats?.wrongIncidentChoices||0,feed:(state.feed||[]).slice(0,6)};
+  state.activeRun=null;state.selectedIncident=null;if(state.balancePacing)state.balancePacing.lastEconomicDay=state.day;save();render();return result;
+});
+assert.equal(wrong.days,3,'Redline wrong diagnosis should add two difficulty days on top of the base one-day consequence');
+assert(wrong.cashLoss>=.18,'Redline wrong diagnosis should cost at least the explicit $0.18M difficulty penalty');
+assert.equal(wrong.wrong,1,'wrong diagnosis should still feed canonical balance telemetry');
+assert(wrong.feed.some(x=>/Difficulty consequence: wrong diagnosis cost 2d and \$0\.18M/.test(x)),'difficulty consequence should be visible in company history');
+
 await page.locator('.replay-hud').click();await page.waitForTimeout(50);
 assert(await page.getByRole('heading',{name:'Run Archive'}).isVisible(),'run archive should open');
+assert(/80 core combinations/.test(await page.locator('.replay-card').last().textContent()),'archive should report the five-archetype replay matrix');
 await page.getByRole('button',{name:/Return to company/i}).click();await page.waitForTimeout(50);
 
 await page.evaluate(()=>{
