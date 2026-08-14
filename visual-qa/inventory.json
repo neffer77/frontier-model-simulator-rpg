@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "item": "13.1",
+  "purpose": "Enumerate every reachable visual surface before Item 13 styling changes begin.",
+  "viewports": [
+    {"id":"mobile","width":390,"height":844,"isMobile":true,"hasTouch":true},
+    {"id":"desktop","width":1440,"height":1000,"isMobile":false,"hasTouch":false}
+  ],
+  "stateClasses": {
+    "locked": "System or control visible before campaign unlock.",
+    "unlocked": "System available after guided campaign graduation.",
+    "empty": "Valid screen with zero domain records/models/projects/incidents where supported.",
+    "populated": "Screen with representative domain records so cards, rows and actions render.",
+    "error": "Incident, warning, failed/blocked or destructive state where supported."
+  },
+  "knownDefects": [
+    {
+      "id":"VIS-001",
+      "priority":"P1 visual",
+      "screen":"company-home",
+      "state":"early/empty",
+      "evidence":"User-provided desktop screenshot, 2026-08-14",
+      "description":"Large bright white horizontal surfaces appear between dark company dashboard launchers, including around Executive Roadmap, Operations and Model Families.",
+      "expected":"All dashboard launchers, spacers, disclosures and empty states remain on the dark simulator surface system."
+    },
+    {
+      "id":"VIS-002",
+      "priority":"P1 visual",
+      "screen":"critical-path",
+      "state":"empty",
+      "evidence":"User-provided desktop screenshot, 2026-08-14",
+      "description":"A small bright white orphan control/surface appears at the upper right of the Critical Path page while the rest of the page is dark.",
+      "expected":"Header controls and empty-state controls use themed dark/outlined button styling."
+    }
+  ],
+  "specialCaptures": [
+    {"id":"founder","label":"Founder setup","category":"foundation","requiredStates":["empty"]},
+    {"id":"story-intro","label":"Intro story overlay","category":"cross-cutting","requiredStates":["populated"]},
+    {"id":"company-early","label":"Company / Home — early campaign","category":"core","requiredStates":["locked","empty"]},
+    {"id":"more-locked","label":"More sheet — early campaign locks","category":"cross-cutting","requiredStates":["locked"]},
+    {"id":"training-empty","label":"Training Operations — no active run","category":"core","requiredStates":["empty","unlocked"]},
+    {"id":"company-populated","label":"Company / Home — representative model/run data","category":"core","requiredStates":["populated","unlocked"]},
+    {"id":"training-incident","label":"Training incident investigation","category":"cross-cutting","requiredStates":["error","populated"]},
+    {"id":"technical-explainer","label":"Technical explainer modal","category":"cross-cutting","requiredStates":["populated"]},
+    {"id":"milestone","label":"Milestone celebration overlay","category":"cross-cutting","requiredStates":["populated"]},
+    {"id":"company-priority","label":"Company priority decision","category":"cross-cutting","requiredStates":["populated","unlocked"]},
+    {"id":"more-unlocked","label":"More sheet — graduated campaign","category":"cross-cutting","requiredStates":["unlocked"]},
+    {"id":"run-archive","label":"Run Archive / New Game+","category":"cross-cutting","requiredStates":["empty","populated"]},
+    {"id":"realism-audit","label":"Technical Realism Audit","category":"cross-cutting","requiredStates":["populated"]},
+    {"id":"pwa-install","label":"PWA install prompt/manual iOS affordance","category":"cross-cutting","requiredStates":["empty"],"manual":true}
+  ],
+  "screens": [
+    {"id":"company-home","label":"Company / Home","category":"core","entrypoints":["gameplayGoHome"],"requiredStates":["locked","unlocked","empty","populated"]},
+    {"id":"training","label":"Training Operations","category":"core","entrypoints":["gameplayGoTrain"],"requiredStates":["empty","populated","error"]},
+    {"id":"hiring","label":"Hiring + Org","category":"core","entrypoints":["hiringOpen"],"requiredStates":["locked","unlocked","empty","populated"]},
+    {"id":"model-lab","label":"Model Lab","category":"core","entrypoints":["modelLabOpen"],"requiredStates":["empty","populated"],"special":"latest-model-if-needed"},
+    {"id":"workstation","label":"Engineer Workstation","category":"learning","entrypoints":["workstationOpen"],"requiredStates":["empty","populated"]},
+    {"id":"code-lab","label":"Code Lab","category":"learning","entrypoints":["codeLabOpen"],"requiredStates":["empty","populated","error"]},
+    {"id":"knowledge","label":"Knowledge / Mastery","category":"learning","entrypoints":["knowledgeOpen"],"requiredStates":["empty","populated"]},
+    {"id":"career","label":"Career","category":"learning","entrypoints":["careerOpen"],"requiredStates":["empty","populated"]},
+    {"id":"postmortems","label":"Postmortems","category":"learning","entrypoints":["postmortemsOpen","postmortemOpen"],"requiredStates":["empty","populated"]},
+    {"id":"engineering-artifacts","label":"Engineering Artifacts","category":"learning","entrypoints":["engineeringArtifactsOpen"],"requiredStates":["empty","populated"]},
+    {"id":"incident-artifacts","label":"Incident Artifacts","category":"learning","entrypoints":["incidentArtifactsOpen"],"requiredStates":["empty","populated","error"]},
+    {"id":"data-evals","label":"Data + Evals","category":"engineering","entrypoints":["dataEvalsOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"tech-debt","label":"Technical Debt","category":"engineering","entrypoints":["techDebtOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"architecture","label":"Architecture Portfolio","category":"engineering","entrypoints":["architectureOpen"],"requiredStates":["empty","populated","error"]},
+    {"id":"model-families","label":"Model Families / Forks","category":"engineering","entrypoints":["familyForksOpen","familyOpen"],"requiredStates":["empty","populated"]},
+    {"id":"maintenance","label":"Maintenance Economics","category":"engineering","entrypoints":["maintenanceEconomicsOpen","maintenanceOpen"],"requiredStates":["empty","populated","error"]},
+    {"id":"operations","label":"Operations","category":"engineering","entrypoints":["opsOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"reliability","label":"Reliability / SLOs","category":"engineering","entrypoints":["sloOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"release-governance","label":"Release Governance","category":"engineering","entrypoints":["releaseGovOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"roadmap","label":"Executive Roadmap / Enterprise Pressure","category":"company","entrypoints":["roadmapPressureOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"quarterly-board","label":"Quarterly Board","category":"company","entrypoints":["boardPlanningOpen"],"requiredStates":["empty","populated","error"]},
+    {"id":"capital","label":"Financing / Capital Strategy","category":"company","entrypoints":["financeStrategyOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"macro-restructuring","label":"Macro / Restructuring","category":"company","entrypoints":["macroOpen","restructuringOpen"],"requiredStates":["empty","populated","error"]},
+    {"id":"governance","label":"Governance / Board","category":"company","entrypoints":["governanceOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"executive-politics","label":"Executive Politics","category":"company","entrypoints":["execPoliticsOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"talent-memory","label":"People + Talent Memory","category":"company","entrypoints":["talentMemoryOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"org-management","label":"Organization Management","category":"company","entrypoints":["orgOpen","orgManagementOpen"],"requiredStates":["empty","populated","error"]},
+    {"id":"workforce","label":"Workforce Planning","category":"company","entrypoints":["workforceOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"portfolio","label":"Project Portfolio","category":"company","entrypoints":["portfolioOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"critical-path","label":"Critical Path","category":"company","entrypoints":["criticalPathOpen"],"requiredStates":["empty","populated","error"]},
+    {"id":"programs","label":"Program Management","category":"company","entrypoints":["programOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"program-learning","label":"Program Learning","category":"company","entrypoints":["programLearningOpen"],"requiredStates":["empty","populated"]},
+    {"id":"strategy","label":"Portfolio Strategy","category":"company","entrypoints":["strategyOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"investment","label":"Investment Committee","category":"company","entrypoints":["committeeOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"competition","label":"Competitive Intelligence","category":"external","entrypoints":["competitiveOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"ecosystem","label":"Ecosystem Strategy","category":"external","entrypoints":["ecosystemOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"policy","label":"Policy + Regulation","category":"external","entrypoints":["policyOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]},
+    {"id":"communications","label":"Public Communications","category":"external","entrypoints":["communicationsOpen"],"requiredStates":["locked","unlocked","empty","populated","error"]}
+  ],
+  "discovery": {
+    "runtimePattern":"^[A-Za-z][A-Za-z0-9_]*Open$",
+    "zeroArgumentOnly":true,
+    "rule":"Any zero-argument global *Open function not mapped above is added to the generated report and screenshot set so the inventory cannot silently go stale."
+  }
+}
