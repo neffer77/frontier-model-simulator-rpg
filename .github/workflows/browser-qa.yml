@@ -15,14 +15,24 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
       - run: npm install
       - run: npx playwright install --with-deps chromium
       - name: Start local game server
-        run: python3 -m http.server 4173 >/tmp/frontier-http.log 2>&1 &
+        run: |
+          python3 -m http.server 4173 >/tmp/frontier-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 0.25
+          done
+          cat /tmp/frontier-http.log
+          exit 1
       - name: Run mobile and desktop smoke tests
         run: node tests/browser-smoke.mjs
       - name: Run deterministic balance and pacing tests
         run: node tests/balance-pacing.mjs
       - name: Run technical realism tests
         run: node tests/technical-realism.mjs
+      - name: Run replayability and difficulty tests
+        run: node tests/replayability.mjs
