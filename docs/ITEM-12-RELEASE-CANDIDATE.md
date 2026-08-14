@@ -37,20 +37,26 @@ This closes the previous gap where the Pages `rsync` copied most of the reposito
 - scripts/styles are not duplicated,
 - JavaScript/CSS byte budgets are respected,
 - individual runtime files stay below the single-file budget,
-- every JS/MJS file parses with Node,
-- every index-loaded runtime asset is included in the service-worker cache,
+- browser/test JS and MJS parse with Node,
+- the Scriptable top-level-await launcher parses using module grammar,
+- service-worker cache parity is two-way: every runtime asset is cached and stale cache-only files are rejected,
 - PWA `start_url` and `scope` remain `./`,
 - standalone PWA display and manifest icons remain valid,
 - Scriptable CSS/JS lists exactly match browser load order,
 - the Scriptable launcher points at `main`,
 - Playwright is exactly pinned,
-- release test commands remain available.
+- release build/test commands remain available.
 
 ## Browser release gate
 
 `tests/release-candidate.mjs` runs in Chromium against `_site`, not the source tree.
 
 It verifies:
+
+### Production identity
+- `_site/build-info.json` exists,
+- it contains release/build metadata,
+- the browser is exercising the assembled production artifact rather than accidentally falling back to source-tree files.
 
 ### Startup
 - app root renders,
@@ -86,7 +92,7 @@ without changing the company name, simulated day, or technical progress.
 Legacy replay migration must remain Standard + Legacy archetype + untimed Legacy challenge, with no fresh-run resource modifier.
 
 ### Offline PWA
-The test waits for an active service worker, ensures the page is controlled, disables browser networking, and cold-reloads the existing company.
+The test waits for an active service worker, verifies the versioned cache exists, ensures the page is controlled, disables browser networking, and cold-reloads the existing company.
 
 The release fails if the offline app cannot restore the same company from cached runtime assets and local save state.
 
@@ -100,6 +106,19 @@ The RC gate also runs the existing suites:
 - `tests/replayability.mjs` — difficulty/archetype/challenge/New Game+ behavior.
 
 `npm run test:qa` now includes the Item 12 RC browser test after those suites.
+
+## RC blocker fixed during Item 12
+
+The Item 11 pull-request browser run was already red before Item 12 began: the mobile smoke test reported that navigation preserved stale scroll position.
+
+The original assertion also conflated two different navigation intents:
+
+- **Train** should navigate to the training section,
+- **Home** should return to page top.
+
+`responsive-gameplay-shell.js` now makes same-view navigation deterministic after rendering. Anchored destinations scroll to their requested section, while unanchored Home navigation explicitly returns to top even when `state.view` was already `company` and the global view-change watcher therefore had nothing to observe.
+
+The smoke regression now starts from an unambiguous bottom-of-page stale position, verifies Train brings `.run` into the viewport, then verifies Home returns to the top.
 
 ## Performance budgets
 
@@ -136,9 +155,11 @@ The browser timings run on GitHub-hosted CI against a local static server, so th
 ### `main` / GitHub Pages
 The Pages workflow repeats the release gate after merge. Deployment cannot proceed directly from an untested `main` commit:
 
-`validate → release-candidate → build → deploy`
+`validate → release-candidate → build → deploy → verify-live`
 
 The browser stage again tests `_site`. The final build recreates the artifact from the exact deployment commit and verifies repo-only paths are absent before upload.
+
+After deployment, `verify-live` polls the published `build-info.json` and fails unless the live Pages site reports the exact 12-character SHA of the commit that triggered the workflow. This detects stale or mismatched production content after an otherwise successful Pages deployment.
 
 ## Local RC commands
 
@@ -185,6 +206,7 @@ A release candidate is shippable when:
 - save migration passes,
 - offline PWA reload passes,
 - the minimal `_site` artifact contains no repo-only tooling,
+- the live site serves the exact deployed commit,
 - no P0/P1 issue remains from the manual mobile/desktop checklist.
 
 Performance thresholds should be tightened over time after collecting stable CI measurements rather than loosened simply to make a failing build green.
