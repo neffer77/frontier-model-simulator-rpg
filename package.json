@@ -5,7 +5,8 @@
     "serve":"python3 -m http.server 4173",
     "test:browser":"playwright install chromium && node tests/browser-smoke.mjs",
     "test:balance":"node tests/balance-pacing.mjs",
-    "test:qa":"node tests/browser-smoke.mjs && node tests/balance-pacing.mjs"
+    "test:realism":"node tests/technical-realism.mjs",
+    "test:qa":"node tests/browser-smoke.mjs && node tests/balance-pacing.mjs && node tests/technical-realism.mjs"
   },
   "devDependencies":{"playwright":"^1.54.2"}
 }
