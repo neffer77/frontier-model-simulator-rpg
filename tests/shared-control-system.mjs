@@ -24,6 +24,9 @@ for(const d of devices){
   const objective=page.locator('.gameplay-objective button').first();if(await objective.count())assert(await hasClasses(objective,'fl-btn','fl-btn-primary'),`${d.name}: objective CTA should be primary`);
 
   const role=page.locator('.rolebar button').first();assert(await role.count(),`${d.name}: role navigation missing`);assert(await hasClasses(role,'fl-btn','fl-btn-nav'),`${d.name}: role switch should use nav control`);
+  const roleRadius=await role.evaluate(el=>parseFloat(getComputedStyle(el).borderRadius));assert(roleRadius>20,`${d.name}: role navigation should preserve pill geometry, got ${roleRadius}px`);
+
+  const bottom=page.locator('.gameplay-bottom-nav button').first();assert(await bottom.count(),`${d.name}: bottom navigation missing`);assert(await hasClasses(bottom,'fl-btn','fl-btn-nav'),`${d.name}: bottom navigation should use nav variant`);assert.equal(await bottom.evaluate(el=>getComputedStyle(el).display),'grid',`${d.name}: bottom navigation icon/label grid was flattened`);
 
   const expand=page.getByRole('button',{name:/expand campus/i}).first();assert(await expand.count(),`${d.name}: expand-campus button missing`);assert(await hasClasses(expand,'fl-btn','fl-btn-ghost'),`${d.name}: panel header action should be ghost`);
 
@@ -51,6 +54,8 @@ for(const d of devices){
       <nav><button id="future-nav">Tab</button></nav>
       <button id="future-icon" aria-label="Close">×</button>
       <div class="future-actions"><button id="future-action">Save draft</button></div>
+      <lab-disclosure label="More detail"><p>Legacy disclosure body</p></lab-disclosure>
+      <div class="gameplay-system-grid"><button id="future-system-card"><span>SYS</span>System card</button></div>
       <input id="future-input" type="text" placeholder="Name">
       <select id="future-select"><option>One</option></select>
       <textarea id="future-textarea"></textarea>`;
@@ -63,6 +68,9 @@ for(const d of devices){
   for(const [selector,cls] of expected){const l=page.locator(selector);assert(await hasClasses(l,'fl-btn',cls),`${d.name}: ${selector} missing ${cls}`)}
   for(const selector of ['#future-input','#future-select','#future-textarea'])assert(await page.locator(selector).evaluate(el=>el.classList.contains('fl-control-field')),`${d.name}: ${selector} missing shared field styling`);
   assert(await page.locator('.future-actions').evaluate(el=>el.classList.contains('fl-control-group')),`${d.name}: action group not normalized`);
+
+  const legacyDisclosure=page.locator('lab-disclosure > .lab-disclosure-toggle').first();assert(await legacyDisclosure.count(),`${d.name}: legacy lab-disclosure toggle missing`);assert(await hasClasses(legacyDisclosure,'fl-btn','fl-btn-ghost'),`${d.name}: legacy lab-disclosure should use ghost control hierarchy`);assert.equal(await legacyDisclosure.evaluate(el=>getComputedStyle(el).width),await legacyDisclosure.evaluate(el=>getComputedStyle(el.parentElement).width),`${d.name}: lab-disclosure toggle should span its disclosure surface`);
+  assert(!(await page.locator('#future-system-card').evaluate(el=>el.classList.contains('fl-btn'))),`${d.name}: More-sheet/system navigation cards must remain specialized`);
 
   if(d.name==='mobile'){
     const heights=await page.locator('#future-secondary,#future-danger,#future-header,#future-nav,#future-icon').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().height));
