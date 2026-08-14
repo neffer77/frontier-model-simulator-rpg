@@ -21,6 +21,10 @@ for(const d of devices){
   }
   assert(await page.locator('.gameplay-bottom-nav').isVisible(),`${d.name}: gameplay nav missing`);
   assert(await page.locator('.campaign-progress').isVisible(),`${d.name}: campaign progress missing`);
+  assert(await page.locator('.balance-tempo').isVisible(),`${d.name}: balance tempo strip missing`);
+  const report=await page.evaluate(()=>window.balanceReport?.());
+  assert(report?.resources?.monthlyBurnM>0,`${d.name}: balance telemetry unavailable`);
+  assert(report?.resources?.runwayMonths>=0,`${d.name}: invalid runway telemetry`);
   const team=page.getByRole('button',{name:/team/i}).last();
   assert((await team.getAttribute('class')||'').includes('locked'),`${d.name}: advanced Team navigation should start locked`);
   await page.evaluate(()=>scrollTo(0,Math.max(600,document.body.scrollHeight/2)));

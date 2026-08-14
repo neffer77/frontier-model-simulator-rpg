@@ -1,0 +1,6 @@
+/* Item 9 — compact player-facing resource tempo. */
+.balance-tempo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0 14px;padding:10px;border:1px solid #223d55;border-radius:16px;background:#07111fd9;box-shadow:0 10px 30px #0004}
+.balance-tempo>div{min-width:0;padding:10px 12px;border-radius:12px;background:#ffffff06;border:1px solid #ffffff0b}
+.balance-tempo span{display:block;font-size:10px;letter-spacing:.14em;color:#7fb2d0;font-weight:900}.balance-tempo b{display:block;margin-top:4px;color:#edfaff;font-size:15px}.balance-tempo small{display:block;margin-top:3px;color:#9fb4c4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.balance-tempo.runway-watch{border-color:#705f32}.balance-tempo.runway-low,.balance-tempo.runway-critical{border-color:#7c3542}.balance-tempo.runway-critical{box-shadow:0 0 0 1px #ff718522,0 12px 34px #0005}
+@media(max-width:720px){.balance-tempo{grid-template-columns:1fr 1fr}.balance-tempo>div:last-child{grid-column:1/-1}.balance-tempo b{font-size:14px}.balance-tempo small{white-space:normal}}
