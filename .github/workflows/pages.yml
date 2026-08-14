@@ -86,6 +86,8 @@ jobs:
 
   deploy:
     needs: build
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -94,3 +96,27 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  verify-live:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify live site serves this release commit
+        env:
+          PAGE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          EXPECTED="${GITHUB_SHA:0:12}"
+          BASE="${PAGE_URL%/}"
+          for i in {1..30}; do
+            INFO=$(curl -fsS "$BASE/build-info.json?release=$GITHUB_SHA" 2>/dev/null || true)
+            if printf '%s' "$INFO" | grep -Fq "\"version\": \"$EXPECTED\""; then
+              curl -fsS "$BASE/?release=$GITHUB_SHA" >/dev/null
+              echo "Live Pages release verified: $EXPECTED"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::GitHub Pages did not serve build $EXPECTED within the verification window"
+          curl -fsS "$BASE/build-info.json?release=$GITHUB_SHA" || true
+          exit 1
