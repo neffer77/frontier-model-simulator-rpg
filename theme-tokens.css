@@ -1,0 +1,93 @@
+/* Item 13.2 — canonical Frontier Lab theme tokens.
+   Page/module styles should consume these semantic variables rather than inventing new raw colors. */
+:root{
+  color-scheme:dark;
+
+  /* Canvas + chrome */
+  --fl-canvas:#050812;
+  --fl-canvas-deep:#02050b;
+  --fl-chrome:#07101d;
+  --fl-chrome-translucent:#07101df2;
+  --fl-chrome-soft:#07101ddd;
+
+  /* Surface hierarchy */
+  --fl-surface-1:#08101c;
+  --fl-surface-2:#0a1322;
+  --fl-surface-3:#0b1829;
+  --fl-surface-4:#101c2d;
+  --fl-surface-5:#11324b;
+  --fl-surface-hover:#14263d;
+  --fl-surface-inset:#09111e;
+  --fl-surface-muted:#111e32;
+  --fl-overlay:#02050bd4;
+  --fl-overlay-strong:#02050bea;
+
+  /* Borders */
+  --fl-border-subtle:#1d2c45;
+  --fl-border-default:#263a58;
+  --fl-border-strong:#38516e;
+  --fl-border-accent:#4d82a5;
+  --fl-border-focus:#72d7ff;
+
+  /* Text */
+  --fl-text-primary:#edf3ff;
+  --fl-text-secondary:#b9c7dd;
+  --fl-text-muted:#8fa0bc;
+  --fl-text-subtle:#687b9c;
+  --fl-text-disabled:#5f7191;
+  --fl-text-accent:#79dfff;
+  --fl-text-on-accent:#06101b;
+
+  /* Accent palette */
+  --fl-accent-cyan:#79dfff;
+  --fl-accent-cyan-strong:#58e5ff;
+  --fl-accent-blue:#7391ff;
+  --fl-accent-teal:#83f2d2;
+  --fl-accent-gold:#ffd66b;
+
+  /* Semantic states */
+  --fl-success:#6df6c0;
+  --fl-success-bg:#10392e;
+  --fl-success-border:#286b57;
+  --fl-warning:#ffd26f;
+  --fl-warning-bg:#241c10;
+  --fl-warning-surface:#2b2212;
+  --fl-warning-border:#7c6236;
+  --fl-danger:#ff929d;
+  --fl-danger-strong:#ff7185;
+  --fl-danger-bg:#261219;
+  --fl-danger-surface:#29141c;
+  --fl-danger-border:#83404b;
+  --fl-disabled-bg:#0b1320;
+  --fl-disabled-border:#26334a;
+  --fl-disabled-text:#65758f;
+
+  /* Reusable gradients */
+  --fl-gradient-panel:linear-gradient(145deg,#0b1220e8,#080d18e8);
+  --fl-gradient-elevated:linear-gradient(150deg,#111c2f,#080e19);
+  --fl-gradient-sheet:linear-gradient(160deg,#101a2b,#070d17);
+  --fl-gradient-action:linear-gradient(135deg,var(--fl-accent-cyan-strong),var(--fl-accent-blue));
+  --fl-gradient-progress:linear-gradient(90deg,#5eb7ff,var(--fl-accent-teal));
+
+  /* Shadows */
+  --fl-shadow-soft:0 12px 30px #0005;
+  --fl-shadow-panel:0 18px 55px #0007;
+  --fl-shadow-elevated:0 24px 80px #000b;
+  --fl-shadow-modal:0 30px 100px #000;
+  --fl-shadow-accent:0 0 22px #3aa8e733;
+
+  /* Shape */
+  --fl-radius-sm:9px;
+  --fl-radius-md:11px;
+  --fl-radius-lg:14px;
+  --fl-radius-xl:18px;
+  --fl-radius-2xl:24px;
+
+  /* Focus */
+  --fl-focus-ring:0 0 0 3px #79dfff33;
+
+  /* Compatibility aliases used by Item 8. */
+  --feel-cyan:var(--fl-accent-cyan);
+  --feel-gold:var(--fl-accent-gold);
+  --feel-red:var(--fl-danger-strong);
+}
