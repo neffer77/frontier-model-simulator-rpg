@@ -9,7 +9,11 @@
     companyPressure:{title:'The Room Changes',kicker:'COMPANY MILESTONE',objective:'Review runway, commitments, and leadership confidence before another expensive bet.',cta:'Open systems',action:'gameplayToggleMenu',frames:[['Narrator','The whiteboard still has model diagrams. The new deck has burn, runway, commitments, and downside cases.'],['Elena Kovacs','We can still do ambitious research. Every large research bet is now also a company bet.'],['You','Then we make the tradeoff explicitly.']]},
     criticalDecision:{title:'The Model Is Asking For A Decision',kicker:'DEPLOYMENT MILESTONE',objective:'Review evaluations, uncertainty, and mitigations before deployment.',cta:'Open systems',action:'gameplayToggleMenu',frames:[['Sam Brooks','The evals are evidence, not permission. A green dashboard does not erase uncertainty.'],['Zoe Patel','Coverage matters. Unknowns matter. Record what we actually knew at the decision point.'],['You','No vibes. Show me the evidence and the uncertainty.']]}
   };
-  function ensure(){state.story ||= {version:2,seen:[],active:null,index:0,objective:null};state.story.seen ||= []}
+  function ensure(){
+    state.story ||= {version:2,seen:[],active:null,index:0,objective:null};state.story.seen ||= [];
+    if(typeof state.story.objective==='string')state.story.objective={kicker:'YOUR NEXT MOVE',title:'Continue the story',body:state.story.objective,cta:'Open home',action:'gameplayGoHome',tone:'normal'};
+    state.story.version=2;
+  }
   function data(){return state.story.active==='intro'?INTRO:MILESTONES[state.story.active]}
   function ready(id){if(id==='firstRun')return !!state.activeRun||(state.runHistory||[]).length>0;if(id==='firstIncident')return !!state.selectedIncident||(state.runHistory||[]).some(x=>x.incident)||!!state.activeRun?.incident;if(id==='firstModel')return (state.models||[]).length>0;if(id==='teamGrowth')return (state.npcEmployees||[]).length>=10||(state.employees||0)>=10;if(id==='companyPressure')return !!state.financeStrategy||!!state.governance||!!state.quarterlyBoard;if(id==='criticalDecision')return (state.aiSafety?.deployments||[]).length>0||(state.aiSafety?.residualRisk||0)>.6;return false}
   function start(id){ensure();const s=id==='intro'?INTRO:MILESTONES[id];if(!s)return;state.story.active=id;state.story.index=0;state.story.objective={kicker:s.kicker,title:s.title,body:s.objective,cta:s.cta,action:s.action,tone:id==='firstIncident'?'danger':'active'};save()}
@@ -17,12 +21,7 @@
   function close(){ensure();const id=state.story.active;if(id&&!state.story.seen.includes(id))state.story.seen.push(id);state.story.active=null;state.story.index=0;save();render()}
   function next(){const s=data();if(!s)return close();if(state.story.index<s.frames.length-1){state.story.index++;save();render()}else close()}
   function renderScene(){document.querySelector('.story-overlay')?.remove();ensure();const s=data();if(!s)return;const f=s.frames[state.story.index],pct=Math.round((state.story.index+1)/s.frames.length*100),overlay=document.createElement('div');overlay.className='story-overlay';overlay.innerHTML=`<section class="story-scene-card"><div class="story-scene-art"><div class="story-avatar">${f[0]==='You'?'YOU':f[0].split(' ').map(x=>x[0]).join('').slice(0,2)}</div><div><span>${s.kicker}</span><h2>${s.title}</h2></div></div><div class="story-dialogue"><small>${f[0]}</small><p>${f[1]}</p><div class="story-meter"><i style="width:${pct}%"></i></div><div class="story-actions"><button onclick="storySceneClose()">Skip</button><button class="primary" onclick="storySceneNext()">${state.story.index===s.frames.length-1?'Continue playing →':'Continue →'}</button></div></div><aside><span>NEXT OBJECTIVE</span><b>${s.objective}</b></aside></section>`;document.body.appendChild(overlay)}
-  g.storySceneClose=close;g.storySceneNext=next;
-  g.storyCurrentObjective=()=>{ensure();return state.story.objective};
-  g.storyClearObjective=()=>{ensure();state.story.objective=null;save();render()};
-  const oldFound=g.foundLab;
-  if(typeof oldFound==='function')g.foundLab=function(){oldFound();ensure();if(state.started&&!state.story.seen.includes('intro')){start('intro');render()}};
-  const base=g.render;
-  if(typeof base==='function')g.render=function(){const out=base();ensure();maybe();requestAnimationFrame(renderScene);return out};
-  requestAnimationFrame(()=>{ensure();maybe();renderScene()});
+  g.storySceneClose=close;g.storySceneNext=next;g.storyCurrentObjective=()=>{ensure();return state.story.objective};g.storyClearObjective=()=>{ensure();state.story.objective=null;save();render()};
+  const oldFound=g.foundLab;if(typeof oldFound==='function')g.foundLab=function(){oldFound();ensure();if(state.started&&!state.story.seen.includes('intro')){start('intro');render()}};
+  const base=g.render;if(typeof base==='function')g.render=function(){const out=base();ensure();maybe();requestAnimationFrame(renderScene);return out};requestAnimationFrame(()=>{ensure();maybe();renderScene()});
 })();
