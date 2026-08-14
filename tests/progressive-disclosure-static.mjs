@@ -5,6 +5,7 @@ const read=file=>fs.readFileSync(file,'utf8');
 const html=read('index.html');
 const css=read('progressive-disclosure.css');
 const js=read('progressive-disclosure.js');
+const appExperience=read('app-experience.css');
 const scriptable=read('Frontier Model Simulator.js');
 const sw=read('sw.js');
 
@@ -16,6 +17,7 @@ for(const token of ['--fl-border-default','--fl-surface-4','--fl-surface-2','--f
 }
 assert(css.includes('.pd-collapsed>:not(.pd-toggle){display:none!important}'),'collapsed state must hide all section content except the disclosure row');
 assert(css.includes('padding:0!important'),'collapsed sections must not retain page-local padding that creates blank bars');
+assert(!appExperience.includes('.pd-'),'app-experience.css must not retain a second progressive-disclosure style source');
 
 for(const contract of ['frontier-disclosure:v2:','MutationObserver','frontierDisclosureSync','frontierDisclosureReset','aria-expanded','dataset.pdState','classHint(section)','slug(title)','media.addEventListener']){
   assert(js.includes(contract),`runtime disclosure contract missing ${contract}`);
