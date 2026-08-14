@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "runtime": {
+    "maxJavaScriptBytes": 1500000,
+    "maxCssBytes": 600000,
+    "maxRuntimeAssets": 130,
+    "maxSingleRuntimeAssetBytes": 300000
+  },
+  "browser": {
+    "maxInitialLoadMs": 5000,
+    "maxInitialTransferBytes": 2500000,
+    "maxDomNodes": 3500,
+    "renderIterations": 40,
+    "maxRenderLoopMs": 1800,
+    "offlineReloadMs": 5000
+  }
+}
