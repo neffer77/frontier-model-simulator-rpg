@@ -26,3 +26,5 @@ jobs:
         run: node tests/balance-pacing.mjs
       - name: Run technical realism tests
         run: node tests/technical-realism.mjs
+      - name: Run replayability and difficulty tests
+        run: node tests/replayability.mjs
