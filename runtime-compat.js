@@ -10,6 +10,19 @@
   g.ensureExecutivePoliticsState=()=>call('ensureExecutivePolitics');
   g.ensureTalentState=()=>call('ensureTalentMemoryState');
 
+  // This is a single-page simulator, so browser scroll position otherwise survives view
+  // changes. Reset to the top whenever state.view changes, after the new view has rendered.
+  let lastView;
+  g.addEventListener('load',()=>{
+    lastView=typeof state!=='undefined'?state.view:undefined;
+    const watch=()=>{
+      const next=typeof state!=='undefined'?state.view:undefined;
+      if(next!==lastView){lastView=next;requestAnimationFrame(()=>g.scrollTo({top:0,left:0,behavior:'instant'}));}
+      requestAnimationFrame(watch);
+    };
+    requestAnimationFrame(watch);
+  });
+
   if(typeof state==='undefined'||!state)return;
 
   // State-name migrations where the old and new concepts are the same system.
