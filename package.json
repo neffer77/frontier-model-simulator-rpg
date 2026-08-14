@@ -11,6 +11,7 @@
     "test:replay":"node tests/replayability.mjs",
     "test:static":"node tests/release-static.mjs",
     "test:release":"node tests/release-candidate.mjs",
+    "visual:inventory":"node tests/visual-inventory.mjs",
     "test:qa":"node tests/browser-smoke.mjs && node tests/balance-pacing.mjs && node tests/technical-realism.mjs && node tests/replayability.mjs && node tests/release-candidate.mjs",
     "test:rc":"node tests/release-static.mjs && npm run test:qa"
   },
