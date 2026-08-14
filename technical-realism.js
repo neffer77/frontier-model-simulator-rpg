@@ -40,7 +40,7 @@
     const computeParamsB=Number(t?.activeB||t?.paramsB||0),tokens=Number(t?.tokensB||0)*1e9,params=computeParamsB*1e9;
     const flops=6*params*tokens;
     const baseGpuHours=Math.ceil(flops/(EFFECTIVE_H100_FLOPS*3600));
-    const techBoost=(hasTech('flash')?.08:0)+(hasTech('fp8')?.14:0)+(hasTech('3d')?.05:0);
+    const techBoost=(hasTech('flash')?0.08:0)+(hasTech('fp8')?0.14:0)+(hasTech('3d')?0.05:0);
     const gpuHours=Math.ceil(baseGpuHours/(1+techBoost));
     const target=(t?.paramsB||0)<2?262144:(t?.paramsB||0)<10?1048576:4194304;
     const batch=Math.max(262144,Math.round(target/8192)*8192),steps=Math.ceil(tokens/batch);
@@ -65,7 +65,6 @@
   function note(host,text){if(!host||host.querySelector(':scope > .realism-inline-note'))return;const n=document.createElement('div');n.className='realism-inline-note';n.textContent=text;host.appendChild(n)}
   function annotate(){
     if(!state?.started||state.view==='realism')return;
-    // Research-tree dependencies are campaign/lab maturity gates, not universal library dependencies.
     document.querySelectorAll('.tech-node small').forEach(s=>{if(s.textContent.trim().startsWith('Requires '))s.textContent=s.textContent.replace(/^Requires /,'Lab prerequisite: ')});
     note(document.querySelector('.tech.panel'),'Research-tree edges are lab progression prerequisites, not claims that one technology universally requires another.');
     const moe=[...document.querySelectorAll('.tier')].find(x=>x.textContent.includes('8×22B MoE'));if(moe){const b=moe.querySelector('b');if(b)b.textContent='176B total · 44B active/token';note(moe,'Sparse-MoE compute uses an active-parameter proxy; routing/communication overhead remains simplified.')}
