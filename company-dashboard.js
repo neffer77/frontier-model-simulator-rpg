@@ -1,17 +1,17 @@
 // Item 13.7 — compose Company/Home feature launchers into one stable dashboard hub.
 (function(){
   const GROUPS=[
-    {id:'model',title:'Model & Engineering',hint:'Data, model families, architecture, maintenance and technical debt.',tokens:['dataeval','data + eval','family','model famil','architecture','techdebt','tech debt','technical debt','maintenance']},
-    {id:'operations',title:'Operations & Releases',hint:'Operational ownership, reliability, SLOs and release discipline.',tokens:['opsopen','operations','sloopen','reliability','releasegov','release governance','release']},
-    {id:'execution',title:'Execution & People',hint:'Roadmaps, projects, programs, critical path, org design and workforce.',tokens:['roadmappressure','roadmap','workforce','portfolioopen','project portfolio','criticalpath','critical path','programlearning','program learning','programopen','program management','orgmanagement','organization management','hiring']},
+    {id:'model',title:'Model & Engineering',hint:'Data, model families, architecture, maintenance and technical debt.',tokens:['data-evals-launch','dataeval','data + eval','fork-launch','family','model famil','arch-launch','architecture','debt-launch','techdebt','tech debt','technical debt','maint-launch','maintenance']},
+    {id:'operations',title:'Operations & Releases',hint:'Operational ownership, reliability, SLOs and release discipline.',tokens:['ops-launch','opsopen','operations','slo-launch','sloopen','reliability','rg-launch','releasegov','release governance','release']},
+    {id:'execution',title:'Execution & People',hint:'Roadmaps, projects, programs, critical path, org design and workforce.',tokens:['rp-launch','roadmappressure','roadmap','workforce','portfolioopen','project portfolio','criticalpath','critical path','programlearning','program learning','programopen','program management','orgmanagement','organization management','hiring']},
     {id:'leadership',title:'Leadership & Capital',hint:'Board, financing, governance, executives, talent and strategy.',tokens:['boardplanning','quarterly board','financestrategy','financing','capital','macroopen','restructuring','governanceopen','governance','execpolitics','executive politics','talentmemory','talent memory','strategyopen','portfolio strategy','committeeopen','investment committee']},
     {id:'external',title:'External Environment',hint:'Competition, ecosystem, policy, regulation and public communications.',tokens:['competitiveopen','competitive','competition','ecosystemopen','ecosystem','policyopen','policy','regulation','communicationsopen','communications']},
     {id:'other',title:'Other Lab Systems',hint:'Additional company systems supplied by future modules.',tokens:[]}
   ];
   const ORDER=[
-    'dataeval','family','architecture','techdebt','maintenance',
-    'opsopen','operations','sloopen','reliability','releasegov','release governance',
-    'roadmappressure','roadmap','workforce','portfolioopen','project portfolio','criticalpath','critical path','programlearning','program learning','programopen','orgmanagement','hiring',
+    'data-evals-launch','dataeval','fork-launch','family','arch-launch','architecture','debt-launch','techdebt','maint-launch','maintenance',
+    'ops-launch','opsopen','operations','slo-launch','sloopen','reliability','rg-launch','releasegov','release governance',
+    'rp-launch','roadmappressure','roadmap','workforce','portfolioopen','project portfolio','criticalpath','critical path','programlearning','program learning','programopen','orgmanagement','hiring',
     'boardplanning','quarterly board','financestrategy','financing','macroopen','restructuring','governanceopen','execpolitics','talentmemory','strategyopen','committeeopen',
     'competitiveopen','competitive','ecosystemopen','ecosystem','policyopen','policy','communicationsopen','communications'
   ];
