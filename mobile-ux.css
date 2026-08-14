@@ -1,0 +1,26 @@
+/* Mobile navigation polish: readable controls, clear affordances, safe touch targets. */
+@media (max-width: 720px){
+  button{min-height:44px}
+  button:not(.term):not(.x):not(.rolebar button){
+    -webkit-tap-highlight-color:rgba(121,223,255,.18);
+  }
+  /* Many Phase 4D views use unclassed buttons. iOS was applying a pale native-looking
+     treatment that made white labels nearly disappear. Give generic simulator controls
+     the same dark visual language as the core UI. */
+  main button:not(.primary):not(.danger-btn):not(.term):not(.x):not(.rolebar button):not(.tier):not(.tech-node){
+    background:#101a2b;
+    color:#dff7ff;
+    border:1px solid #36516f;
+    border-radius:12px;
+    box-shadow:inset 0 1px 0 #ffffff0d,0 5px 18px #0004;
+    padding:10px 14px;
+  }
+  main button:not(.primary):not(.danger-btn):not(.term):not(.x):not(.rolebar button):not(.tier):not(.tech-node):active{
+    background:#18304a;
+    border-color:#69cce9;
+    transform:translateY(1px);
+  }
+  main button:disabled{opacity:.42;filter:saturate(.55);box-shadow:none}
+  /* Keep horizontal action groups usable rather than squeezing labels into tiny pills. */
+  main section button,main article button{max-width:100%}
+}
