@@ -46,10 +46,10 @@
     const el=document.createElement('aside');el.className='campaign-progress';el.innerHTML=`<div><span>${s.kicker}</span><b>${s.title}</b></div><div class="campaign-dots">${Array.from({length:s.total},(_,i)=>`<i class="${i<s.n?'done':''}"></i>`).join('')}</div><small>${s.n} / ${s.total}</small>`;
     const guide=document.querySelector('.gameplay-guidance');if(guide)guide.insertAdjacentElement('afterend',el);else document.getElementById('app')?.prepend(el)
   }
-  // Guarantee that a new player's first run produces one teachable incident instead of
-  // relying on RNG. Existing saves and later runs retain normal incident randomness.
   const baseAdvance=g.advanceRun;
   if(typeof baseAdvance==='function')g.advanceRun=function(){ensure();const r=state.activeRun;if(r&&!state.campaign.failureInjected&&(state.models?.length||0)===0&&(state.runHistory||[]).length===0&&!r.incident&&Number(r.progress||0)>=25){r.incident='nan';state.selectedIncident='nan';state.campaign.failureInjected=true;log?.(`🔴 ${r.name}: the first campaign incident is ready for diagnosis.`);save();render();return}return baseAdvance()};
+  const baseModelSelect=g.modelLabSelect;
+  if(typeof baseModelSelect==='function')g.modelLabSelect=function(id){g.campaignMarkModelReviewed();return baseModelSelect(id)};
   const baseRender=g.render;
   if(typeof baseRender==='function')g.render=function(){ensure();const out=baseRender();requestAnimationFrame(()=>{renderProgress();renderPriority()});return out};
   ensure();
