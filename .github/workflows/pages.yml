@@ -12,118 +12,72 @@ permissions:
 
 concurrency:
   group: pages
-  # Never cancel a deploy that is already publishing - a cancelled deploy can
-  # leave the live site on a half-uploaded artifact.
   cancel-in-progress: false
 
 jobs:
   validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static release integrity and performance budgets
+        run: npm run test:static
+
+  release-candidate:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run full release-candidate regression suite
+        run: |
+          python3 -m http.server 4173 >/tmp/frontier-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              break
+            fi
+            sleep 0.25
+          done
+          if ! curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+            cat /tmp/frontier-http.log
+            exit 1
+          fi
+          npm run test:qa
+
+  build:
+    needs: release-candidate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Check all JavaScript syntax
-        run: |
-          find . -type f -name '*.js' -not -path './node_modules/*' -print0 \
-            | sort -z | xargs -0 -r -n1 node --check
-
-      - name: Verify local page assets exist
-        run: |
-          node -e '
-          const fs = require("fs");
-          const html = fs.readFileSync("index.html", "utf8");
-          const refs = [...html.matchAll(/(?:src|href)="([^"]+)"/g)].map(m => m[1]);
-          const local = refs.filter(r => !/^(https?:|data:|#|mailto:)/.test(r));
-          const missing = local.filter(r => !fs.existsSync(r.split("?")[0]));
-          if (missing.length) {
-            console.error("Missing local assets: " + missing.join(", "));
-            process.exit(1);
-          }
-          console.log(`Validated ${local.length} local assets referenced by index.html`);
-          '
-
-      # The Scriptable launcher inlines index.html by fetching each stylesheet
-      # and script by name from a hardcoded branch. Both halves rot silently:
-      # a new phase adds files the launcher never lists, and a merged feature
-      # branch gets deleted out from under BASE. Neither breaks the website,
-      # so only iOS players would ever notice.
-      - name: Verify Scriptable launcher matches index.html
-        run: |
-          node -e '
-          const fs = require("fs");
-          const html = fs.readFileSync("index.html", "utf8");
-          const launcher = fs.readFileSync("Frontier Model Simulator.js", "utf8");
-
-          const htmlCss = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m => m[1]);
-          const htmlJs  = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]);
-
-          const listOf = name => {
-            const m = launcher.match(new RegExp("const " + name + "\\s*=\\s*\\[([\\s\\S]*?)\\];"));
-            if (!m) { console.error(`Could not find ${name} in the launcher`); process.exit(1); }
-            return [...m[1].matchAll(/"([^"]+)"/g)].map(x => x[1]);
-          };
-
-          const problems = [];
-          const compare = (label, fromHtml, fromLauncher) => {
-            const missing = fromHtml.filter(f => !fromLauncher.includes(f));
-            const extra   = fromLauncher.filter(f => !fromHtml.includes(f));
-            if (missing.length) problems.push(`${label} in index.html but missing from the launcher: ${missing.join(", ")}`);
-            if (extra.length)   problems.push(`${label} listed in the launcher but not in index.html: ${extra.join(", ")}`);
-          };
-          compare("stylesheets", htmlCss, listOf("STYLE_FILES"));
-          compare("scripts", htmlJs, listOf("SCRIPT_FILES"));
-
-          if (problems.length) {
-            console.error(problems.join("\n"));
-            console.error("Update the STYLE_FILES/SCRIPT_FILES lists in \"Frontier Model Simulator.js\".");
-            process.exit(1);
-          }
-          console.log(`Launcher matches index.html (${htmlCss.length} stylesheets, ${htmlJs.length} scripts)`);
-          '
-
-      - name: Verify Scriptable launcher points at a branch that exists
-        run: |
-          BRANCH=$(sed -n 's/^const BRANCH = "\(.*\)";$/\1/p' "Frontier Model Simulator.js")
-          if [ -z "$BRANCH" ]; then
-            echo "::error::Could not parse BRANCH from the Scriptable launcher"
-            exit 1
-          fi
-          if ! git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
-            echo "::error::The Scriptable launcher fetches from branch '$BRANCH', which does not exist. iOS players get a 404 on every file. Point BRANCH at main."
-            exit 1
-          fi
-          echo "Launcher branch '$BRANCH' exists"
-
-  build:
-    needs: validate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
         with:
-          # Turn Pages on for the repo if it is not already enabled.
           enablement: true
-
-      - name: Assemble site
+      - name: Assemble minimal runtime site
+        run: npm run build:site
+      - name: Verify release artifact contains no repo-only tooling
         run: |
-          mkdir -p _site
-          # Ship the runtime site; repo-only tooling never reaches the CDN.
-          rsync -a --exclude '.git' --exclude '.github' --exclude 'node_modules' \
-            --exclude '_site' ./ _site/
-          # Pages runs Jekyll over the artifact unless told not to.
-          touch _site/.nojekyll
-          cat > _site/build-info.json <<JSON
-          {
-            "version": "$(git rev-parse --short HEAD)",
-            "builtAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "ref": "${GITHUB_REF_NAME}"
-          }
-          JSON
-          echo "Built _site ($(find _site -type f | wc -l) files)"
-
+          test -f _site/index.html
+          test -f _site/sw.js
+          test -f _site/build-info.json
+          test ! -e _site/tests
+          test ! -e _site/docs
+          test ! -e _site/package.json
+          echo "Release artifact: $(find _site -type f | wc -l) files / $(du -sh _site | cut -f1)"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
