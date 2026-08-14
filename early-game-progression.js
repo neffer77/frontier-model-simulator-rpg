@@ -8,16 +8,17 @@
     training:{n:2,total:7,kicker:'CHAPTER 2 · TRAINING',title:'Keep the first run moving',body:'Advance the run and watch what changes. The first goal is not a giant model; it is a clean technical loop.',cta:'Open training',action:'gameplayGoTrain',unlocks:['dataEvalsOpen'],core:['home','train']},
     failure:{n:3,total:7,kicker:'CHAPTER 3 · FIRST FAILURE',title:'Diagnose before reacting',body:'Your first run has failed in a useful way. Inspect the evidence, choose the explanation that fits it, and recover deliberately.',cta:'Open incident',action:'gameplayGoTrain',tone:'danger',unlocks:['dataEvalsOpen'],core:['home','train']},
     recover:{n:4,total:7,kicker:'CHAPTER 4 · RECOVERY',title:'Finish the run you repaired',body:'You have recovered from a real failure. Finish the run and preserve what you learned in the company history.',cta:'Finish training',action:'gameplayGoTrain',unlocks:['dataEvalsOpen','techDebtOpen'],core:['home','train']},
-    firstModel:{n:5,total:7,kicker:'CHAPTER 5 · FIRST MODEL',title:'Turn a model into organizational memory',body:'You shipped a model. Inspect its lineage, then add one specialist who strengthens the next cycle.',cta:'Review hiring',action:'gameplayGoTeam',unlocks:['dataEvalsOpen','techDebtOpen'],core:['home','train','models','team']},
+    firstModel:{n:5,total:7,kicker:'CHAPTER 5 · FIRST MODEL',title:'Turn a model into organizational memory',body:'You shipped a model. Inspect its lineage and evidence before you add more people or scale the next bet.',cta:'Open Model Lab',action:'gameplayGoModels',unlocks:['dataEvalsOpen','techDebtOpen'],core:['home','train','models']},
     firstHire:{n:6,total:7,kicker:'CHAPTER 6 · BUILD THE LAB',title:'Make your first deliberate hire',body:'Interview for the bottleneck you actually have and close one hire. The lab should gain expertise, not just headcount.',cta:'Open hiring',action:'gameplayGoTeam',unlocks:['dataEvalsOpen','techDebtOpen','opsOpen','sloOpen'],core:['home','train','models','team']},
     tradeoff:{n:7,total:7,kicker:'CHAPTER 7 · COMPANY BET',title:'Choose what the company optimizes for next',body:'A lab cannot maximize research velocity, reliability, and market pressure simultaneously. Pick the bias you want the next phase to inherit.',cta:'Choose company priority',action:'campaignOpenPriority',unlocks:['dataEvalsOpen','techDebtOpen','opsOpen','sloOpen','releaseGovOpen','roadmapPressureOpen','financeStrategyOpen'],core:['home','train','models','team']},
     graduated:{n:7,total:7,kicker:'EARLY GAME COMPLETE',title:'The full company is now yours',body:'You have trained, failed, recovered, shipped, hired, and made a company-level tradeoff. Advanced systems are now unlocked.',cta:'Open systems',action:'gameplayToggleMenu',tone:'active',unlocks:ALL_SYSTEMS,core:['home','train','models','team']}
   };
-  function ensure(){state.campaign ||= {version:VERSION,failureInjected:false,companyPriority:null,graduated:false};state.campaign.version=VERSION}
+  function ensure(){state.campaign ||= {version:VERSION,failureInjected:false,modelReviewed:false,companyPriority:null,graduated:false};state.campaign.modelReviewed=!!state.campaign.modelReviewed;state.campaign.version=VERSION}
   function hired(){return (state.hiring?.candidates||[]).some(c=>c.status==='hired')||(state.npcEmployees||[]).some(e=>String(e.id||'').startsWith('hire-'))}
   function stageId(){
     ensure();if(state.campaign.graduated||state.campaign.companyPriority)return 'graduated';
     const models=state.models?.length||0,r=state.activeRun,history=state.runHistory||[];
+    if(models>0&&!state.campaign.modelReviewed)return 'firstModel';
     if(models>0&&!hired())return 'firstHire';
     if(models>0&&hired())return 'tradeoff';
     if(r?.incident)return 'failure';
@@ -31,6 +32,7 @@
   g.campaignObjective=()=>{if(!state?.started)return null;const s=current();return {kicker:s.kicker,title:s.title,body:s.body,cta:s.cta,action:s.action,tone:s.tone||'active'}};
   g.campaignCoreUnlocked=name=>current().core.includes(name);
   g.campaignSystemUnlocked=fn=>current().unlocks.includes(fn);
+  g.campaignMarkModelReviewed=()=>{ensure();if((state.models?.length||0)>0&&!state.campaign.modelReviewed){state.campaign.modelReviewed=true;save()}};
   g.campaignLockedSystem=label=>{log?.(`🔒 ${label} unlocks later in the guided campaign.`);save();render()};
   g.campaignOpenPriority=()=>{document.body.classList.add('campaign-priority-open');renderPriority()};
   g.campaignClosePriority=()=>{document.body.classList.remove('campaign-priority-open');document.querySelector('.campaign-priority')?.remove()};
