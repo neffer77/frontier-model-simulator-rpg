@@ -1,0 +1,15 @@
+/* Item 8 — visual/game-feel pass. */
+:root{--feel-cyan:#79dfff;--feel-gold:#ffd66b;--feel-red:#ff7185}
+body{background:radial-gradient(circle at 50% -20%,#142b4a 0,#07111f 35%,#04070d 72%);}
+#app{animation:feel-enter .24s ease-out}
+@keyframes feel-enter{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+button{transition:transform .1s ease,filter .15s ease,box-shadow .15s ease,border-color .15s ease}
+button:not(:disabled):active{transform:translateY(2px) scale(.985)}
+.gameplay-guidance,.campaign-progress{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.feel-toast{position:fixed;z-index:9998;left:50%;top:max(16px,env(safe-area-inset-top));transform:translateX(-50%);width:min(92vw,560px);padding:12px 16px;border:1px solid #385d79;border-radius:14px;background:#07111ff2;box-shadow:0 16px 50px #0009;color:#eafaff;animation:feel-toast .35s cubic-bezier(.2,.9,.2,1)}
+.feel-toast b{display:block;color:var(--feel-cyan);font-size:12px;letter-spacing:.12em}.feel-toast span{display:block;margin-top:3px;font-weight:800}.feel-toast.danger{border-color:#8b3c4b}.feel-toast.danger b{color:var(--feel-red)}.feel-toast.win{border-color:#806d35}.feel-toast.win b{color:var(--feel-gold)}
+@keyframes feel-toast{from{opacity:0;transform:translate(-50%,-18px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+.feel-training{height:7px;border-radius:999px;overflow:hidden;background:#ffffff10;margin:8px 0}.feel-training>i{display:block;height:100%;background:linear-gradient(90deg,#5eb7ff,#83f2d2);box-shadow:0 0 14px #79dfff88;transition:width .35s ease}
+.feel-milestone{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:20px;background:radial-gradient(circle,#173050dd,#03060bed 68%);animation:feel-fade .25s ease}.feel-milestone-card{width:min(92vw,620px);text-align:center;padding:30px 24px;border:1px solid #527898;border-radius:22px;background:#07111ff7;box-shadow:0 30px 100px #000}.feel-milestone .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--feel-gold);font-weight:900}.feel-milestone h2{font-size:clamp(28px,7vw,48px);margin:10px 0}.feel-milestone p{color:#b9cede;line-height:1.55}.feel-milestone button{margin-top:16px;min-height:48px;padding:0 22px;border-radius:14px;background:#173e5c;color:white;border:1px solid #79dfff;font-weight:900}
+@keyframes feel-fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){#app,.feel-toast,.feel-milestone{animation:none!important}button,.feel-training>i{transition:none!important}}
