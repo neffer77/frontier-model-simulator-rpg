@@ -23,11 +23,13 @@
     return new Proxy(q,{get(t,p){if(p==='valuationM')return t.board.valuationM;if(p==='investorPatience')return t.board.investorPatience;if(p==='boardConfidence')return t.board.confidence;return t[p]},set(t,p,v){if(p==='valuationM'){t.board.valuationM=v;return true}if(p==='investorPatience'){t.board.investorPatience=v;return true}if(p==='boardConfidence'){t.board.confidence=v;return true}t[p]=v;return true}})
   }});
 
-  // Financing renamed to financeStrategy and several field labels changed. The proxy
-  // translates the legacy API used by macro/restructuring without duplicating state.
+  // Financing renamed to financeStrategy and several field labels changed. Translate the
+  // legacy API used by Macro/Governance without creating a second source of truth.
   if(!Object.getOwnPropertyDescriptor(state,'financing'))Object.defineProperty(state,'financing',{configurable:true,enumerable:false,get(){
     const f=state.financeStrategy;if(!f)return undefined;
-    f.ownership ||= {founders:.68,employees:.14,investors:.18};f.boardSeats ||= {founders:3,investors:1,strategic:0};
-    return new Proxy(f,{get(t,p){if(p==='capTable')return t.ownership;if(p==='board')return t.boardSeats;if(p==='debtServiceM')return t.monthlyDebtServiceM||0;if(p==='runwayCrisis')return t.crisis;if(p==='liquidationPreference')return t.liquidationPreference||1;if(p==='covenantPressure')return t.covenantPressure||0;return t[p]},set(t,p,v){if(p==='capTable'){t.ownership=v;return true}if(p==='board'){t.boardSeats=v;return true}if(p==='debtServiceM'){t.monthlyDebtServiceM=v;return true}if(p==='runwayCrisis'){t.crisis=v;return true}t[p]=v;return true}})
+    f.ownership ||= {founders:.68,employees:.14,investors:.18};
+    f.boardSeats ||= {founders:3,investors:1,strategic:0};
+    const board=new Proxy(f.boardSeats,{get(t,p){if(p==='founder')return t.founders||0;if(p==='investor')return t.investors||0;return t[p]},set(t,p,v){if(p==='founder'){t.founders=v;return true}if(p==='investor'){t.investors=v;return true}t[p]=v;return true}});
+    return new Proxy(f,{get(t,p){if(p==='capTable')return t.ownership;if(p==='board')return board;if(p==='debtServiceM')return t.monthlyDebtServiceM||0;if(p==='runwayCrisis')return t.crisis;if(p==='liquidationPreference')return t.liquidationPreference||1;if(p==='covenantPressure')return t.covenantPressure||0;return t[p]},set(t,p,v){if(p==='capTable'){t.ownership=v;return true}if(p==='board'){t.boardSeats=v;return true}if(p==='debtServiceM'){t.monthlyDebtServiceM=v;return true}if(p==='runwayCrisis'){t.crisis=v;return true}t[p]=v;return true}})
   }});
 })();
