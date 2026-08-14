@@ -1,14 +1,14 @@
 // V3 company metagame. Loaded after frontier-lab.js so the technical simulator remains separable.
 const FUNDING=[
-  {id:"seed",rep:4,cash:3,label:"Seed round"},
-  {id:"seriesA",rep:15,cash:8,label:"Series A"},
-  {id:"growth",rep:35,cash:25,label:"Frontier growth round"},
-  {id:"mega",rep:75,cash:80,label:"Strategic compute round"}
+  {id:"seed",rep:4,cash:3,compute:20000,label:"Seed round"},
+  {id:"seriesA",rep:15,cash:8,compute:120000,label:"Series A"},
+  {id:"growth",rep:35,cash:25,compute:650000,label:"Frontier growth round"},
+  {id:"mega",rep:75,cash:80,compute:3200000,label:"Strategic compute round"}
 ];
 const WORLD_EVENTS=[
   {text:"An enterprise design partner prepays for model access.",cash:.25},
-  {text:"A cloud provider opens a temporary block of accelerator capacity.",compute:750},
-  {text:"Your systems team lands a kernel optimization and recovers wasted cluster time.",compute:450},
+  {text:"A cloud provider opens a temporary block of accelerator capacity.",compute:2500},
+  {text:"Your systems team lands a kernel optimization and recovers wasted cluster time.",compute:1600},
   {text:"A respected researcher cites your lab's work. Recruiting gets easier.",rep:1},
   {text:"Helix Frontier publishes a strong architecture result. The competitive bar rises.",rival:2}
 ];
@@ -22,7 +22,8 @@ function checkFunding(){
     if(state.reputation>=f.rep&&!state.fundingClaimed.includes(f.id)){
       state.fundingClaimed.push(f.id);
       state.cashM+=f.cash;
-      log(`💰 ${f.label} closed: +$${f.cash}M. Technical credibility unlocked new company scale.`);
+      state.compute=(state.compute||0)+(f.compute||0);
+      log(`💰 ${f.label} closed: +$${f.cash}M and +${fmt(f.compute||0,0)} H100h. Technical credibility unlocked new company scale.`);
     }
   }
 }
@@ -34,7 +35,7 @@ function maybeWorldEvent(){
   if(e.compute)state.compute+=e.compute;
   if(e.rep)state.reputation+=e.rep;
   if(e.rival)state.rivalBoost+=e.rival;
-  log(`🌐 WORLD — ${e.text}${e.cash?` +$${e.cash}M`:""}${e.compute?` +${e.compute} H100h`:""}`);
+  log(`🌐 WORLD — ${e.text}${e.cash?` +$${e.cash}M`:""}${e.compute?` +${fmt(e.compute,0)} H100h`:""}`);
 }
 function rivalScore(){ensureMeta();return Math.round(48+state.day*.16+state.rivalBoost)}
 function playerScore(){return state.models.length?state.models[state.models.length-1].score:0}
