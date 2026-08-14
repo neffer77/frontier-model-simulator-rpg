@@ -25,6 +25,7 @@ assert(Math.abs(configured.cash-1.71)<.01,'difficulty × archetype should determ
 assert.equal(configured.compute,16875,'difficulty × systems archetype should deterministically set starting compute');
 assert.equal(configured.physics.flopsMethod,'6 × parameters × tokens','difficulty must not change technical training math');
 assert(await page.locator('.replay-hud').isVisible(),'active run challenge should remain visible during play');
+assert((await page.evaluate(()=>REALISM_AUDIT.some(x=>x.domain==='Replay difficulty / archetypes'&&x.status==='game'))),'replay values should register as game abstractions in the realism audit');
 
 await page.locator('.replay-hud').click();await page.waitForTimeout(50);
 assert(await page.getByRole('heading',{name:'Run Archive'}).isVisible(),'run archive should open');
@@ -48,6 +49,26 @@ assert(await page.locator('.replay-founder').isVisible(),'new run should return 
 assert(await page.getByText('New Game+ legacy perk').isVisible(),'a completed run should unlock New Game+ perk selection');
 const careerText=await page.locator('.replay-founder-head em').textContent();
 assert(/1 career clear/.test(careerText),'career archive must survive company-save reset');
+
+// A technically completed objective after its deadline must remain a failed challenge.
+const lateCtx=await browser.newContext({viewport:{width:1280,height:1000}});
+const late=await lateCtx.newPage();const lateErrors=[];late.on('pageerror',e=>lateErrors.push(e.message));
+await late.goto(url,{waitUntil:'networkidle'});
+await late.getByRole('button',{name:/Redline/}).click();
+await late.getByRole('button',{name:/Scale Race/}).click();
+await late.getByRole('button',{name:/Found the lab/i}).click();await late.waitForTimeout(80);
+await late.evaluate(()=>{
+  state.day=97;
+  state.models.push({id:'late-30b',name:'LATE-30B',tier:'30B Dense',paramsB:30,day:97,architecture:{type:'Dense Transformer',parametersB:30,activeParametersB:30,contextLength:8192,precision:'BF16 mixed'},training:{status:'completed',startedDay:90,completedDay:97,config:{},history:[]},checkpoints:[],evals:[],experiments:[],postTraining:[],launches:[],incidents:[],costs:{trainingM:6.5,simulatedH100h:1},capabilities:{},weaknesses:[],technicalDebt:[],discoveries:[]});
+  save();render();
+});
+await late.waitForTimeout(100);
+const expired=await late.evaluate(()=>replayReport());
+assert.equal(expired.progress.failed,true,'deadline should be marked missed');
+assert.equal(expired.progress.success,false,'late technical completion must not count as challenge success');
+assert.equal(expired.run.completed,false,'late completion must not award a career clear');
+assert.equal(lateErrors.length,0,`late-run runtime errors: ${lateErrors.join(' | ')}`);
+await lateCtx.close();
 
 assert.equal(errors.length,0,`runtime errors: ${errors.join(' | ')}`);
 await browser.close();
