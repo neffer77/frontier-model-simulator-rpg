@@ -17,8 +17,11 @@ const DEBT_CATALOG={
 function ensureTechDebtState(){
   state.techDebt ||= {version:TECH_DEBT_VERSION,items:[],nextId:1,history:[],selectedId:null,policy:{autoSeeded:false},lastRiskSnapshot:null};
   state.techDebt.items ||= [];state.techDebt.history ||= [];
+  state.techDebt.policy ||= {autoSeeded:false};
   state.models?.forEach(m=>{m.technicalDebt ||= []});
-  if(!state.techDebt.policy.autoSeeded){seedInitialDebt();state.techDebt.policy.autoSeeded=true;save?.()}
+  // Mark seeding complete before adding items. techDebtAdd() calls this function,
+  // so setting the flag afterward recursively re-entered seedInitialDebt().
+  if(!state.techDebt.policy.autoSeeded){state.techDebt.policy.autoSeeded=true;seedInitialDebt();if(typeof save==='function')save()}
 }
 function seedInitialDebt(){
   const seeds=[];
@@ -49,6 +52,12 @@ function techDebtImpact(){
   return {risk,detection,cost,score:open.reduce((n,x)=>n+(DEBT_SEVERITY_WEIGHT[x.severity]||1)*techDebtInterest(x),0)};
 }
 function techDebtAge(days=1){ensureTechDebtState();state.techDebt.items.filter(x=>x.status==='open').forEach(x=>{x.age=(x.age||0)+days;if(x.age>15)x.interest=Math.min(1.5,(x.interest||0)+.02*days)});state.techDebt.lastRiskSnapshot=techDebtImpact()}
+function techDebtSyncAge(){
+  if(!state?.started||!state.techDebt)return;
+  const prev=state.techDebt._lastSeenDay||state.day||1,now=state.day||1;
+  if(now>prev)techDebtAge(now-prev);
+  state.techDebt._lastSeenDay=now;
+}
 function techDebtPay(id,mode='fix'){
   ensureTechDebtState();const item=state.techDebt.items.find(x=>x.id===id);if(!item||item.status!=='open')return;
   const w=DEBT_SEVERITY_WEIGHT[item.severity]||1;const engineeringDays=Math.max(1,Math.round(w*techDebtInterest(item)));const cashM=Number((w*.12*techDebtInterest(item)).toFixed(2));
@@ -85,9 +94,8 @@ function renderTechDebt(){
   ensureTechDebtState();techDebtMaybeSeedFromSystems();techDebtAttachInheritance();const impact=techDebtImpact(),items=state.techDebt.items.slice().sort((a,b)=>(a.status==='resolved')-(b.status==='resolved')||(DEBT_SEVERITY_WEIGHT[b.severity]-DEBT_SEVERITY_WEIGHT[a.severity]));const latest=state.models?.at(-1);return `<div class="debt-shell"><header class="debt-head"><div><div class="eyebrow">PHASE 4D · PERSISTENT CONSEQUENCES</div><h1>Technical Debt Board</h1><p>Shortcuts compound. Debt increases incident probability, reduces observability, raises engineering/compute cost, and can follow a model lineage forward.</p></div><button onclick="techDebtClose()">Return to company</button></header><section class="debt-summary"><div><span>Open debt</span><b>${state.techDebt.items.filter(x=>x.status==='open').length}</b></div><div><span>Debt pressure</span><b>${impact.score.toFixed(1)}</b></div><div><span>Engineering drag</span><b>+${Math.round(impact.cost.engineering*100)}%</b></div><div><span>Compute drag</span><b>+${Math.round(impact.cost.compute*100)}%</b></div></section>${latest?`<section class="debt-lineage"><div><span>Current model</span><b>${esc(latest.name)}</b></div><div><span>Inherited debt</span><b>${(latest.inheritedDebt||[]).length}</b></div><p>${(latest.inheritedDebt||[]).length?(latest.inheritedDebt||[]).map(x=>esc(x.title)).join(' · '):'No inherited debt recorded on this model yet.'}</p></section>`:''}<main class="debt-grid">${items.length?items.map(renderDebtItem).join(''):`<div class="debt-empty"><h2>No active technical debt</h2><p>That will change when shortcuts, overrides, or deferred reliability work accumulate.</p></div>`}</main></div>`}
 
 const debtBaseRender=render;
-render=function(){ensureTechDebtState();techDebtMaybeSeedFromSystems();techDebtAttachInheritance();if(state.view==='techDebt'){document.getElementById('app').innerHTML=renderTechDebt();return}debtBaseRender();if(!state.started)return;const shell=document.querySelector('.game-shell');if(!shell)return;const impact=techDebtImpact(),open=state.techDebt.items.filter(x=>x.status==='open').length;const b=document.createElement('button');b.className='debt-launch';b.onclick=techDebtOpen;b.innerHTML=`<span>TECH DEBT</span><b>${open} open · pressure ${impact.score.toFixed(1)}</b><small>Consequences · recurrence · lineage →</small>`;shell.insertBefore(b,shell.children[1]||null)};
+render=function(){ensureTechDebtState();techDebtSyncAge();techDebtMaybeSeedFromSystems();techDebtAttachInheritance();if(state.view==='techDebt'){document.getElementById('app').innerHTML=renderTechDebt();return}debtBaseRender();if(!state.started)return;const shell=document.querySelector('.game-shell');if(!shell)return;const impact=techDebtImpact(),open=state.techDebt.items.filter(x=>x.status==='open').length;const b=document.createElement('button');b.className='debt-launch';b.onclick=techDebtOpen;b.innerHTML=`<span>TECH DEBT</span><b>${open} open · pressure ${impact.score.toFixed(1)}</b><small>Consequences · recurrence · lineage →</small>`;shell.insertBefore(b,shell.children[1]||null)};
 
-// Age debt when the game advances by wrapping common day-advance operations opportunistically.
-const debtSave=save;
-save=function(){if(state?.started&&state.techDebt){const prev=state.techDebt._lastSeenDay||state.day||1;const now=state.day||1;if(now>prev)techDebtAge(now-prev);state.techDebt._lastSeenDay=now}return debtSave()};
+// Do not reassign the base game's const save function. Debt aging is synchronized
+// during render instead, which runs after the game's normal day-advance actions.
 render();
