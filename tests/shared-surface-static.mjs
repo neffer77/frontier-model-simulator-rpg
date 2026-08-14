@@ -27,7 +27,7 @@ for(const file of ['shared-surface-system.css','shared-surface-system.js']){
 }
 assert(sw.includes("frontier-lab-v13"),'Item 13.4 should advance the offline cache version');
 
-for(const pattern of ["endsWith('-launch')","endsWith('-card')","endsWith('-row')","endsWith('-actions')","includes('empty')"]){
+for(const pattern of ["suffix(el,'-launch')","suffix(el,'-card')","suffix(el,'-summary')","suffix(el,'-row')","suffix(el,'-actions')","contains(el,'empty')"]){
   assert(js.includes(pattern),`compatibility adapter missing structural rule ${pattern}`);
 }
 for(const exclusion of ['story-scene-card','feel-milestone-card','realism-card','replay-card','founder-card']){
