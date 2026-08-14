@@ -27,10 +27,17 @@ for(const d of devices){
   assert(report?.resources?.runwayMonths>=0,`${d.name}: invalid runway telemetry`);
   const team=page.getByRole('button',{name:/team/i}).last();
   assert((await team.getAttribute('class')||'').includes('locked'),`${d.name}: advanced Team navigation should start locked`);
+
   await page.evaluate(()=>scrollTo(0,Math.max(600,document.body.scrollHeight/2)));
-  await page.getByRole('button',{name:/train/i}).last().click();await page.waitForTimeout(150);
-  assert((await page.evaluate(()=>scrollY))<80,`${d.name}: navigation preserved stale scroll position`);
-  await page.getByRole('button',{name:/home/i}).last().click();await page.waitForTimeout(100);
+  const staleY=await page.evaluate(()=>scrollY);
+  await page.getByRole('button',{name:/train/i}).last().click();await page.waitForTimeout(450);
+  const trainPosition=await page.evaluate(()=>{const el=document.querySelector('.run');if(!el)return null;const r=el.getBoundingClientRect();return {scrollY,top:r.top,bottom:r.bottom,height:innerHeight}});
+  assert(trainPosition,`${d.name}: training section missing`);
+  assert(Math.abs(trainPosition.scrollY-staleY)>40,`${d.name}: Train preserved stale scroll position`);
+  assert(trainPosition.bottom>0&&trainPosition.top<trainPosition.height,`${d.name}: Train did not navigate training section into viewport`);
+
+  await page.getByRole('button',{name:/home/i}).last().click();await page.waitForTimeout(180);
+  assert((await page.evaluate(()=>scrollY))<80,`${d.name}: Home did not return to top on same-view navigation`);
   assert.equal(errors.length,0,`${d.name}: runtime errors: ${errors.join(' | ')}`);
   await ctx.close();
 }
