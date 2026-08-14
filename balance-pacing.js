@@ -5,6 +5,7 @@
     version:1,
     incidentCooldownDays:5,
     maxIncidentsPerRun:2,
+    acceptedDebtMultiplier:.65,
     computePerCapexM:45000,
     infraComputeGrants:{2:15000,3:100000,4:600000,5:3000000,6:7000000},
     strategicComputeGrants:{gpu:400000,cloud:125000},
@@ -49,9 +50,26 @@
   }
   function paceStatus(name,day){const range=CFG.targets[name];if(!range||day==null)return 'unmeasured';return day<range[0]?'fast':day>range[1]?'slow':'target'}
   function report(){
-    const b=ensure(),m=b.milestones;return {version:CFG.version,day:state.day||1,resources:{cashM:Number((state.cashM||0).toFixed(2)),computeH100h:Math.round(state.compute||0),monthlyBurnM:monthlyBurn(),runwayMonths:runwayMonths(),research:state.research||0,reputation:state.reputation||0},milestones:{...m},pace:{firstModel:paceStatus('firstModel',m.firstModelDay),firstHire:paceStatus('firstHire',m.firstHireDay),graduated:paceStatus('graduated',m.graduatedDay)},stats:{...b.stats},campaign:g.campaignCurrentStage?.().id||null,openDebt:state.techDebt?.items?.filter(x=>x.status==='open').length||0};
+    const b=ensure(),m=b.milestones;return {version:CFG.version,day:state.day||1,resources:{cashM:Number((state.cashM||0).toFixed(2)),computeH100h:Math.round(state.compute||0),monthlyBurnM:monthlyBurn(),runwayMonths:runwayMonths(),research:state.research||0,reputation:state.reputation||0},milestones:{...m},pace:{firstModel:paceStatus('firstModel',m.firstModelDay),firstHire:paceStatus('firstHire',m.firstHireDay),graduated:paceStatus('graduated',m.graduatedDay)},stats:{...b.stats},campaign:g.campaignCurrentStage?.().id||null,openDebt:state.techDebt?.items?.filter(x=>x.status==='open').length||0,acceptedDebt:state.techDebt?.items?.filter(x=>x.status==='accepted').length||0};
   }
   g.balanceReport=report;
+
+  // Accepting debt means consciously carrying risk, not deleting it. Accepted debt runs at
+  // reduced pressure so paying it down still has a concrete advantage.
+  if(typeof g.techDebtImpact==='function'&&typeof g.debtDef==='function'&&typeof g.techDebtInterest==='function'){
+    g.techDebtImpact=function(){
+      g.ensureTechDebtState?.();const items=(state.techDebt?.items||[]).filter(x=>x.status==='open'||x.status==='accepted'),risk={},detection={},cost={engineering:0,compute:0};
+      items.forEach(item=>{const d=g.debtDef(item),interest=g.techDebtInterest(item),carry=item.status==='accepted'?CFG.acceptedDebtMultiplier:1;Object.entries(d.risk||{}).forEach(([k,v])=>risk[k]=(risk[k]||0)+v*interest*carry);Object.entries(d.detection||{}).forEach(([k,v])=>detection[k]=(detection[k]||0)+v*interest*carry);Object.entries(d.cost||{}).forEach(([k,v])=>cost[k]=(cost[k]||0)+v*interest*carry)});
+      return {risk,detection,cost,score:items.reduce((n,x)=>n+((typeof DEBT_SEVERITY_WEIGHT!=='undefined'?DEBT_SEVERITY_WEIGHT[x.severity]:1)||1)*g.techDebtInterest(x)*(x.status==='accepted'?CFG.acceptedDebtMultiplier:1),0)};
+    };
+  }
+  if(typeof g.openDebtItems==='function')g.openDebtItems=()=>{g.ensureDebtConsequenceState?.();return (state.techDebt?.items||[]).filter(x=>x.status==='open'||x.status==='accepted')};
+  if(typeof g.debtIncidentPressure==='function'&&typeof g.debtItemsForIncident==='function'){
+    g.debtIncidentPressure=function(type){return g.debtItemsForIncident(type).reduce((sum,item)=>{const d=g.debtDef(item),base=d.risk?.[type]||0,carry=item.status==='accepted'?CFG.acceptedDebtMultiplier:1;return sum+base*g.techDebtInterest(item)*((typeof DEBT_SEVERITY_WEIGHT!=='undefined'?DEBT_SEVERITY_WEIGHT[item.severity]:1)||1)*carry},0)};
+  }
+  if(typeof g.techDebtAge==='function'){
+    const base=g.techDebtAge;g.techDebtAge=function(days=1){const out=base(days);for(const x of state.techDebt?.items||[]){if(x.status!=='accepted')continue;x.age=(x.age||0)+days;if(x.age>15)x.interest=Math.min(1.5,(x.interest||0)+.01*days)}if(state.techDebt)state.techDebt.lastRiskSnapshot=g.techDebtImpact?.();return out};
+  }
 
   // Infrastructure now represents actual accelerator access, not only a UI/eligibility gate.
   if(typeof g.upgradeInfra==='function'){
@@ -95,7 +113,7 @@
 
   function renderTempo(){
     document.querySelector('.balance-tempo')?.remove();if(!state?.started)return;const target=nextTier(),r=report();const host=document.querySelector('.campaign-progress')||document.querySelector('.gameplay-guidance');if(!host)return;let targetText='Frontier scale reached';if(target){let physics=null;try{physics=trainingPhysics(target)}catch{}targetText=`${target.name}: $${target.costM.toFixed(2)}M · ${fmt(physics?.gpuHours||0,0)} H100h`}
-    const el=document.createElement('aside');el.className=`balance-tempo runway-${runwayBand(r.resources.runwayMonths)}`;el.innerHTML=`<div><span>LAB TEMPO</span><b>${r.resources.runwayMonths} mo runway</b><small>$${r.resources.monthlyBurnM.toFixed(2)}M/mo burn</small></div><div><span>COMPUTE</span><b>${fmt(r.resources.computeH100h,0)} H100h</b><small>${targetText}</small></div><div><span>TECHNICAL PRESSURE</span><b>${r.openDebt} open debt</b><small>${r.stats.incidentsResolved} incidents resolved</small></div>`;host.insertAdjacentElement('afterend',el)
+    const el=document.createElement('aside');el.className=`balance-tempo runway-${runwayBand(r.resources.runwayMonths)}`;el.innerHTML=`<div><span>LAB TEMPO</span><b>${r.resources.runwayMonths} mo runway</b><small>$${r.resources.monthlyBurnM.toFixed(2)}M/mo burn</small></div><div><span>COMPUTE</span><b>${fmt(r.resources.computeH100h,0)} H100h</b><small>${targetText}</small></div><div><span>TECHNICAL PRESSURE</span><b>${r.openDebt} open · ${r.acceptedDebt} accepted</b><small>${r.stats.incidentsResolved} incidents resolved</small></div>`;host.insertAdjacentElement('afterend',el)
   }
   const baseRender=g.render;if(typeof baseRender==='function')g.render=function(){chargeOperatingBurn();const out=baseRender();requestAnimationFrame(renderTempo);return out};
   ensure();if(state.started)requestAnimationFrame(renderTempo);
