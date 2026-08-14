@@ -21,6 +21,7 @@ for(const exclusion of ['.tier','.tech-node','.decision button','.pd-toggle','.g
   assert(js.includes(exclusion),`specialized control exclusion missing ${exclusion}`);
 }
 assert(js.includes("classList.contains('lab-disclosure-toggle')"),'legacy lab-disclosure toggle should join ghost control styling');
+assert(js.includes("classList.contains('story-actions')"),'story action layout container must remain specialized');
 assert(css.includes('gameplay-bottom-nav button.fl-btn.fl-btn-nav'),'bottom navigation layout must be preserved');
 assert(css.includes('lab-disclosure>button.fl-btn.fl-btn-ghost'),'lab-disclosure controls need shared full-width treatment');
 
