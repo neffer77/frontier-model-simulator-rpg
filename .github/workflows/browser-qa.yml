@@ -22,3 +22,5 @@ jobs:
         run: python3 -m http.server 4173 >/tmp/frontier-http.log 2>&1 &
       - name: Run mobile and desktop smoke tests
         run: node tests/browser-smoke.mjs
+      - name: Run deterministic balance and pacing tests
+        run: node tests/balance-pacing.mjs
