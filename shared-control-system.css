@@ -140,6 +140,7 @@ input.fl-control-field:disabled,select.fl-control-field:disabled,textarea.fl-con
 .rolebar button.fl-btn.fl-btn-nav{border-radius:999px;min-height:34px;padding:7px 10px;white-space:nowrap}
 .gameplay-bottom-nav button.fl-btn.fl-btn-nav{display:grid;justify-items:center;align-content:center;gap:2px;min-width:0;padding:5px;border-radius:var(--fl-radius-md)}
 .gameplay-bottom-nav button.fl-btn.fl-btn-nav i{font-style:normal}
+lab-disclosure{display:block}
 lab-disclosure>button.fl-btn.fl-btn-ghost{width:100%;justify-content:space-between;text-align:left}
 
 /* Modal/header controls should remain visually subordinate to the primary task. */
