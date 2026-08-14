@@ -48,11 +48,23 @@
   function nextTier(){
     if(typeof MODEL_TIERS==='undefined')return null;const done=new Set((state.models||[]).map(m=>MODEL_TIERS.find(t=>t.name===m.tier)?.id).filter(Boolean));return MODEL_TIERS.find(t=>!done.has(t.id))||MODEL_TIERS.at(-1)
   }
+  function fundingReputation(){
+    if(typeof MODEL_TIERS==='undefined')return Number(state.reputation||0);const counts={},rawModelRep=(state.models||[]).reduce((sum,m)=>{const t=MODEL_TIERS.find(x=>x.name===m.tier);return sum+(t?.rep||0)},0);let effectiveModelRep=0;
+    for(const m of state.models||[]){const t=MODEL_TIERS.find(x=>x.name===m.tier);if(!t)continue;const n=counts[t.id]||0,weight=n===0?1:n===1?.35:.10;effectiveModelRep+=t.rep*weight;counts[t.id]=n+1}
+    const external=Math.max(0,Number(state.reputation||0)-rawModelRep);return Number((external+effectiveModelRep).toFixed(2));
+  }
+  g.balanceFundingReputation=fundingReputation;
   function paceStatus(name,day){const range=CFG.targets[name];if(!range||day==null)return 'unmeasured';return day<range[0]?'fast':day>range[1]?'slow':'target'}
   function report(){
-    const b=ensure(),m=b.milestones;return {version:CFG.version,day:state.day||1,resources:{cashM:Number((state.cashM||0).toFixed(2)),computeH100h:Math.round(state.compute||0),monthlyBurnM:monthlyBurn(),runwayMonths:runwayMonths(),research:state.research||0,reputation:state.reputation||0},milestones:{...m},pace:{firstModel:paceStatus('firstModel',m.firstModelDay),firstHire:paceStatus('firstHire',m.firstHireDay),graduated:paceStatus('graduated',m.graduatedDay)},stats:{...b.stats},campaign:g.campaignCurrentStage?.().id||null,openDebt:state.techDebt?.items?.filter(x=>x.status==='open').length||0,acceptedDebt:state.techDebt?.items?.filter(x=>x.status==='accepted').length||0};
+    const b=ensure(),m=b.milestones;return {version:CFG.version,day:state.day||1,resources:{cashM:Number((state.cashM||0).toFixed(2)),computeH100h:Math.round(state.compute||0),monthlyBurnM:monthlyBurn(),runwayMonths:runwayMonths(),research:state.research||0,reputation:state.reputation||0,fundingReputation:fundingReputation()},milestones:{...m},pace:{firstModel:paceStatus('firstModel',m.firstModelDay),firstHire:paceStatus('firstHire',m.firstHireDay),graduated:paceStatus('graduated',m.graduatedDay)},stats:{...b.stats},campaign:g.campaignCurrentStage?.().id||null,openDebt:state.techDebt?.items?.filter(x=>x.status==='open').length||0,acceptedDebt:state.techDebt?.items?.filter(x=>x.status==='accepted').length||0};
   }
   g.balanceReport=report;
+
+  // Funding rewards genuinely new model scale. Repeated same-tier runs retain reputation for
+  // the model race but contribute sharply diminishing credibility toward larger capital rounds.
+  if(typeof g.checkFunding==='function'){
+    const base=g.checkFunding;g.checkFunding=function(){const raw=state.reputation,effective=fundingReputation();state.reputation=effective;try{return base()}finally{state.reputation=raw}};
+  }
 
   // Accepting debt means consciously carrying risk, not deleting it. Accepted debt runs at
   // reduced pressure so paying it down still has a concrete advantage.
