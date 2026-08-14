@@ -7,6 +7,7 @@
     maxIncidentsPerRun:2,
     acceptedDebtMultiplier:.65,
     computePerCapexM:45000,
+    fundingComputeGrants:{seed:20000,seriesA:120000,growth:650000,mega:3200000},
     infraComputeGrants:{2:15000,3:100000,4:600000,5:3000000,6:7000000},
     strategicComputeGrants:{gpu:400000,cloud:125000},
     targets:{firstModel:[18,50],firstHire:[20,58],graduated:[22,65]}
@@ -14,10 +15,19 @@
   g.BALANCE_PACING=CFG;
 
   function ensure(){
+    const created=!state.balancePacing;
     state.balancePacing ||= {version:CFG.version,lastEconomicDay:state.day||1,infraComputeGranted:[],capexGrantKeys:[],strategicGrantKeys:[],milestones:{},stats:{operatingBurnM:0,computeGranted:0,runsLaunched:0,runsCompleted:0,incidentsResolved:0,wrongIncidentChoices:0,hires:0,infraUpgrades:0},lastRunwayBand:null};
     const b=state.balancePacing;b.version=CFG.version;b.infraComputeGranted ||= [];b.capexGrantKeys ||= [];b.strategicGrantKeys ||= [];b.milestones ||= {};b.stats ||= {};
     for(const [k,v] of Object.entries({operatingBurnM:0,computeGranted:0,runsLaunched:0,runsCompleted:0,incidentsResolved:0,wrongIncidentChoices:0,hires:0,infraUpgrades:0}))if(b.stats[k]==null)b.stats[k]=v;
     if(b.lastEconomicDay==null)b.lastEconomicDay=state.day||1;
+    // Existing saves may already own infrastructure/funding that predates compute grants.
+    // Apply those grants exactly once when Item 9 state is first introduced.
+    if(created&&state.started){
+      let migrated=0;
+      for(const id of state.fundingClaimed||[])migrated+=CFG.fundingComputeGrants[id]||0;
+      for(let level=2;level<=Number(state.infra||1);level++){const amount=CFG.infraComputeGrants[level]||0;if(amount){migrated+=amount;b.infraComputeGranted.push(`infra-${level}`)}}
+      if(migrated){state.compute=(state.compute||0)+migrated;b.stats.computeGranted+=migrated;b.legacyMigrationH100h=migrated;log?.(`⚡ Balance migration restored ${fmt(migrated,0)} H100h for infrastructure/funding already earned.`)}
+    }
     inferMilestones();return b;
   }
   function inferMilestones(){
