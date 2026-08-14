@@ -18,6 +18,8 @@ await page.goto(url,{waitUntil:'networkidle',timeout:B.maxInitialLoadMs});
 const wallLoad=Date.now()-wallStart;
 assert(await page.locator('#app').isVisible(),'release candidate app root is not visible');
 assert(await page.locator('.replay-founder').isVisible(),'fresh RC should expose Item 11 run configuration');
+const buildInfo=await page.evaluate(async()=>{const r=await fetch('./build-info.json',{cache:'no-store'});return {ok:r.ok,data:r.ok?await r.json():null}});
+assert(buildInfo.ok&&buildInfo.data?.runtimeFiles>0,'production artifact is missing valid build-info.json');
 
 const startup=await page.evaluate(()=>{
   const nav=performance.getEntriesByType('navigation')[0];
@@ -98,12 +100,13 @@ assert.equal(migrated.replay.migrated,true,'legacy replay state should be marked
 // the already-started company can cold-reload with the browser network disabled.
 const registration=await page.evaluate(async()=>{
   const r=await navigator.serviceWorker.ready;
-  return {scope:r.scope,active:!!r.active};
+  return {scope:r.scope,active:!!r.active,caches:await caches.keys()};
 });
 assert(registration.active,'service worker never reached active state');
+assert(registration.caches.some(x=>/^frontier-lab-v\d+$/.test(x)),'versioned Frontier Lab cache was not created');
 if(!(await page.evaluate(()=>!!navigator.serviceWorker.controller))){
   await page.reload({waitUntil:'networkidle',timeout:B.maxInitialLoadMs});
-  await page.waitForFunction(()=>!!navigator.serviceWorker.controller,{timeout:B.maxInitialLoadMs});
+  await page.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:B.maxInitialLoadMs});
 }
 assert(await page.evaluate(()=>!!navigator.serviceWorker.controller),'page is not controlled by the service worker');
 
@@ -124,7 +127,7 @@ assert.equal(errors.length,0,`release candidate runtime errors: ${errors.join(' 
 await ctx.close();
 await browser.close();
 console.log(JSON.stringify({
-  releaseCandidate:'pass',wallLoadMs:wallLoad,navigationMs:Math.round(startup.navigationMs),
+  releaseCandidate:'pass',buildVersion:buildInfo.data.version,wallLoadMs:wallLoad,navigationMs:Math.round(startup.navigationMs),
   initialTransferBytes:startup.transferBytes,initialResources:startup.resourceCount,
   founderDomNodes:startup.domNodes,gameDomNodes:postRender.domNodes,
   renderLoopMs:Number(renderLoop.toFixed(1)),offlineReloadMs:offlineMs,budgetVersion:budgets.version
