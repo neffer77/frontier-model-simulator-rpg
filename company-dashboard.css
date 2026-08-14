@@ -1,0 +1,84 @@
+/* Item 13.7 — Company/Home dashboard composition.
+   Collects feature launchers into one intentional system hub instead of a stack of orphan strips. */
+
+.company-system-hub{
+  margin:12px 0 14px;
+  padding:16px;
+  background:var(--fl-gradient-panel);
+  border:1px solid var(--fl-border-default);
+  border-radius:var(--fl-radius-xl);
+  box-shadow:var(--fl-shadow-panel);
+  color:var(--fl-text-primary);
+  overflow:hidden;
+}
+.company-system-hub-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:12px;
+  padding:0 2px 11px;
+  border-bottom:1px solid var(--fl-border-subtle);
+}
+.company-system-hub-copy{min-width:0}
+.company-system-hub-copy .eyebrow{margin-bottom:4px}
+.company-system-hub-copy h2{margin:0;font-size:20px;letter-spacing:-.025em}
+.company-system-hub-copy p{margin:5px 0 0;color:var(--fl-text-muted);font-size:11px;line-height:1.5;max-width:760px}
+.company-system-count{flex:0 0 auto}
+.company-system-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
+.company-system-group{
+  min-width:0;
+  padding:12px;
+  background:var(--fl-surface-1);
+  border:1px solid var(--fl-border-subtle);
+  border-radius:var(--fl-radius-lg);
+  box-shadow:var(--fl-shadow-soft);
+}
+.company-system-group-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:9px}
+.company-system-group-head div{min-width:0}
+.company-system-group-head strong{display:block;color:var(--fl-text-secondary);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.company-system-group-head small{display:block;margin-top:3px;color:var(--fl-text-muted);font-size:9px;line-height:1.35}
+.company-system-group-count{flex:0 0 auto;min-width:25px;height:25px;padding:0 7px;font-size:9px}
+.company-system-launch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
+
+/* Module CSS may make launchers full-width block strips. Inside the hub they become compact cards. */
+.company-system-hub .fl-launch{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  min-height:72px;
+  height:100%;
+  margin:0!important;
+  padding:11px 12px;
+  display:flex!important;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:3px;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  text-align:left;
+}
+.company-system-hub .fl-launch>span{display:block;font-size:9px;font-weight:900;letter-spacing:.11em;line-height:1.2;color:var(--fl-text-accent)}
+.company-system-hub .fl-launch>b{display:block;font-size:12px;line-height:1.3;color:var(--fl-text-primary)}
+.company-system-hub .fl-launch>small{display:block;font-size:9px;line-height:1.35;color:var(--fl-text-muted)}
+.company-system-hub .fl-launch:focus-visible{z-index:1}
+.company-system-hub .fl-launch.locked,.company-system-hub .fl-launch[aria-disabled="true"],.company-system-hub .fl-launch:disabled{background:var(--fl-disabled-bg)!important;border-color:var(--fl-disabled-border)!important;color:var(--fl-disabled-text)!important;box-shadow:none;opacity:.7}
+
+/* Never allow a grouping shell or launcher to become a bright browser-default surface. */
+.company-system-hub,.company-system-group,.company-system-launch-grid{color-scheme:dark}
+
+@media(max-width:980px){
+  .company-system-groups{grid-template-columns:1fr}
+  .company-system-launch-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:720px){
+  .company-system-hub{margin:8px 0 10px;padding:12px;border-radius:var(--fl-radius-lg)}
+  .company-system-hub-head{align-items:flex-start;margin-bottom:9px;padding-bottom:9px}
+  .company-system-hub-copy h2{font-size:18px}.company-system-hub-copy p{font-size:10px}
+  .company-system-groups{gap:8px}
+  .company-system-group{padding:10px}
+  .company-system-launch-grid{grid-template-columns:1fr;gap:7px}
+  .company-system-hub .fl-launch{min-height:62px;padding:10px 11px}
+}
+@media(prefers-reduced-motion:reduce){.company-system-hub .fl-launch{transition:none!important}}
