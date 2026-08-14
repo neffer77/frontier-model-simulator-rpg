@@ -17,7 +17,7 @@ for(const token of ['--fl-border-default','--fl-surface-4','--fl-surface-2','--f
 assert(css.includes('.pd-collapsed>:not(.pd-toggle){display:none!important}'),'collapsed state must hide all section content except the disclosure row');
 assert(css.includes('padding:0!important'),'collapsed sections must not retain page-local padding that creates blank bars');
 
-for(const contract of ['frontier-disclosure:v2:','MutationObserver','frontierDisclosureSync','frontierDisclosureReset','aria-expanded','data-pd-state','classHint(section)','slug(title)','media.addEventListener']){
+for(const contract of ['frontier-disclosure:v2:','MutationObserver','frontierDisclosureSync','frontierDisclosureReset','aria-expanded','dataset.pdState','classHint(section)','slug(title)','media.addEventListener']){
   assert(js.includes(contract),`runtime disclosure contract missing ${contract}`);
 }
 assert(!js.includes('`${i}:${titleFor(section,i)}`'),'disclosure memory must not depend on raw section index');
