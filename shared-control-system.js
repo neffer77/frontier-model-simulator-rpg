@@ -7,7 +7,7 @@
   const text=el=>(el?.textContent||'').trim().replace(/\s+/g,' ').toLowerCase();
 
   function isLaunch(button){return button.classList.contains('fl-launch')||suffix(button,'-launch')}
-  function isCardChoice(button){return button.matches('.tier,.tech-node,.decision button,.knowledge button,.term,.tech-help,.pd-toggle,.lab-disclosure-toggle')||suffix(button,'-node')}
+  function isCardChoice(button){return button.matches('.tier,.tech-node,.decision button,.knowledge button,.term,.tech-help,.pd-toggle,.gameplay-system-grid button')||suffix(button,'-node')}
   function clearVariant(button){for(const c of VARIANTS)button.classList.remove(c)}
   function setVariant(button,variant){
     button.classList.add('fl-btn',`fl-btn-${variant}`);
@@ -27,7 +27,7 @@
     return button.classList.contains('primary')||Boolean(button.closest('lab-objective-card,.gameplay-objective,lab-install-prompt'))||Boolean(button.closest('.story-actions')&&button===button.parentElement?.lastElementChild)||/^(continue|advance|start training|found the lab|install|confirm|approve|hire|ship|launch run)\b/.test(t);
   }
   function isGhost(button){
-    if(button.classList.contains('ghost'))return true;
+    if(button.classList.contains('ghost')||button.classList.contains('lab-disclosure-toggle'))return true;
     const parent=button.parentElement;
     return Boolean(parent&&(parent.matches('header,.fl-section-head,[class$="-head"]')||parent.classList.contains('panel-title')));
   }
