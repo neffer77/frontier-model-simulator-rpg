@@ -3,6 +3,7 @@
   "private":true,
   "scripts":{
     "serve":"python3 -m http.server 4173",
+    "build:site":"node scripts/build-site.mjs",
     "setup:browser":"playwright install chromium",
     "test:browser":"node tests/browser-smoke.mjs",
     "test:balance":"node tests/balance-pacing.mjs",
