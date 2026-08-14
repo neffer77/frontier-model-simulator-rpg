@@ -1,6 +1,6 @@
 // V3 company metagame. Loaded after frontier-lab.js so the technical simulator remains separable.
 const FUNDING=[
-  {id:"seed",rep:4,cash:3,compute:20000,label:"Seed round"},
+  {id:"seed",rep:2,cash:3,compute:20000,label:"Seed round"},
   {id:"seriesA",rep:15,cash:8,compute:120000,label:"Series A"},
   {id:"growth",rep:35,cash:25,compute:650000,label:"Frontier growth round"},
   {id:"mega",rep:75,cash:80,compute:3200000,label:"Strategic compute round"}
