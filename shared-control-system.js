@@ -57,7 +57,7 @@
   }
 
   function classifyGroup(el){
-    if(!(el instanceof Element))return;
+    if(!(el instanceof Element)||el.classList.contains('story-actions'))return;
     if(el.classList.contains('fl-actions')||suffix(el,'-actions')){
       el.classList.add('fl-control-group');
       if(/footer|actions-end|dialog-actions/.test(el.className))el.dataset.flAlign='end';
