@@ -1,0 +1,103 @@
+/* Item 13.4 — shared panel/card system.
+   New UI should use these fl-* primitives directly. Legacy modules are tagged at runtime by shared-surface-system.js. */
+
+.fl-panel{
+  background:var(--fl-gradient-panel);
+  border:1px solid var(--fl-border-default);
+  border-radius:var(--fl-radius-xl);
+  box-shadow:var(--fl-shadow-panel);
+  color:var(--fl-text-primary);
+}
+
+.fl-card{
+  background:var(--fl-surface-2);
+  border:1px solid var(--fl-border-subtle);
+  border-radius:var(--fl-radius-lg);
+  box-shadow:var(--fl-shadow-soft);
+  color:var(--fl-text-primary);
+}
+.fl-card>header{gap:12px}
+.fl-card>header :where(h2,h3,h4){margin-top:0}
+
+.fl-kpi-grid{display:grid;gap:10px}
+.fl-kpi-grid>.fl-kpi,.fl-kpi{
+  background:var(--fl-surface-inset);
+  border:1px solid var(--fl-border-subtle);
+  border-radius:var(--fl-radius-md);
+  color:var(--fl-text-primary);
+}
+.fl-kpi :where(span,small){color:var(--fl-text-muted)}
+.fl-kpi>b{color:var(--fl-text-primary)}
+
+.fl-launch{
+  background:linear-gradient(135deg,var(--fl-surface-4),var(--fl-surface-2));
+  border:1px solid var(--fl-border-default);
+  border-radius:var(--fl-radius-lg);
+  box-shadow:inset 0 1px 0 #ffffff0d,var(--fl-shadow-soft);
+  color:var(--fl-text-primary);
+  min-height:58px;
+  padding:12px 14px;
+  text-align:left;
+}
+.fl-launch:hover:not(:disabled){
+  background:linear-gradient(135deg,var(--fl-surface-5),var(--fl-surface-3));
+  border-color:var(--fl-border-accent);
+  box-shadow:inset 0 1px 0 #ffffff14,var(--fl-shadow-soft),var(--fl-shadow-accent);
+}
+.fl-launch:focus-visible{border-color:var(--fl-border-focus);box-shadow:var(--fl-focus-ring),var(--fl-shadow-soft)}
+.fl-launch :where(span,small){color:var(--fl-text-muted)}
+.fl-launch>b{color:var(--fl-text-primary)}
+
+.fl-row{
+  border-top:1px solid var(--fl-border-subtle);
+  color:var(--fl-text-secondary);
+}
+.fl-row:first-child{border-top-color:transparent}
+
+.fl-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.fl-empty{
+  background:var(--fl-surface-1);
+  border:1px dashed var(--fl-border-default);
+  border-radius:var(--fl-radius-lg);
+  color:var(--fl-text-muted);
+  min-height:72px;
+  padding:16px;
+}
+.fl-empty :where(h2,h3,b,strong){color:var(--fl-text-secondary)}
+
+.fl-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  min-height:24px;
+  padding:4px 8px;
+  border:1px solid var(--fl-border-default);
+  border-radius:999px;
+  background:var(--fl-surface-muted);
+  color:var(--fl-text-accent);
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.06em;
+}
+.fl-badge.danger,.fl-badge.fail,.fl-badge.blocked{background:var(--fl-danger-bg);border-color:var(--fl-danger-border);color:var(--fl-danger)}
+.fl-badge.warn,.fl-badge.warning,.fl-badge.risk{background:var(--fl-warning-bg);border-color:var(--fl-warning-border);color:var(--fl-warning)}
+.fl-badge.success,.fl-badge.pass,.fl-badge.live,.fl-badge.complete{background:var(--fl-success-bg);border-color:var(--fl-success-border);color:var(--fl-success)}
+
+.fl-section-head{
+  color:var(--fl-text-primary);
+}
+.fl-section-head :where(.eyebrow,small,span){color:var(--fl-text-muted)}
+.fl-section-head :where(h1,h2,h3){color:var(--fl-text-primary)}
+
+/* Existing core simulator panels become the reference surface without changing their layout. */
+.panel.fl-panel{background:var(--fl-gradient-panel);border-color:var(--fl-border-default);border-radius:var(--fl-radius-xl);box-shadow:var(--fl-shadow-panel)}
+.resource-strip.fl-kpi-grid>.fl-kpi{border-radius:0;border-top:0;border-bottom:0;background:transparent}
+.resource-strip.fl-kpi-grid>.fl-kpi:first-child{border-left:0}.resource-strip.fl-kpi-grid>.fl-kpi:last-child{border-right:0}
+
+@media(max-width:720px){
+  .fl-card{border-radius:var(--fl-radius-lg)}
+  .fl-launch{min-height:52px;padding:11px 12px}
+  .fl-empty{padding:14px}
+}
