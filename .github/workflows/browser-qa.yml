@@ -24,3 +24,5 @@ jobs:
         run: node tests/browser-smoke.mjs
       - name: Run deterministic balance and pacing tests
         run: node tests/balance-pacing.mjs
+      - name: Run technical realism tests
+        run: node tests/technical-realism.mjs
