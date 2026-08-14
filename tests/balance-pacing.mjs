@@ -20,6 +20,11 @@ assert(seed.claimed.includes('seed'),'first shipped-model reputation should unlo
 assert(seed.once-seed.before>=20000,'seed round must add meaningful compute');
 assert.equal(seed.twice,seed.once,'funding compute must be idempotent');
 
+const repeatFundingRep=await page.evaluate(()=>{
+  const models=state.models,reputation=state.reputation;state.models=Array.from({length:7},(_,i)=>({name:`CHEAP-${i}`,tier:'350M Dense',day:i+1}));state.reputation=14;const effective=balanceFundingReputation();state.models=models;state.reputation=reputation;return effective;
+});
+assert(repeatFundingRep<15,'repeating the cheapest tier must not farm Series A eligibility');
+
 const infra=await page.evaluate(()=>{
   state.cashM=50;const before=state.compute,level=state.infra;upgradeInfra();return {before,after:state.compute,from:level,to:state.infra};
 });
