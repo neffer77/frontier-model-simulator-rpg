@@ -9,13 +9,17 @@
     companyPressure:{title:'The Room Changes',kicker:'COMPANY MILESTONE',objective:'Review runway, commitments, and leadership confidence before another expensive bet.',cta:'Open systems',action:'gameplayToggleMenu',frames:[['Narrator','The whiteboard still has model diagrams. The new deck has burn, runway, commitments, and downside cases.'],['Elena Kovacs','We can still do ambitious research. Every large research bet is now also a company bet.'],['You','Then we make the tradeoff explicitly.']]},
     criticalDecision:{title:'The Model Is Asking For A Decision',kicker:'DEPLOYMENT MILESTONE',objective:'Review evaluations, uncertainty, and mitigations before deployment.',cta:'Open systems',action:'gameplayToggleMenu',frames:[['Sam Brooks','The evals are evidence, not permission. A green dashboard does not erase uncertainty.'],['Zoe Patel','Coverage matters. Unknowns matter. Record what we actually knew at the decision point.'],['You','No vibes. Show me the evidence and the uncertainty.']]}
   };
-  function ensure(){
-    state.story ||= {version:2,seen:[],active:null,index:0,objective:null};state.story.seen ||= [];
-    if(typeof state.story.objective==='string')state.story.objective={kicker:'YOUR NEXT MOVE',title:'Continue the story',body:state.story.objective,cta:'Open home',action:'gameplayGoHome',tone:'normal'};
-    state.story.version=2;
-  }
+  function ensure(){state.story ||= {version:2,seen:[],active:null,index:0,objective:null};state.story.seen ||= [];if(typeof state.story.objective==='string')state.story.objective={kicker:'YOUR NEXT MOVE',title:'Continue the story',body:state.story.objective,cta:'Open home',action:'gameplayGoHome',tone:'normal'};state.story.version=2}
   function data(){return state.story.active==='intro'?INTRO:MILESTONES[state.story.active]}
-  function ready(id){if(id==='firstRun')return !!state.activeRun||(state.runHistory||[]).length>0;if(id==='firstIncident')return !!state.selectedIncident||(state.runHistory||[]).some(x=>x.incident)||!!state.activeRun?.incident;if(id==='firstModel')return (state.models||[]).length>0;if(id==='teamGrowth')return (state.npcEmployees||[]).length>=10||(state.employees||0)>=10;if(id==='companyPressure')return !!state.financeStrategy||!!state.governance||!!state.quarterlyBoard;if(id==='criticalDecision')return (state.aiSafety?.deployments||[]).length>0||(state.aiSafety?.residualRisk||0)>.6;return false}
+  function ready(id){
+    if(id==='firstRun')return !!state.activeRun||(state.runHistory||[]).length>0;
+    if(id==='firstIncident')return !!state.selectedIncident||(state.runHistory||[]).some(x=>x.incident)||!!state.activeRun?.incident;
+    if(id==='firstModel')return (state.models||[]).length>0;
+    if(id==='teamGrowth')return (state.npcEmployees||[]).length>=10||(state.employees||0)>=10;
+    if(id==='companyPressure')return (state.day||1)>=20||(state.financeStrategy?.rounds||[]).length>0||(state.governance?.motions||[]).length>0||(state.quarterlyBoard?.quarter||1)>1;
+    if(id==='criticalDecision')return (state.aiSafety?.deployments||[]).length>0||(state.aiSafety?.residualRisk||0)>.6;
+    return false;
+  }
   function start(id){ensure();const s=id==='intro'?INTRO:MILESTONES[id];if(!s)return;state.story.active=id;state.story.index=0;state.story.objective={kicker:s.kicker,title:s.title,body:s.objective,cta:s.cta,action:s.action,tone:id==='firstIncident'?'danger':'active'};save()}
   function maybe(){ensure();if(!state.started||state.story.active||!state.story.seen.includes('intro'))return;for(const id of Object.keys(MILESTONES)){if(!state.story.seen.includes(id)&&ready(id)){start(id);break}}}
   function close(){ensure();const id=state.story.active;if(id&&!state.story.seen.includes(id))state.story.seen.push(id);state.story.active=null;state.story.index=0;save();render()}
