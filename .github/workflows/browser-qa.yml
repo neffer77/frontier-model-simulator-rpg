@@ -48,8 +48,19 @@ jobs:
             cat /tmp/frontier-http.log
             exit 1
           fi
+
+          set +e
           npm run test:qa
+          QA_STATUS=$?
           npm run visual:inventory
+          VISUAL_STATUS=$?
+          set -e
+
+          if [ "$QA_STATUS" -ne 0 ] || [ "$VISUAL_STATUS" -ne 0 ]; then
+            echo "RC QA status: $QA_STATUS"
+            echo "Visual inventory status: $VISUAL_STATUS"
+            exit 1
+          fi
 
       - name: Upload Item 13.1 visual inventory
         if: always()
