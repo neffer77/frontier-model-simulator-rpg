@@ -14,6 +14,7 @@ const localRef=r=>!/^(https?:|data:|#|mailto:)/.test(r);
 const clean=r=>r.split(/[?#]/)[0].replace(/^\.\//,'');
 const refs=[...html.matchAll(/(?:src|href)="([^"]+)"/g)].map(m=>m[1]).filter(localRef);
 const runtime=[...new Set(refs.map(clean))];
+const runtimeSet=new Set(runtime);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>clean(m[1]));
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>clean(m[1]));
 
@@ -34,17 +35,21 @@ for(const file of [...scripts,...styles])assert(bytes(file)<=budgets.runtime.max
 // top-level await, so validate it with module grammar by checking a temporary .mjs copy.
 function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{const p=path.join(dir,e.name);if(e.name==='node_modules'||e.name==='_site'||e.name==='.git')return[];return e.isDirectory()?walk(p):[p]})}
 const launcherPath=path.join(root,'Frontier Model Simulator.js');
-for(const file of walk(root).filter(f=>/\.(?:js|mjs)$/.test(f)&&f!==launcherPath)){
-  execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
-}
+for(const file of walk(root).filter(f=>/\.(?:js|mjs)$/.test(f)&&f!==launcherPath))execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 const launcherCheck=path.join(os.tmpdir(),'frontier-scriptable-release-check.mjs');
 fs.copyFileSync(launcherPath,launcherCheck);
 try{execFileSync(process.execPath,['--check',launcherCheck],{stdio:'pipe'})}finally{fs.rmSync(launcherCheck,{force:true})}
 
-// PWA cache must contain every index-loaded asset or an installed app can work online but fail after refresh offline.
+// PWA cache parity is two-way: index assets may not be missing from CORE, and stale CORE
+// entries may not refer to repo files that the minimal production artifact no longer ships.
 const sw=read('sw.js');
 const cached=new Set([...sw.matchAll(/["']\.\/([^"']+)["']/g)].map(m=>clean(m[1])));
+assert(cached.has('index.html'),'service worker CORE must include index.html');
 for(const file of runtime)assert(cached.has(file),`service worker CORE is missing index asset: ${file}`);
+for(const file of cached){
+  assert(exists(file),`service worker CORE references missing file: ${file}`);
+  if(file!=='index.html')assert(runtimeSet.has(file),`service worker CORE has stale non-runtime asset: ${file}`);
+}
 assert(/const CACHE=['"]frontier-lab-v\d+['"]/.test(sw),'service worker cache must have an explicit version');
 assert(sw.includes('self.skipWaiting()'),'service worker should activate an installed release promptly');
 assert(sw.includes('self.clients.claim()'),'service worker should claim pages after activation');
@@ -71,6 +76,6 @@ assert(pkg.scripts?.['test:static'],'package.json must expose test:static');
 assert(pkg.scripts?.['test:rc'],'package.json must expose test:rc');
 
 console.log(JSON.stringify({
-  releaseStatic:'pass',runtimeAssets:runtime.length,scripts:scripts.length,styles:styles.length,
+  releaseStatic:'pass',runtimeAssets:runtime.length,cachedAssets:cached.size,scripts:scripts.length,styles:styles.length,
   javascriptBytes:jsBytes,cssBytes,budgetVersion:budgets.version
 },null,2));
