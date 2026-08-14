@@ -11,7 +11,7 @@
     "test:replay":"node tests/replayability.mjs",
     "test:theme":"node tests/theme-tokens.mjs",
     "test:firewall":"node tests/browser-default-firewall.mjs",
-    "test:static":"node tests/release-static.mjs && node tests/theme-tokens.mjs",
+    "test:static":"node tests/release-static.mjs && node tests/theme-tokens.mjs && node tests/firewall-static.mjs",
     "test:release":"node tests/release-candidate.mjs",
     "visual:inventory":"node tests/visual-inventory.mjs",
     "test:qa":"node tests/browser-smoke.mjs && node tests/balance-pacing.mjs && node tests/technical-realism.mjs && node tests/replayability.mjs && node tests/browser-default-firewall.mjs && node tests/release-candidate.mjs",
