@@ -38,6 +38,13 @@ const burn=await page.evaluate(()=>{
 assert(burn.after<burn.before,'simulated time must consume operating cash');
 assert(Math.abs((burn.before-burn.after)-burn.monthly)<0.05,'30 simulated days should charge about one month of burn');
 
+const debt=await page.evaluate(()=>{
+  ensureTechDebtState();state.techDebt.items=[];state.techDebt.policy.autoSeeded=true;state.techDebt.nextId=1;const item=techDebtAdd('fragile_precision','balance-test');const open=techDebtImpact().score;techDebtPay(item.id,'accept');const accepted=techDebtImpact().score;return {open,accepted,status:item.status};
+});
+assert.equal(debt.status,'accepted','debt should enter accepted state');
+assert(debt.accepted>0,'accepted technical debt must retain real consequence pressure');
+assert(debt.accepted<debt.open,'accepted risk should reduce pressure relative to unresolved debt, not erase it');
+
 const cooldown=await page.evaluate(()=>{
   state.campaign.failureInjected=true;state.selectedIncident=null;state.activeRun={name:'BAL-TEST',tier:'350m',progress:35,phase:'pretraining',physics:trainingPhysics(MODEL_TIERS[0]),startedDay:state.day,loss:2.5,incident:null,balanceIncidentCount:2};state.balancePacing.lastResolvedIncidentDay=state.day;advanceRun();return {incident:state.activeRun?.incident||null,progress:state.activeRun?.progress||100};
 });
