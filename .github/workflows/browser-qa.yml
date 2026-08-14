@@ -27,12 +27,15 @@ jobs:
       - name: Static release integrity and size budgets
         run: npm run test:static
 
+      - name: Assemble production artifact
+        run: npm run build:site
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run full browser release-candidate suite
+      - name: Run full browser release-candidate suite against _site
         run: |
-          python3 -m http.server 4173 >/tmp/frontier-http.log 2>&1 &
+          python3 -m http.server 4173 --directory _site >/tmp/frontier-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
           for i in {1..30}; do
