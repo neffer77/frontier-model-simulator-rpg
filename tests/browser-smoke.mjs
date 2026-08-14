@@ -28,8 +28,9 @@ for(const d of devices){
   const team=page.getByRole('button',{name:/team/i}).last();
   assert((await team.getAttribute('class')||'').includes('locked'),`${d.name}: advanced Team navigation should start locked`);
 
-  await page.evaluate(()=>scrollTo(0,Math.max(600,document.body.scrollHeight/2)));
+  await page.evaluate(()=>scrollTo(0,document.body.scrollHeight));
   const staleY=await page.evaluate(()=>scrollY);
+  assert(staleY>80,`${d.name}: test page is not tall enough to exercise navigation scrolling`);
   await page.getByRole('button',{name:/train/i}).last().click();await page.waitForTimeout(450);
   const trainPosition=await page.evaluate(()=>{const el=document.querySelector('.run');if(!el)return null;const r=el.getBoundingClientRect();return {scrollY,top:r.top,bottom:r.bottom,height:innerHeight}});
   assert(trainPosition,`${d.name}: training section missing`);
