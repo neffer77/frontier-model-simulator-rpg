@@ -6,7 +6,7 @@
 
   // Item 9 established one canonical economy. Item 11 should add replay variants without
   // silently forcing every first-time player into a modifier. Balanced Lab is the neutral path.
-  archetypes.balanced ||= {
+  const balanced={
     name:'Balanced Lab',
     tag:'Canonical company start',
     cash:1,
@@ -15,6 +15,11 @@
     reputation:0,
     desc:'No starting modifier. Preserves the canonical Item 9 economy while you learn the full simulator.'
   };
+  // Rebuild insertion order so the canonical path is the first archetype the player sees.
+  const specialized=Object.entries(archetypes).filter(([id])=>id!=='balanced');
+  for(const id of Object.keys(archetypes))delete archetypes[id];
+  archetypes.balanced=balanced;
+  for(const [id,value] of specialized)archetypes[id]=value;
 
   try{
     if(!localStorage.getItem(SETUP_KEY)){
