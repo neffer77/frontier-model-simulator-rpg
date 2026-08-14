@@ -14,12 +14,15 @@ for(const cls of ['.fl-btn','.fl-btn-primary','.fl-btn-secondary','.fl-btn-ghost
 for(const token of ['--fl-gradient-action','--fl-surface-4','--fl-surface-hover','--fl-border-default','--fl-border-focus','--fl-text-primary','--fl-text-secondary','--fl-danger-border','--fl-disabled-bg','--fl-focus-ring']){
   assert(css.includes(`var(${token})`),`shared controls should consume theme token ${token}`);
 }
-for(const contract of ['frontierControlDecorate','MutationObserver','data.flControl','isDestructive','isIcon','isNav','isPrimary','isGhost','isLaunch','isCardChoice']){
+for(const contract of ['frontierControlDecorate','MutationObserver','dataset.flControl','isDestructive','isIcon','isNav','isPrimary','isGhost','isLaunch','isCardChoice']){
   assert(js.includes(contract),`shared control adapter missing ${contract}`);
 }
-for(const exclusion of ['.tier','.tech-node','.decision button','.pd-toggle','.lab-disclosure-toggle']){
+for(const exclusion of ['.tier','.tech-node','.decision button','.pd-toggle','.gameplay-system-grid button']){
   assert(js.includes(exclusion),`specialized control exclusion missing ${exclusion}`);
 }
+assert(js.includes("classList.contains('lab-disclosure-toggle')"),'legacy lab-disclosure toggle should join ghost control styling');
+assert(css.includes('gameplay-bottom-nav button.fl-btn.fl-btn-nav'),'bottom navigation layout must be preserved');
+assert(css.includes('lab-disclosure>button.fl-btn.fl-btn-ghost'),'lab-disclosure controls need shared full-width treatment');
 
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
