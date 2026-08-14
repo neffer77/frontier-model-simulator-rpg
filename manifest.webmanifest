@@ -1,0 +1,19 @@
+{
+  "name": "Frontier Model Simulator",
+  "short_name": "Frontier Lab",
+  "description": "A technical frontier AI lab and company simulator.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050812",
+  "theme_color": "#050812",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "frontier-lab-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
