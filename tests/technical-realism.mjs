@@ -9,10 +9,13 @@ await page.goto(url,{waitUntil:'networkidle'});
 const found=page.getByRole('button',{name:/found the lab/i});if(await found.count())await found.click();
 for(let i=0;i<8&&await page.locator('.story-overlay').count();i++){const next=page.locator('.story-overlay button.primary');if(await next.count())await next.click();else break;await page.waitForTimeout(30)}
 
-const audit=await page.evaluate(()=>({entries:REALISM_AUDIT.length,sources:Object.keys(REALISM_SOURCES).length,statuses:[...new Set(REALISM_AUDIT.map(x=>x.status))]}));
-assert(audit.entries>=12,'realism audit should cover the major simulator domains');
-assert(audit.sources>=10,'realism audit should expose primary-source registry');
-for(const status of ['grounded','corrected','approx','synthetic','game'])assert(audit.statuses.includes(status),`missing ${status} realism classification`);
+const audit=await page.evaluate(()=>({entries:REALISM_AUDIT.length,sources:Object.keys(REALISM_SOURCES).length,statuses:[...new Set(REALISM_AUDIT.map(x=>x.status))],domains:REALISM_AUDIT.map(x=>x.domain)}));
+assert(audit.entries>=19,'realism audit should cover technical and management simulator domains');
+assert(audit.sources>=12,'realism audit should expose the expanded primary-source registry');
+for(const status of ['grounded','corrected','approx','synthetic','game','gap'])assert(audit.statuses.includes(status),`missing ${status} realism classification`);
+assert(audit.domains.includes('Distributed launcher'),'distributed launcher realism must be audited');
+assert(audit.domains.includes('Architecture economics'),'architecture economics must be labeled');
+assert(audit.domains.includes('Dedicated AI safety / security'),'absent safety/security systems must be recorded as a coverage gap');
 
 const physics=await page.evaluate(()=>{
   const dense=trainingPhysics(MODEL_TIERS.find(x=>x.id==='70b'));
@@ -33,8 +36,9 @@ assert(prereq.some(x=>x.startsWith('Lab prerequisite:')),'research-tree dependen
 assert(await page.locator('.realism-launch').isVisible(),'realism audit launcher should be visible');
 await page.locator('.realism-launch').click();await page.waitForTimeout(80);
 assert(await page.getByRole('heading',{name:'Technical Realism Audit'}).isVisible(),'realism audit page should open');
-assert((await page.locator('.realism-card').count())>=12,'realism page should show audit cards');
-assert((await page.locator('.realism-card a').count())>=10,'grounded claims should link primary sources');
+assert((await page.locator('.realism-card').count())>=19,'realism page should show expanded audit cards');
+assert((await page.locator('.realism-card a').count())>=12,'grounded/approximate claims should link primary sources');
+assert.equal(await page.locator('.realism-card.gap').count(),1,'realism page should show one explicit live-runtime coverage gap');
 
 assert.equal(errors.length,0,`runtime errors: ${errors.join(' | ')}`);
 await browser.close();
