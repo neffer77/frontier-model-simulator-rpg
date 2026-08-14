@@ -2,7 +2,6 @@
 (function(){
   const g=window;
   const q=s=>document.querySelector(s);
-  const safe=(name,...args)=>typeof g[name]==='function'?g[name](...args):undefined;
 
   function goCompany(anchor){
     state.view='company';save();render();
@@ -11,7 +10,6 @@
   function goTeam(){if(typeof g.hiringOpen==='function')g.hiringOpen();else goCompany()}
   function goModels(){const m=state.models?.at(-1);if(m&&typeof g.modelLabSelect==='function')g.modelLabSelect(m.id);else goCompany('.run')}
   function goData(){if(typeof g.dataEvalsOpen==='function')g.dataEvalsOpen();else goCompany()}
-  function goMore(){document.body.classList.toggle('gameplay-menu-open')}
   function closeMore(){document.body.classList.remove('gameplay-menu-open')}
 
   g.gameplayGoHome=()=>{closeMore();goCompany()};
@@ -19,9 +17,9 @@
   g.gameplayGoTeam=()=>{closeMore();goTeam()};
   g.gameplayGoModels=()=>{closeMore();goModels()};
   g.gameplayGoData=()=>{closeMore();goData()};
-  g.gameplayToggleMenu=()=>goMore();
+  g.gameplayToggleMenu=()=>document.body.classList.toggle('gameplay-menu-open');
   g.gameplayCloseMenu=()=>closeMore();
-  g.gameplayOpen=function(name){closeMore();if(typeof g[name]==='function')g[name();};
+  g.gameplayOpen=function(name){closeMore();if(typeof g[name]==='function')g[name]();};
 
   function currentObjective(){
     if(!state?.started)return null;
@@ -51,8 +49,8 @@
   ];
 
   function renderGuidance(){
-    if(!state?.started)return;
     document.querySelectorAll('.gameplay-guidance,.gameplay-bottom-nav,.gameplay-more-sheet').forEach(x=>x.remove());
+    if(!state?.started)return;
     const app=document.getElementById('app');if(!app)return;
     const obj=currentObjective(),help=helpForView();
 
