@@ -1,0 +1,62 @@
+/* Item 13.5 — progressive disclosure cleanup.
+   Mobile dense views get one intentional compact disclosure row per secondary section.
+   Desktop cleanup is handled by progressive-disclosure.js. */
+
+.pd-toggle{display:none}
+.pd-enhanced{position:relative}
+
+@media(max-width:720px){
+  .pd-enhanced{
+    scroll-margin-top:12px;
+  }
+  .pd-toggle{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    min-height:48px;
+    margin:0 0 10px!important;
+    padding:10px 12px!important;
+    border:1px solid var(--fl-border-default)!important;
+    border-radius:var(--fl-radius-md)!important;
+    background:linear-gradient(135deg,var(--fl-surface-4),var(--fl-surface-2))!important;
+    color:var(--fl-text-primary)!important;
+    box-shadow:inset 0 1px 0 #ffffff0d,var(--fl-shadow-soft)!important;
+    text-align:left;
+    cursor:pointer;
+  }
+  .pd-toggle:hover:not(:disabled){border-color:var(--fl-border-accent)!important}
+  .pd-toggle:focus-visible{outline:none!important;border-color:var(--fl-border-focus)!important;box-shadow:var(--fl-focus-ring),var(--fl-shadow-soft)!important}
+  .pd-toggle-copy{display:grid;gap:2px;min-width:0}
+  .pd-toggle-copy b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fl-text-primary);font-size:12px;line-height:1.25}
+  .pd-toggle-copy small{color:var(--fl-text-muted);font-size:9px;line-height:1.25;letter-spacing:.04em;text-transform:uppercase}
+  .pd-toggle-icon{font-style:normal;color:var(--fl-text-accent);font-size:20px;line-height:1;font-weight:700}
+
+  .pd-enhanced[data-pd-state="empty"]>.pd-toggle{
+    border-style:dashed!important;
+    background:var(--fl-surface-1)!important;
+  }
+  .pd-enhanced[data-pd-state="empty"] .pd-toggle-copy small{color:var(--fl-text-subtle)}
+  .pd-enhanced[data-pd-state="locked"]>.pd-toggle{
+    border-color:var(--fl-warning-border)!important;
+    background:var(--fl-warning-bg)!important;
+  }
+  .pd-enhanced[data-pd-state="locked"] .pd-toggle-copy small,
+  .pd-enhanced[data-pd-state="locked"] .pd-toggle-icon{color:var(--fl-warning)}
+
+  /* A collapsed section is exactly one compact summary row. Do not leave headings,
+     pseudo-elements, min-heights, or page-local padding visible around it. */
+  .pd-collapsed{
+    min-height:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  .pd-collapsed::before,.pd-collapsed::after{opacity:0!important}
+  .pd-collapsed>:not(.pd-toggle){display:none!important}
+  .pd-collapsed>.pd-toggle{margin:0!important;border-radius:inherit!important;box-shadow:none!important}
+}
+
+@media(min-width:721px){
+  .pd-toggle{display:none!important}
+}
