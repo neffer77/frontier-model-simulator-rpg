@@ -7,32 +7,45 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: browser-qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  smoke:
+  release-candidate:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install
-      - run: npx playwright install --with-deps chromium
-      - name: Start local game server
+
+      - name: Install pinned test dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Static release integrity and size budgets
+        run: npm run test:static
+
+      - name: Assemble production artifact
+        run: npm run build:site
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run full browser release-candidate suite against _site
         run: |
-          python3 -m http.server 4173 >/tmp/frontier-http.log 2>&1 &
+          python3 -m http.server 4173 --directory _site >/tmp/frontier-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
           for i in {1..30}; do
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
-              exit 0
+              break
             fi
             sleep 0.25
           done
-          cat /tmp/frontier-http.log
-          exit 1
-      - name: Run mobile and desktop smoke tests
-        run: node tests/browser-smoke.mjs
-      - name: Run deterministic balance and pacing tests
-        run: node tests/balance-pacing.mjs
-      - name: Run technical realism tests
-        run: node tests/technical-realism.mjs
-      - name: Run replayability and difficulty tests
-        run: node tests/replayability.mjs
+          if ! curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+            cat /tmp/frontier-http.log
+            exit 1
+          fi
+          npm run test:qa

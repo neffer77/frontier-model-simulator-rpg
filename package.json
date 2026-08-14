@@ -3,11 +3,16 @@
   "private":true,
   "scripts":{
     "serve":"python3 -m http.server 4173",
-    "test:browser":"playwright install chromium && node tests/browser-smoke.mjs",
+    "build:site":"node scripts/build-site.mjs",
+    "setup:browser":"playwright install chromium",
+    "test:browser":"node tests/browser-smoke.mjs",
     "test:balance":"node tests/balance-pacing.mjs",
     "test:realism":"node tests/technical-realism.mjs",
     "test:replay":"node tests/replayability.mjs",
-    "test:qa":"node tests/browser-smoke.mjs && node tests/balance-pacing.mjs && node tests/technical-realism.mjs && node tests/replayability.mjs"
+    "test:static":"node tests/release-static.mjs",
+    "test:release":"node tests/release-candidate.mjs",
+    "test:qa":"node tests/browser-smoke.mjs && node tests/balance-pacing.mjs && node tests/technical-realism.mjs && node tests/replayability.mjs && node tests/release-candidate.mjs",
+    "test:rc":"node tests/release-static.mjs && npm run test:qa"
   },
-  "devDependencies":{"playwright":"^1.54.2"}
+  "devDependencies":{"playwright":"1.54.2"}
 }

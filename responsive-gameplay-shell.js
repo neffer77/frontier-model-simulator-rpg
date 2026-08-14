@@ -2,7 +2,8 @@
 (function(){
   const g=window;
   const q=s=>document.querySelector(s);
-  function goCompany(anchor){state.view='company';save();render();if(anchor)requestAnimationFrame(()=>requestAnimationFrame(()=>q(anchor)?.scrollIntoView({block:'start',behavior:'smooth'})))}
+  function afterRenderScroll(anchor){requestAnimationFrame(()=>requestAnimationFrame(()=>{if(anchor)q(anchor)?.scrollIntoView({block:'start',behavior:'smooth'});else g.scrollTo({top:0,left:0,behavior:'instant'})}))}
+  function goCompany(anchor){state.view='company';save();render();afterRenderScroll(anchor)}
   function coreUnlocked(name){return typeof g.campaignCoreUnlocked!=='function'||g.campaignCoreUnlocked(name)}
   function systemUnlocked(fn){return typeof g.campaignSystemUnlocked!=='function'||g.campaignSystemUnlocked(fn)}
   function locked(label){if(typeof g.campaignLockedSystem==='function')g.campaignLockedSystem(label)}
