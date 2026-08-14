@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
@@ -29,11 +30,16 @@ assert(jsBytes<=budgets.runtime.maxJavaScriptBytes,`JavaScript ${jsBytes}B excee
 assert(cssBytes<=budgets.runtime.maxCssBytes,`CSS ${cssBytes}B exceeds ${budgets.runtime.maxCssBytes}B release budget`);
 for(const file of [...scripts,...styles])assert(bytes(file)<=budgets.runtime.maxSingleRuntimeAssetBytes,`${file} is ${bytes(file)}B; split it before exceeding ${budgets.runtime.maxSingleRuntimeAssetBytes}B`);
 
-// Every JavaScript file in the runtime and test harness must at least parse before a release candidate can ship.
+// Every browser/runtime/test script must parse. The Scriptable launcher intentionally uses
+// top-level await, so validate it with module grammar by checking a temporary .mjs copy.
 function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{const p=path.join(dir,e.name);if(e.name==='node_modules'||e.name==='_site'||e.name==='.git')return[];return e.isDirectory()?walk(p):[p]})}
-for(const file of walk(root).filter(f=>/\.(?:js|mjs)$/.test(f))){
+const launcherPath=path.join(root,'Frontier Model Simulator.js');
+for(const file of walk(root).filter(f=>/\.(?:js|mjs)$/.test(f)&&f!==launcherPath)){
   execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 }
+const launcherCheck=path.join(os.tmpdir(),'frontier-scriptable-release-check.mjs');
+fs.copyFileSync(launcherPath,launcherCheck);
+try{execFileSync(process.execPath,['--check',launcherCheck],{stdio:'pipe'})}finally{fs.rmSync(launcherCheck,{force:true})}
 
 // PWA cache must contain every index-loaded asset or an installed app can work online but fail after refresh offline.
 const sw=read('sw.js');
@@ -59,8 +65,10 @@ assert(/const BRANCH = "main";/.test(launcher),'Scriptable release launcher must
 
 const pkg=JSON.parse(read('package.json'));
 assert.equal(pkg.devDependencies?.playwright,'1.54.2','Playwright must be exactly pinned for reproducible RC browser tests');
+assert(pkg.scripts?.['build:site'],'package.json must expose build:site');
 assert(pkg.scripts?.['test:release'],'package.json must expose test:release');
 assert(pkg.scripts?.['test:static'],'package.json must expose test:static');
+assert(pkg.scripts?.['test:rc'],'package.json must expose test:rc');
 
 console.log(JSON.stringify({
   releaseStatic:'pass',runtimeAssets:runtime.length,scripts:scripts.length,styles:styles.length,
