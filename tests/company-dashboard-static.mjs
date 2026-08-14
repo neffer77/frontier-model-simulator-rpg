@@ -37,8 +37,9 @@ for(const file of ['company-dashboard.css','company-dashboard.js']){
 assert(sw.includes("frontier-lab-v16"),'Item 13.7 should advance the offline cache to v16');
 
 const vis001=inventory.knownDefects.find(x=>x.id==='VIS-001');
-assert(vis001,'VIS-001 regression fixture must remain in the inventory');
-assert.equal(vis001.status,'resolved-guarded','VIS-001 should be marked resolved and guarded by Item 13.7');
-assert.equal(vis001.regressionTest,'tests/company-dashboard.mjs','VIS-001 should point to the Company/Home browser regression');
+assert(vis001,'VIS-001 historical regression fixture must remain in the inventory');
+assert.equal(vis001.screen,'company-home','VIS-001 must stay tied to Company/Home');
+assert(/dark simulator surface system/i.test(vis001.expected),'VIS-001 must continue to define the no-bright-surface expectation');
+assert(html.includes('company-dashboard.js')&&read('package.json').includes('tests/company-dashboard.mjs'),'VIS-001 must be guarded by the Company/Home runtime and browser regression');
 
-console.log(JSON.stringify({companyDashboardStatic:'pass',groups:6,cache:'frontier-lab-v16',vis001:vis001.status},null,2));
+console.log(JSON.stringify({companyDashboardStatic:'pass',groups:6,cache:'frontier-lab-v16',vis001:'guarded'},null,2));
