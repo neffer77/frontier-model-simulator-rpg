@@ -1,0 +1,63 @@
+/* Item 13.3 — browser-default styling firewall.
+   Low-specificity fallbacks keep incomplete/legacy controls inside the dark simulator theme.
+   Any page/module selector can still override these defaults normally. */
+
+:where(button,input,select,textarea,summary){font:inherit;color:var(--fl-text-primary)}
+
+:where(button){
+  -webkit-appearance:none;
+  appearance:none;
+  background:var(--fl-surface-2);
+  color:var(--fl-text-primary);
+  border:1px solid var(--fl-border-default);
+  border-radius:var(--fl-radius-md);
+  padding:9px 12px;
+  box-shadow:inset 0 1px 0 #ffffff0d,0 5px 18px #0004;
+  cursor:pointer;
+}
+:where(button:hover:not(:disabled):not([aria-disabled="true"])){background:var(--fl-surface-hover);border-color:var(--fl-border-accent)}
+:where(button:active:not(:disabled):not([aria-disabled="true"])){background:var(--fl-surface-4);transform:translateY(1px)}
+:where(button:disabled,button[aria-disabled="true"]){background:var(--fl-disabled-bg);border-color:var(--fl-disabled-border);color:var(--fl-disabled-text);opacity:.62;box-shadow:none;cursor:not-allowed}
+
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea){
+  background:var(--fl-surface-inset);
+  color:var(--fl-text-primary);
+  border:1px solid var(--fl-border-default);
+  border-radius:var(--fl-radius-sm);
+  padding:8px 10px;
+  box-shadow:inset 0 1px 0 #ffffff08;
+}
+:where(textarea){resize:vertical}
+:where(input::placeholder,textarea::placeholder){color:var(--fl-text-disabled);opacity:1}
+:where(input:disabled,select:disabled,textarea:disabled){background:var(--fl-disabled-bg);border-color:var(--fl-disabled-border);color:var(--fl-disabled-text);opacity:.7}
+:where(select option){background:var(--fl-surface-2);color:var(--fl-text-primary)}
+
+:where(input[type="checkbox"],input[type="radio"]){accent-color:var(--fl-accent-cyan);color-scheme:dark}
+:where(input[type="range"]){accent-color:var(--fl-accent-cyan);color-scheme:dark}
+:where(input[type="color"]){background:var(--fl-surface-inset);border:1px solid var(--fl-border-default);border-radius:var(--fl-radius-sm)}
+
+:where(fieldset){border:1px solid var(--fl-border-default);border-radius:var(--fl-radius-lg);background:var(--fl-surface-1);color:var(--fl-text-primary)}
+:where(legend){color:var(--fl-text-secondary);padding:0 6px}
+:where(details){border-color:var(--fl-border-default);color:var(--fl-text-primary)}
+:where(summary){cursor:pointer;color:var(--fl-text-secondary)}
+:where(hr){border:0;border-top:1px solid var(--fl-border-subtle)}
+
+:where(button,input,select,textarea,summary,a):focus-visible{
+  outline:1px solid var(--fl-border-focus);
+  outline-offset:2px;
+  box-shadow:var(--fl-focus-ring);
+}
+
+/* Safari/Chromium autofill should not punch a pale rectangle through the app theme. */
+:where(input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,textarea:-webkit-autofill,select:-webkit-autofill){
+  -webkit-text-fill-color:var(--fl-text-primary);
+  -webkit-box-shadow:0 0 0 1000px var(--fl-surface-inset) inset;
+  caret-color:var(--fl-text-primary);
+}
+
+/* Empty native-looking controls should still have intentional dimensions/surfaces. */
+:where(button:empty){min-width:34px;min-height:34px}
+
+@media (prefers-reduced-motion:reduce){
+  :where(button){transition:none!important}
+}
