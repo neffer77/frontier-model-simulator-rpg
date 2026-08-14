@@ -1,0 +1,154 @@
+/* Item 13.6 — shared semantic control system.
+   Browser-default-firewall.css provides safety; this layer provides hierarchy and consistency. */
+
+button.fl-btn,
+input.fl-control-field,
+select.fl-control-field,
+textarea.fl-control-field{
+  font:inherit;
+}
+
+button.fl-btn{
+  --fl-btn-bg:var(--fl-surface-4);
+  --fl-btn-border:var(--fl-border-default);
+  --fl-btn-color:var(--fl-text-primary);
+  --fl-btn-hover-bg:var(--fl-surface-hover);
+  --fl-btn-hover-border:var(--fl-border-accent);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:38px;
+  padding:8px 12px;
+  border:1px solid var(--fl-btn-border);
+  border-radius:var(--fl-radius-md);
+  background:var(--fl-btn-bg);
+  color:var(--fl-btn-color);
+  box-shadow:inset 0 1px 0 #ffffff0d,0 5px 18px #0004;
+  font-weight:780;
+  line-height:1.15;
+  text-align:center;
+  text-decoration:none;
+  cursor:pointer;
+  transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease,transform .08s ease,opacity .16s ease;
+}
+button.fl-btn:hover:not(:disabled):not([aria-disabled="true"]){
+  background:var(--fl-btn-hover-bg);
+  border-color:var(--fl-btn-hover-border);
+}
+button.fl-btn:active:not(:disabled):not([aria-disabled="true"]){transform:translateY(1px)}
+button.fl-btn:focus-visible{outline:1px solid var(--fl-border-focus);outline-offset:2px;box-shadow:var(--fl-focus-ring),0 5px 18px #0004}
+
+button.fl-btn.fl-btn-primary{
+  --fl-btn-bg:var(--fl-gradient-action);
+  --fl-btn-border:var(--fl-accent-cyan);
+  --fl-btn-color:var(--fl-text-on-accent);
+  --fl-btn-hover-bg:linear-gradient(135deg,var(--fl-accent-cyan),#8aa0ff);
+  --fl-btn-hover-border:var(--fl-accent-cyan-strong);
+  box-shadow:0 8px 25px #4fbfff25,inset 0 1px 0 #ffffff44;
+  font-weight:900;
+}
+
+button.fl-btn.fl-btn-secondary{
+  --fl-btn-bg:var(--fl-surface-4);
+  --fl-btn-border:var(--fl-border-default);
+  --fl-btn-color:var(--fl-text-secondary);
+  --fl-btn-hover-bg:var(--fl-surface-hover);
+  --fl-btn-hover-border:var(--fl-border-accent);
+}
+
+button.fl-btn.fl-btn-ghost{
+  --fl-btn-bg:transparent;
+  --fl-btn-border:var(--fl-border-default);
+  --fl-btn-color:var(--fl-text-secondary);
+  --fl-btn-hover-bg:var(--fl-surface-2);
+  --fl-btn-hover-border:var(--fl-border-accent);
+  box-shadow:none;
+}
+
+button.fl-btn.fl-btn-danger{
+  --fl-btn-bg:linear-gradient(135deg,var(--fl-danger-surface),var(--fl-danger-bg));
+  --fl-btn-border:var(--fl-danger-border);
+  --fl-btn-color:var(--fl-danger);
+  --fl-btn-hover-bg:linear-gradient(135deg,#3a1721,var(--fl-danger-surface));
+  --fl-btn-hover-border:var(--fl-danger-strong);
+  box-shadow:0 5px 20px #ff48531a;
+}
+
+button.fl-btn.fl-btn-icon{
+  width:40px;
+  min-width:40px;
+  height:40px;
+  min-height:40px;
+  padding:0;
+  border-radius:50%;
+  font-size:18px;
+  line-height:1;
+}
+
+button.fl-btn.fl-btn-nav{
+  --fl-btn-bg:transparent;
+  --fl-btn-border:transparent;
+  --fl-btn-color:var(--fl-text-muted);
+  --fl-btn-hover-bg:var(--fl-surface-3);
+  --fl-btn-hover-border:var(--fl-border-subtle);
+  box-shadow:none;
+  font-weight:800;
+}
+button.fl-btn.fl-btn-nav:is(.active,[aria-current="page"],[aria-selected="true"]){
+  --fl-btn-bg:var(--fl-surface-5);
+  --fl-btn-border:var(--fl-border-accent);
+  --fl-btn-color:var(--fl-text-primary);
+  box-shadow:var(--fl-shadow-accent);
+}
+
+button.fl-btn.fl-btn-locked,
+button.fl-btn:disabled,
+button.fl-btn[aria-disabled="true"]{
+  --fl-btn-bg:var(--fl-disabled-bg);
+  --fl-btn-border:var(--fl-disabled-border);
+  --fl-btn-color:var(--fl-disabled-text);
+  --fl-btn-hover-bg:var(--fl-disabled-bg);
+  --fl-btn-hover-border:var(--fl-disabled-border);
+  box-shadow:none;
+  opacity:.68;
+  cursor:not-allowed;
+  filter:none;
+  transform:none;
+}
+
+button.fl-btn[aria-busy="true"]{cursor:progress;opacity:.82}
+button.fl-btn[aria-busy="true"]::after{content:"";width:11px;height:11px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:fl-control-spin .7s linear infinite}
+
+.fl-control-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fl-control-group[data-fl-align="end"]{justify-content:flex-end}
+.fl-control-group[data-fl-stack="true"]{align-items:stretch;flex-direction:column}
+
+input.fl-control-field:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+select.fl-control-field,
+textarea.fl-control-field{
+  min-height:38px;
+  border:1px solid var(--fl-border-default);
+  border-radius:var(--fl-radius-md);
+  background:var(--fl-surface-inset);
+  color:var(--fl-text-primary);
+  padding:8px 10px;
+  box-shadow:inset 0 1px 0 #ffffff08;
+}
+textarea.fl-control-field{min-height:88px;line-height:1.45}
+input.fl-control-field:focus-visible,select.fl-control-field:focus-visible,textarea.fl-control-field:focus-visible{border-color:var(--fl-border-focus);outline:1px solid var(--fl-border-focus);outline-offset:1px;box-shadow:var(--fl-focus-ring)}
+input.fl-control-field:disabled,select.fl-control-field:disabled,textarea.fl-control-field:disabled{background:var(--fl-disabled-bg);border-color:var(--fl-disabled-border);color:var(--fl-disabled-text);opacity:.72}
+
+/* Modal/header controls should remain visually subordinate to the primary task. */
+:where(.modal,.incident,.story-scene-card,.gameplay-more-sheet) button.fl-btn.fl-btn-secondary{min-height:40px}
+:where(.fl-section-head,[class$="-head"])>button.fl-btn.fl-btn-ghost{white-space:nowrap}
+
+@keyframes fl-control-spin{to{transform:rotate(360deg)}}
+
+@media(max-width:720px){
+  button.fl-btn{min-height:44px;padding:9px 12px}
+  button.fl-btn.fl-btn-icon{width:44px;min-width:44px;height:44px;min-height:44px;padding:0}
+  input.fl-control-field:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select.fl-control-field{min-height:44px}
+}
+
+@media(prefers-reduced-motion:reduce){button.fl-btn{transition:none!important}button.fl-btn[aria-busy="true"]::after{animation:none}}
