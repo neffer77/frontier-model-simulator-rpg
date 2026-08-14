@@ -8,19 +8,19 @@
      treatment that made white labels nearly disappear. Give generic simulator controls
      the same dark visual language as the core UI. */
   main button:not(.primary):not(.danger-btn):not(.term):not(.x):not(.rolebar button):not(.tier):not(.tech-node){
-    background:#101a2b;
-    color:#dff7ff;
-    border:1px solid #36516f;
+    background:var(--fl-surface-4);
+    color:var(--fl-text-primary);
+    border:1px solid var(--fl-border-strong);
     border-radius:12px;
-    box-shadow:inset 0 1px 0 #ffffff0d,0 5px 18px #0004;
+    box-shadow:inset 0 1px 0 #ffffff0d,var(--fl-shadow-soft);
     padding:10px 14px;
   }
   main button:not(.primary):not(.danger-btn):not(.term):not(.x):not(.rolebar button):not(.tier):not(.tech-node):active{
-    background:#18304a;
-    border-color:#69cce9;
+    background:var(--fl-surface-hover);
+    border-color:var(--fl-border-focus);
     transform:translateY(1px);
   }
-  main button:disabled{opacity:.42;filter:saturate(.55);box-shadow:none}
+  main button:disabled{opacity:.42;filter:saturate(.55);box-shadow:none;color:var(--fl-disabled-text);border-color:var(--fl-disabled-border)}
   /* Keep horizontal action groups usable rather than squeezing labels into tiny pills. */
   main section button,main article button{max-width:100%}
 }
