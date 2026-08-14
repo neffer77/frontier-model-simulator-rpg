@@ -62,7 +62,7 @@
     const app=document.getElementById('app');
     const shell=app?.querySelector('.game-shell');
     const existing=app?.querySelector('.company-system-hub');
-    if(!shell||!window.state?.started||state.view!=='company'){
+    if(!shell||typeof state==='undefined'||!state?.started||state.view!=='company'){
       existing?.remove();
       return;
     }
