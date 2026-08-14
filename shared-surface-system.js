@@ -13,6 +13,14 @@
     if(kind&&!el.dataset.flSurface)el.dataset.flSurface=kind;
   };
 
+  function preserveLaunchAccent(el){
+    if(el.style.getPropertyValue('--fl-launch-bg'))return;
+    const cs=getComputedStyle(el);
+    const bg=cs.backgroundImage&&cs.backgroundImage!=='none'?cs.backgroundImage:cs.backgroundColor;
+    if(bg&&bg!=='none')el.style.setProperty('--fl-launch-bg',bg);
+    if(cs.borderColor)el.style.setProperty('--fl-launch-border',cs.borderColor);
+  }
+
   function decorateGroup(group){
     add(group,'fl-kpi-grid','kpi-grid');
     for(const child of group.children)add(child,'fl-kpi','kpi');
@@ -23,7 +31,7 @@
     const cs=classes(el);
 
     if(el.classList.contains('panel'))add(el,'fl-panel','panel');
-    if(suffix(el,'-launch'))add(el,'fl-launch','launch');
+    if(suffix(el,'-launch')){preserveLaunchAccent(el);add(el,'fl-launch','launch')}
     if(suffix(el,'-card')&&!cs.some(c=>EXCLUDED_CARDS.has(c)))add(el,'fl-card','card');
     if(suffix(el,'-summary'))decorateGroup(el);
     if(suffix(el,'-row'))add(el,'fl-row','row');
