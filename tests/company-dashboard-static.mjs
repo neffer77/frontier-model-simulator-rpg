@@ -21,7 +21,7 @@ for(const group of ['Model & Engineering','Operations & Releases','Execution & P
 for(const signal of ['dataeval','tech debt','architecture','model famil','maintenance','operations','reliability','release governance','roadmap','workforce','critical path','governance','investment committee','competitive','ecosystem','policy','communications']){
   assert(js.includes(signal),`dashboard classifier missing signal: ${signal}`);
 }
-for(const contract of ['frontierCompanyDashboardSync','MutationObserver','data.flCompanyDashboard','dashboardSignature','isLauncher','groupFor','orderFor']){
+for(const contract of ['frontierCompanyDashboardSync','MutationObserver','dataset.flCompanyDashboard','dashboardSignature','isLauncher','groupFor','orderFor']){
   assert(js.includes(contract),`Company/Home runtime contract missing ${contract}`);
 }
 
