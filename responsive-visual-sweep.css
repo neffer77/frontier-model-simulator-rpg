@@ -9,7 +9,7 @@ html,body,#app{max-width:100%;min-width:0}
 body{overflow-x:clip}
 #app,[data-fl-responsive-mode]{min-width:0}
 #app :where(section,article,main,aside,header,footer,form,fieldset,div,label){min-width:0}
-#app :where(img,svg,canvas,video){max-width:100%;height:auto}
+#app :where(img,svg,canvas,video){max-width:100%}
 
 /* Local scrolling is preferable to expanding the whole document. */
 .fl-responsive-table-wrap{
@@ -41,8 +41,9 @@ html[data-fl-responsive-mode="phone-portrait"] body{padding-bottom:calc(var(--fl
 html[data-fl-responsive-mode="phone-portrait"] .game-shell{padding:8px max(10px,env(safe-area-inset-right)) 12px max(10px,env(safe-area-inset-left))}
 html[data-fl-responsive-mode="phone-portrait"] .hud{display:flex;flex-direction:column;align-items:stretch;gap:10px}
 html[data-fl-responsive-mode="phone-portrait"] .resource-strip{width:100%;min-width:0;grid-template-columns:repeat(2,minmax(0,1fr))!important}
-html[data-fl-responsive-mode="phone-portrait"] :is(.world-grid,.hiring-layout,.lab-grid,.company-system-groups,.fl-page-grid){grid-template-columns:minmax(0,1fr)!important}
-html[data-fl-responsive-mode="phone-portrait"] :is([class$="-grid"],[class*="-grid "]):not(.telemetry-grid):not(.resource-strip):not(.campaign-dots):not(.gameplay-bottom-nav):not(.racks):not(.sparkline):not(.knowledge){grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="phone-portrait"] :is(.world-grid,.hiring-layout,.lab-grid,.company-system-groups){grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="phone-portrait"] .fl-page-shell>:where(.fl-page-grid),
+html[data-fl-responsive-mode="phone-portrait"] .fl-page-shell>main>:where(.fl-page-grid){grid-template-columns:minmax(0,1fr)!important}
 html[data-fl-responsive-mode="phone-portrait"] .telemetry-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 html[data-fl-responsive-mode="phone-portrait"] .company-system-launch-grid{grid-template-columns:minmax(0,1fr)!important}
 html[data-fl-responsive-mode="phone-portrait"] :is(.panel-title,.company-system-hub-head,.company-system-group-head,.incident-head){flex-wrap:wrap}
@@ -63,7 +64,9 @@ html[data-fl-responsive-mode="phone-landscape"] .game-shell{padding:6px max(10px
 html[data-fl-responsive-mode="phone-landscape"] .hud{gap:8px;padding-bottom:9px}
 html[data-fl-responsive-mode="phone-landscape"] .hud h1{font-size:clamp(24px,5vw,36px)}
 html[data-fl-responsive-mode="phone-landscape"] .resource-strip{min-width:0;width:100%;grid-template-columns:repeat(4,minmax(0,1fr))!important}
-html[data-fl-responsive-mode="phone-landscape"] :is(.world-grid,.hiring-layout,.lab-grid,.fl-page-grid){grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="phone-landscape"] :is(.world-grid,.hiring-layout,.lab-grid){grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="phone-landscape"] .fl-page-shell>:where(.fl-page-grid),
+html[data-fl-responsive-mode="phone-landscape"] .fl-page-shell>main>:where(.fl-page-grid){grid-template-columns:minmax(0,1fr)!important}
 html[data-fl-responsive-mode="phone-landscape"] .company-system-groups{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 html[data-fl-responsive-mode="phone-landscape"] .company-system-launch-grid{grid-template-columns:minmax(0,1fr)!important}
 html[data-fl-responsive-mode="phone-landscape"] .telemetry-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
@@ -90,6 +93,8 @@ html[data-fl-responsive-mode="phone-landscape"] .fl-responsive-table-wrap>table{
 html[data-fl-responsive-mode="tablet"]{--fl-responsive-gutter:14px;--fl-responsive-gap:10px}
 html[data-fl-responsive-mode="tablet"] .game-shell{padding-inline:max(14px,env(safe-area-inset-left)) max(14px,env(safe-area-inset-right))}
 html[data-fl-responsive-mode="tablet"] :is(.world-grid,.hiring-layout,.lab-grid){grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="tablet"] .fl-page-shell>:where(.fl-page-grid),
+html[data-fl-responsive-mode="tablet"] .fl-page-shell>main>:where(.fl-page-grid){grid-template-columns:minmax(0,1fr)!important}
 html[data-fl-responsive-mode="tablet"] .company-system-groups{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 html[data-fl-responsive-mode="tablet"] .company-system-launch-grid{grid-template-columns:minmax(0,1fr)!important}
 html[data-fl-responsive-mode="tablet"] .gameplay-system-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
