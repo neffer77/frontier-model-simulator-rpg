@@ -10,6 +10,17 @@
   g.ensureExecutivePoliticsState=()=>call('ensureExecutivePolitics');
   g.ensureTalentState=()=>call('ensureTalentMemoryState');
 
+  // Technical explainers are global controls even though legacy company markup owned the
+  // original #modalRoot. Ensure the mount exists when explainers are opened from newer pages.
+  if(typeof g.showExplain==='function'){
+    const legacyShowExplain=g.showExplain;
+    g.showExplain=function(term){
+      let root=document.getElementById('modalRoot');
+      if(!root){root=document.createElement('div');root.id='modalRoot';document.body.appendChild(root)}
+      return legacyShowExplain(term);
+    };
+  }
+
   // Canonical zero-argument route aliases used by Item 13 inventory/crawler/screenshot QA.
   // Several modules predate the shared route naming convention, so expose stable openers
   // without changing the module-owned state/view names or their normal launcher behavior.
