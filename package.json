@@ -31,11 +31,14 @@
     "test:a11y-static":"node tests/accessibility-static.mjs",
     "test:responsive":"node tests/responsive-visual-sweep.mjs",
     "test:responsive-static":"node tests/responsive-visual-static.mjs",
-    "test:static":"node tests/release-static.mjs && node tests/theme-tokens.mjs && node tests/firewall-static.mjs && node tests/shared-surface-static.mjs && node tests/progressive-disclosure-static.mjs && node tests/shared-control-static.mjs && node tests/company-dashboard-static.mjs && node tests/page-visual-sweep-static.mjs && node tests/empty-state-static.mjs && node tests/locked-state-static.mjs && node tests/overlay-system-static.mjs && node tests/accessibility-static.mjs && node tests/responsive-visual-static.mjs",
+    "test:screenshots":"node tests/screenshot-regression.mjs",
+    "test:screenshots-static":"node tests/screenshot-regression-static.mjs",
+    "visual:screenshot-baseline":"node tests/screenshot-regression.mjs --update",
+    "test:static":"node tests/release-static.mjs && node tests/theme-tokens.mjs && node tests/firewall-static.mjs && node tests/shared-surface-static.mjs && node tests/progressive-disclosure-static.mjs && node tests/shared-control-static.mjs && node tests/company-dashboard-static.mjs && node tests/page-visual-sweep-static.mjs && node tests/empty-state-static.mjs && node tests/locked-state-static.mjs && node tests/overlay-system-static.mjs && node tests/accessibility-static.mjs && node tests/responsive-visual-static.mjs && node tests/screenshot-regression-static.mjs",
     "test:release":"node tests/release-candidate.mjs",
     "visual:inventory":"node tests/visual-inventory.mjs",
     "test:qa":"node tests/browser-smoke.mjs && node tests/balance-pacing.mjs && node tests/technical-realism.mjs && node tests/replayability.mjs && node tests/browser-default-firewall.mjs && node tests/shared-surface-system.mjs && node tests/progressive-disclosure.mjs && node tests/shared-control-system.mjs && node tests/company-dashboard.mjs && node tests/page-visual-sweep.mjs && node tests/empty-state-system.mjs && node tests/locked-state-system.mjs && node tests/overlay-system.mjs && node tests/accessibility-system.mjs && node tests/responsive-visual-sweep.mjs && node tests/release-candidate.mjs",
-    "test:rc":"npm run test:static && npm run test:qa"
+    "test:rc":"npm run test:static && npm run test:qa && npm run test:screenshots"
   },
   "devDependencies":{"playwright":"1.54.2"}
 }
