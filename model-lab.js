@@ -57,6 +57,7 @@ function modelLabBackfill(){
   modelLabCaptureActiveRun();
 }
 
+function modelLabOpen(){ensureModelLabState();modelLabBackfill();state.view="modelLab";save();render()}
 function modelLabSelect(id){ensureModelLabState();state.modelLab.selectedModelId=id;state.view="modelLab";save();render()}
 function modelLabTab(tab){state.modelLab.tab=tab;save();render()}
 function modelLabClose(){state.view="company";save();render()}
@@ -137,7 +138,7 @@ render=function(){
   modelLabBaseRender();
   if(!state.started)return;
   const shell=document.querySelector(".game-shell");if(!shell)return;
-  const btn=document.createElement("button");btn.className="model-lab-launch";btn.onclick=()=>{state.view="modelLab";save();render()};btn.innerHTML=`<span>MODEL LAB</span><b>${state.models.length} persistent model${state.models.length===1?"":"s"}</b><small>Lineage · experiments · evals · checkpoints →</small>`;
+  const btn=document.createElement("button");btn.className="model-lab-launch";btn.onclick=modelLabOpen;btn.innerHTML=`<span>MODEL LAB</span><b>${state.models.length} persistent model${state.models.length===1?"":"s"}</b><small>Lineage · experiments · evals · checkpoints →</small>`;
   shell.insertBefore(btn,shell.children[1]||null);
 };
 
