@@ -17,15 +17,15 @@ function pqConceptMastery(inc){return Number(state.diagnosticMastery?.[pqConcept
 function pqDifficulty(inc,c){
   const decisive=c?.decisive||[];
   const decisiveCost=decisive.reduce((sum,id)=>sum+Number(c?.tools?.[id]?.cost||0),0);
-  return pqClamp(1+Math.max(0,decisive.length-2)*.08+decisiveCost/40,1,1.30);
+  return pqClamp(1+Math.max(0,decisive.length-2)*.06+decisiveCost/60,1,1.22);
 }
 function pqRepeatFactor(successful){return PROBLEM_QUALITY_REPEAT[Math.min(successful,PROBLEM_QUALITY_REPEAT.length-1)]}
-function pqWeakConceptFactor(mastery){if(mastery<=0)return 1.35;if(mastery<=2)return 1.25;if(mastery<=5)return 1.12;if(mastery<=9)return 1;return .9}
+function pqWeakConceptFactor(mastery){if(mastery<=0)return 1.25;if(mastery<=2)return 1.18;if(mastery<=5)return 1.10;if(mastery<=9)return 1;return .9}
 function pqCleanFactor(w,grade){
   let f=1;
   if(w.hints===0)f+=.12;
-  if(w.falseMoves===0)f+=.12;
-  if(grade==='S')f+=.12;else if(grade==='A')f+=.05;
+  if(w.falseMoves===0)f+=.10;
+  if(grade==='S')f+=.10;else if(grade==='A')f+=.04;
   return f;
 }
 function problemQualityPreview(inc,c,w,grade){
