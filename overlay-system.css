@@ -1,0 +1,172 @@
+/* Item 13.11 — shared modal / overlay / story presentation. */
+:root{
+  --fl-overlay-panel-max:960px;
+  --fl-overlay-gap:16px;
+}
+
+/* Mirror the runtime priority stack immediately so legacy z-index values cannot flash. */
+.gameplay-more-sheet{z-index:800!important}
+.campaign-priority{z-index:900!important}
+.incident-back{z-index:1000!important}
+.feel-milestone{z-index:1100!important}
+.story-overlay{z-index:1200!important}
+.modal-back{z-index:1300!important}
+.feel-toast{z-index:1400!important}
+
+body.fl-overlay-open{
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+body.fl-overlay-open .gameplay-bottom-nav{pointer-events:none}
+
+.fl-overlay-host{
+  isolation:isolate;
+  color:var(--fl-text-primary);
+}
+.story-overlay.fl-overlay-host,
+.feel-milestone.fl-overlay-host,
+.modal-back.fl-overlay-host,
+.incident-back.fl-overlay-host{
+  padding:max(var(--fl-overlay-gap),env(safe-area-inset-top)) max(var(--fl-overlay-gap),env(safe-area-inset-right)) max(var(--fl-overlay-gap),env(safe-area-inset-bottom)) max(var(--fl-overlay-gap),env(safe-area-inset-left));
+  background:var(--fl-overlay-strong)!important;
+  backdrop-filter:blur(14px) saturate(.9)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(.9)!important;
+}
+.fl-overlay-backdrop{
+  background:var(--fl-overlay-strong)!important;
+  backdrop-filter:blur(12px) saturate(.9)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(.9)!important;
+}
+.fl-overlay-panel{
+  width:min(var(--fl-overlay-panel-max),100%);
+  max-width:100%;
+  max-height:calc(100dvh - max(32px,env(safe-area-inset-top) + env(safe-area-inset-bottom) + 24px));
+  overflow:auto;
+  overscroll-behavior:contain;
+  border:1px solid var(--fl-border-strong)!important;
+  border-radius:var(--fl-radius-2xl)!important;
+  background:var(--fl-gradient-elevated)!important;
+  color:var(--fl-text-primary)!important;
+  box-shadow:var(--fl-shadow-modal)!important;
+  scrollbar-gutter:stable;
+  outline:none;
+}
+.fl-overlay-panel:focus-visible{
+  outline:2px solid var(--fl-border-focus);
+  outline-offset:3px;
+}
+.fl-overlay-suspended{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Overlay-family identity without reintroducing independent palettes. */
+.gameplay-more-sheet.fl-overlay-host>section.fl-overlay-panel{
+  --fl-overlay-panel-max:760px;
+  border-radius:var(--fl-radius-2xl) var(--fl-radius-2xl) 0 0!important;
+  border-bottom:0!important;
+  background:var(--fl-gradient-sheet)!important;
+}
+.campaign-priority.fl-overlay-host>section.fl-overlay-panel{--fl-overlay-panel-max:760px}
+.incident-back.fl-overlay-host .incident.fl-overlay-panel{
+  --fl-overlay-panel-max:900px;
+  border-color:var(--fl-danger-border)!important;
+  background:linear-gradient(155deg,var(--fl-danger-surface),var(--fl-surface-inset))!important;
+}
+.feel-milestone.fl-overlay-host .feel-milestone-card.fl-overlay-panel{
+  --fl-overlay-panel-max:620px;
+  border-color:var(--fl-warning-border)!important;
+  text-align:center;
+}
+.story-overlay.fl-overlay-host .story-scene-card.fl-overlay-panel{--fl-overlay-panel-max:860px}
+.modal-back.fl-overlay-host .modal.fl-overlay-panel{--fl-overlay-panel-max:620px}
+
+/* Normalize legacy close/continue controls and keep them easy to hit. */
+.fl-overlay-panel .x,
+.fl-overlay-panel .fl-overlay-close,
+.gameplay-more-sheet.fl-overlay-host header button,
+.feel-milestone.fl-overlay-host button{
+  min-width:44px;
+  min-height:44px;
+}
+.modal-back.fl-overlay-host .x{
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  right:8px;
+  top:7px;
+  border:1px solid var(--fl-border-default)!important;
+  border-radius:50%;
+  background:var(--fl-surface-3)!important;
+  color:var(--fl-text-secondary)!important;
+}
+.modal-back.fl-overlay-host .x:hover{color:var(--fl-text-primary)!important;border-color:var(--fl-border-focus)!important}
+
+/* Story presentation remains cinematic but now shares safe sizing and contrast. */
+.story-overlay.fl-overlay-host .story-scene-art{
+  background:linear-gradient(130deg,var(--fl-surface-5),var(--fl-surface-2))!important;
+}
+.story-overlay.fl-overlay-host .story-dialogue,
+.story-overlay.fl-overlay-host .story-scene-card aside{
+  background:var(--fl-surface-2);
+}
+.story-overlay.fl-overlay-host .story-scene-card aside{border-top-color:var(--fl-border-default)}
+.story-overlay.fl-overlay-host .story-dialogue p{color:var(--fl-text-primary)}
+
+/* Priority and More keep their interaction models while joining the shared overlay chrome. */
+.campaign-priority.fl-overlay-host>section{
+  width:min(760px,calc(100% - 28px));
+  max-height:calc(100dvh - 28px);
+}
+.gameplay-more-sheet.fl-overlay-host>section{
+  max-height:min(82dvh,760px);
+}
+
+/* Legacy technical explainer/incident internals should never produce bright surfaces. */
+.modal-back.fl-overlay-host .modal h3{color:var(--fl-text-accent)}
+.modal-back.fl-overlay-host .modal p{color:var(--fl-text-secondary)}
+.modal-back.fl-overlay-host .source{
+  border-color:var(--fl-border-accent);
+  background:var(--fl-surface-3);
+  color:var(--fl-text-accent);
+}
+.incident-back.fl-overlay-host .evidence,
+.incident-back.fl-overlay-host .decision>button,
+.incident-back.fl-overlay-host .inspect-tabs button{
+  background:var(--fl-surface-inset)!important;
+  border-color:var(--fl-border-default)!important;
+  color:var(--fl-text-secondary)!important;
+}
+.incident-back.fl-overlay-host .inspect-tabs button.active,
+.incident-back.fl-overlay-host .decision>button:hover{
+  background:var(--fl-surface-hover)!important;
+  border-color:var(--fl-border-focus)!important;
+  color:var(--fl-text-primary)!important;
+}
+
+@media(max-width:720px){
+  :root{--fl-overlay-gap:8px}
+  .story-overlay.fl-overlay-host,
+  .feel-milestone.fl-overlay-host,
+  .modal-back.fl-overlay-host,
+  .incident-back.fl-overlay-host{
+    padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));
+  }
+  .fl-overlay-panel{
+    width:100%;
+    max-height:calc(100dvh - max(16px,env(safe-area-inset-top) + env(safe-area-inset-bottom) + 12px));
+    border-radius:var(--fl-radius-xl)!important;
+  }
+  .story-overlay.fl-overlay-host .story-scene-card{border-radius:var(--fl-radius-xl)!important}
+  .story-overlay.fl-overlay-host .story-scene-art{min-height:132px;padding:16px}
+  .story-overlay.fl-overlay-host .story-dialogue{padding:16px}
+  .story-overlay.fl-overlay-host .story-actions{grid-template-columns:1fr 1.35fr}
+  .incident-back.fl-overlay-host .incident{padding:14px}
+  .campaign-priority.fl-overlay-host>section{width:calc(100% - 16px);max-height:calc(100dvh - 16px)}
+  .gameplay-more-sheet.fl-overlay-host>section{width:100%;max-height:84dvh;border-radius:var(--fl-radius-xl) var(--fl-radius-xl) 0 0!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .fl-overlay-host,.fl-overlay-panel{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
