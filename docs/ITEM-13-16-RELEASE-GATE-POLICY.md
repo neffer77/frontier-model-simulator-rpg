@@ -12,6 +12,8 @@ Item 13.16 defines:
 - which evidence must exist for a valid decision
 - how screenshot and route reports are interpreted semantically
 - how GitHub Actions preserves diagnostics from a blocked release
+- how the release decision is surfaced directly in the Actions summary
+- how the exact commit pushed to `main` is revalidated after merge
 
 The machine-readable source of truth is `release-gate-policy.json`.
 
@@ -48,8 +50,9 @@ The runner:
 7. runs screenshot regression
 8. generates the visual inventory as advisory evidence
 9. interprets route/screenshot/visual reports
-10. writes the final decision
-11. exits non-zero only after the evidence report has been written
+10. validates required machine evidence as parseable JSON
+11. writes the final decision
+12. exits non-zero only after the evidence report has been written
 
 ## Blockers
 
@@ -76,11 +79,12 @@ The policy treats the following as release blockers:
 - release-candidate performance, save migration, and offline PWA behavior
 - screenshot regression
 
-A blocker can fail in three ways:
+A blocker can fail in four ways:
 
 1. its command returns non-zero
 2. required evidence is missing
-3. its evidence exists but violates the semantic release policy
+3. required evidence exists but is malformed/unparseable
+4. its evidence parses but violates the semantic release policy
 
 ## Advisories
 
@@ -88,6 +92,7 @@ The following do not independently block release:
 
 - visual-inventory unresolved observations that are not already captured by a blocker
 - visual-inventory bright-surface suspects
+- visual-inventory report parse failures
 - route-crawler warnings
 - the manual PWA-install affordance review
 
@@ -102,6 +107,8 @@ The final policy requires:
 - baseline status: `active`
 - expected captures: 255
 - produced captures: 255
+- screenshot report identifies itself as Item 13.14 evidence
+- screenshot report baseline status is `active`
 - zero mismatches
 - zero missing baseline entries
 - zero extra baseline entries
@@ -137,6 +144,7 @@ The route crawler remains a hard release signal.
 
 The final policy requires:
 
+- report identifies itself as Item 13.15 evidence
 - expected visits: 190
 - actual visits: 190
 - zero route-crawler failures
@@ -158,7 +166,9 @@ If one browser check fails, later blocker checks still execute.
 
 If the production build or release server cannot be created, browser gates are recorded as `blocked` rather than disappearing from the report.
 
-This makes the release decision auditable: a missing test is itself visible as a blocker.
+If a blocker evidence file exists but is not valid JSON, the evidence itself becomes a blocker rather than being silently skipped.
+
+This makes the release decision auditable: a missing, malformed, or unexecuted test is itself visible in the result.
 
 ## Generated release decision
 
@@ -177,11 +187,12 @@ The JSON report contains:
 - blockers
 - advisories
 - semantic evidence summaries
+- Node/platform/CI provenance and GitHub SHA/ref/event when available
 - final decision: `pass` or `block`
 
 ## GitHub Actions
 
-The Cross-device browser QA workflow now has one canonical test step:
+The Cross-device browser QA workflow has one canonical test step:
 
 ```bash
 npm run test:rc
@@ -189,9 +200,19 @@ npm run test:rc
 
 The workflow no longer has a standalone early static step that can hide later evidence.
 
-After the release gate runs, Actions uploads with `if: always()`:
+The canonical gate runs on:
 
-- Item 13.16 final release decision
+- pull requests
+- pushes to `main`
+- manual `workflow_dispatch`
+
+Re-running on `main` validates the exact merged commit that can be published by GitHub Pages, not only the PR merge candidate.
+
+After the release gate runs, Actions publishes `artifacts/release-gate/REPORT.md` directly into `$GITHUB_STEP_SUMMARY` with `if: always()`. A reviewer can therefore see PASS/BLOCK, blockers, advisories, gate statuses, and evidence summaries without downloading an artifact.
+
+Actions also uploads with `if: always()`:
+
+- Item 13.16 final release decision and per-gate logs
 - Item 13.15 route-crawl evidence
 - Item 13.14 screenshot-regression evidence
 - Item 13.1 visual inventory
@@ -208,12 +229,17 @@ It verifies:
 - canonical five-viewport matrix
 - 190-route contract
 - 255-screenshot contract
+- release gate IDs are unique
+- every gate has a valid severity and phase
+- all gate npm scripts exist
 - all required blocker gate IDs
-- all blocker npm scripts exist
 - route and screenshot evidence paths
 - visual inventory remains advisory
+- invalid blocker evidence is fail-closed
 - `test:rc` resolves to the Item 13.16 orchestrator
 - the workflow invokes the canonical release gate
+- the workflow reruns on pushes to `main`
+- the decision is published to `$GITHUB_STEP_SUMMARY`
 - required artifacts are preserved
 - the workflow does not reintroduce the old standalone early static step
 
@@ -230,7 +256,7 @@ The runtime still creates `.pd-toggle-meta`, so 13.16 restores an explicit style
 A release is **PASS** only when:
 
 - every blocker gate passes
-- every required blocker artifact exists
+- every required blocker artifact exists and parses
 - screenshot baseline is active and complete
 - screenshot semantic checks are clean
 - route semantic checks are clean
