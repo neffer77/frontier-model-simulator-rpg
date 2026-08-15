@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "item": "13.16",
+  "name": "Frontier Lab release gate policy",
+  "description": "Canonical blocker/advisory policy for the final Item 13 release decision.",
+  "decisionRule": "Release passes only when every blocker gate executes successfully, required blocker evidence exists, and semantic evidence checks produce zero blockers. Advisories are reported but do not change the release decision.",
+  "gates": [
+    {"id":"static-contracts","label":"Static contracts and release integrity","script":"test:static","severity":"blocker","phase":"preflight"},
+    {"id":"production-build","label":"Production artifact build","script":"build:site","severity":"blocker","phase":"build"},
+    {"id":"browser-smoke","label":"Browser smoke","script":"test:browser","severity":"blocker","phase":"browser"},
+    {"id":"balance-pacing","label":"Balance and pacing","script":"test:balance","severity":"blocker","phase":"browser"},
+    {"id":"technical-realism","label":"Technical realism","script":"test:realism","severity":"blocker","phase":"browser"},
+    {"id":"replayability","label":"Replayability","script":"test:replay","severity":"blocker","phase":"browser"},
+    {"id":"browser-firewall","label":"Browser-default firewall","script":"test:firewall","severity":"blocker","phase":"browser"},
+    {"id":"shared-surfaces","label":"Shared surface system","script":"test:surfaces","severity":"blocker","phase":"browser"},
+    {"id":"progressive-disclosure","label":"Progressive disclosure","script":"test:disclosure","severity":"blocker","phase":"browser"},
+    {"id":"shared-controls","label":"Shared control system","script":"test:controls","severity":"blocker","phase":"browser"},
+    {"id":"company-dashboard","label":"Company dashboard","script":"test:dashboard","severity":"blocker","phase":"browser"},
+    {"id":"page-visual-sweep","label":"Page visual sweep","script":"test:pages","severity":"blocker","phase":"browser"},
+    {"id":"empty-states","label":"Empty states","script":"test:empty","severity":"blocker","phase":"browser"},
+    {"id":"locked-states","label":"Locked states","script":"test:locked","severity":"blocker","phase":"browser"},
+    {"id":"overlay-system","label":"Overlay system","script":"test:overlay","severity":"blocker","phase":"browser"},
+    {"id":"accessibility","label":"Accessibility system","script":"test:a11y","severity":"blocker","phase":"browser"},
+    {"id":"responsive","label":"Responsive visual sweep","script":"test:responsive","severity":"blocker","phase":"browser"},
+    {"id":"route-crawl","label":"Route / page crawler","script":"test:routes","severity":"blocker","phase":"browser","evidence":"artifacts/route-crawl/report.json"},
+    {"id":"release-candidate","label":"Release candidate performance, migration, and offline PWA","script":"test:release","severity":"blocker","phase":"browser"},
+    {"id":"screenshot-regression","label":"Screenshot regression","script":"test:screenshots","severity":"blocker","phase":"browser","evidence":"artifacts/screenshot-regression/report.json"},
+    {"id":"visual-inventory","label":"Visual inventory evidence","script":"visual:inventory","severity":"advisory","phase":"browser","evidence":"artifacts/visual-inventory/report.json"}
+  ],
+  "semanticEvidence": {
+    "screenshotRegression": {
+      "baselineFile": "visual-qa/screenshot-baseline.json",
+      "requiredBaselineStatus": "active",
+      "expectedCaptureCount": 255,
+      "blockOn": ["mismatches", "missingBaseline", "extraBaseline", "missingCaptures", "pageErrors"]
+    },
+    "routeCrawl": {
+      "expectedVisits": 190,
+      "blockOnFailures": true,
+      "warningsAreAdvisory": true
+    },
+    "visualInventory": {
+      "unresolvedScreensAreAdvisory": true,
+      "brightSurfaceSuspectsAreAdvisory": true
+    }
+  },
+  "manualChecks": [
+    {
+      "id": "pwa-install-affordance",
+      "severity": "advisory",
+      "description": "Manual PWA install prompt / iOS Add to Home Screen affordance remains a human review item; offline PWA behavior is still blocker-tested by the release-candidate gate."
+    }
+  ]
+}
