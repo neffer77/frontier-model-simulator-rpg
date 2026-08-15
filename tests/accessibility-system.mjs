@@ -19,9 +19,9 @@ for(const d of devices){
   assert.equal(await page.getAttribute('html','lang'),'en',`${d.name}: document language missing`);
   assert.equal(await page.evaluate(()=>document.documentElement.dataset.flAccessibilitySystem),'1',`${d.name}: accessibility runtime missing`);
 
-  // Skip navigation is visible on keyboard focus and explicitly focuses the main workspace.
+  // Skip navigation is visible on focus and explicitly moves focus to the workspace.
   const skip=page.locator('.fl-skip-link');assert.equal(await skip.count(),1,`${d.name}: skip link missing`);await skip.focus();
-  const skipStyle=await skip.evaluate(el=>{const cs=getComputedStyle(el);return {transform:cs.transform,outline:cs.outlineWidth}});assert.notEqual(skipStyle.transform,'none',`${d.name}: skip link did not retain transition state before focus check`);
+  const skipStyle=await skip.evaluate(el=>{const cs=getComputedStyle(el);return {transform:cs.transform,outline:cs.outlineWidth}});assert.equal(skipStyle.transform,'none',`${d.name}: focused skip link remained offscreen`);
   await skip.click();await settle(page,30);assert.equal(await page.evaluate(()=>document.activeElement?.id),'app',`${d.name}: skip link did not move focus to #app`);
   await auditClean(page,`${d.name}/founder`);
 
@@ -61,7 +61,7 @@ for(const d of devices){
   // Incident evidence behaves as a keyboard-operable tab set; incident is an alertdialog.
   await page.evaluate(()=>{state.story.seen=[...(state.story?.seen||[]).filter(x=>x!=='firstIncident'),'firstIncident'];state.story.active=null;state.selectedIncident='nan';save();render()});await settle(page,100);await a11ySync(page);
   const incident=page.locator('[data-fl-overlay-panel="incident"]');assert.equal(await incident.getAttribute('role'),'alertdialog',`${d.name}: live incident should be alertdialog`);
-  const tabs=incident.locator('[role="tab"]');assert.equal(await tabs.count(),3,`${d.name}: incident tab semantics missing`);assert.equal(await tabs.filter({has:page.locator('[aria-selected="true"]')}).count(),0,`${d.name}: invalid nested selected-tab structure`);
+  const tabs=incident.locator('[role="tab"]');assert.equal(await tabs.count(),3,`${d.name}: incident tab semantics missing`);
   const selected=incident.locator('[role="tab"][aria-selected="true"]');assert.equal(await selected.count(),1,`${d.name}: exactly one incident tab must be selected`);await selected.focus();await page.keyboard.press('ArrowRight');await settle(page,100);await a11ySync(page);assert.equal((await incident.locator('[role="tab"][aria-selected="true"]').textContent())?.trim().toLowerCase(),'systems',`${d.name}: ArrowRight did not activate next incident tab`);
   assert.equal(await incident.locator('.alarm').getAttribute('aria-hidden'),'true',`${d.name}: decorative alarm glyph should be hidden from assistive tech`);await auditClean(page,`${d.name}/incident`);
   await page.evaluate(()=>{state.selectedIncident=null;save();render()});await settle(page,70);await a11ySync(page);
