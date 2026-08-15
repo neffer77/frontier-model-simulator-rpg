@@ -33,6 +33,10 @@ jobs:
       - name: Execute canonical Item 13.16 release gate
         run: npm run test:rc
 
+      - name: Finalize Item 13.17 release sign-off
+        if: always()
+        run: npm run test:signoff
+
       - name: Publish Item 13.16 release decision
         if: always()
         shell: bash
@@ -46,6 +50,29 @@ jobs:
               echo '**Decision unavailable:** the release-gate runner did not produce `artifacts/release-gate/REPORT.md`.'
             } >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      - name: Publish Item 13.17 release sign-off
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/release-signoff/REPORT.md ]; then
+            cat artifacts/release-signoff/REPORT.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo '# Item 13.17 release sign-off'
+              echo
+              echo '**Sign-off unavailable:** the sign-off runner did not produce `artifacts/release-signoff/REPORT.md`.'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Item 13.17 release sign-off
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-signoff-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/release-signoff
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Upload Item 13.16 release decision
         if: always()
