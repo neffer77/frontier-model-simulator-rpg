@@ -9,7 +9,9 @@
   function ensureInfrastructure(){
     const app=document.getElementById('app');if(app&&!app.hasAttribute('tabindex'))app.tabIndex=-1;
     if(!document.querySelector('.fl-skip-link')){
-      const skip=document.createElement('a');skip.className='fl-skip-link';skip.href='#app';skip.textContent='Skip to current workspace';document.body.prepend(skip);
+      const skip=document.createElement('a');skip.className='fl-skip-link';skip.href='#app';skip.textContent='Skip to current workspace';
+      skip.addEventListener('click',()=>requestAnimationFrame(()=>document.getElementById('app')?.focus({preventScroll:true})));
+      document.body.prepend(skip);
     }
     if(!document.getElementById('fl-a11y-live')){
       const live=document.createElement('div');live.id='fl-a11y-live';live.className='fl-sr-only';live.setAttribute('role','status');live.setAttribute('aria-live','polite');live.setAttribute('aria-atomic','true');document.body.appendChild(live);
