@@ -168,30 +168,21 @@ The page does not require a reload to change responsive mode.
 
 ## Local table containment
 
-Wide data tables are wrapped in `.fl-responsive-table-wrap`.
+A table is left in its original DOM when it fits its available width. When it would overflow the page, the runtime temporarily moves it into `.fl-responsive-table-wrap`.
 
-The wrapper:
+The overflow wrapper:
 
 - remains inside the page width
 - scrolls horizontally when necessary
 - uses momentum scrolling on touch devices
 - prevents the table from widening the document
+- becomes `role="region"`
+- becomes keyboard-focusable
+- is labeled as a horizontally scrollable table region
 
-Accessibility behavior is conditional.
+When a resize or orientation change gives the table enough space again, the runtime restores the table to its original parent and removes the responsive wrapper entirely. This removes the extra scroll region, ARIA label, and keyboard stop rather than leaving permanent responsive markup behind.
 
-When a table actually overflows, the wrapper becomes:
-
-- `role="region"`
-- keyboard-focusable
-- labeled as a horizontally scrollable table region
-
-When the viewport becomes wide enough for the table to fit again, the runtime removes:
-
-- the `role`
-- the `aria-label`
-- the `tabindex`
-
-This avoids unnecessary keyboard stops on desktop while keeping narrow-screen table scrolling discoverable.
+This reversible behavior keeps narrow-screen table scrolling discoverable without changing the desktop DOM when no containment is needed.
 
 ## Other local scrolling surfaces
 
@@ -307,7 +298,7 @@ Item 13.14 visual screenshot regression and Item 13.15 route crawling can reuse 
 - runtime viewport definitions match the QA matrix
 - breakpoint classifier contracts
 - resize/orientation observers
-- conditional table-region semantics
+- reversible table containment and conditional table-region semantics
 - safe-area usage
 - dynamic viewport-height usage
 - local scrolling primitives
@@ -348,15 +339,14 @@ With 38 inventory screens, this produces 190 page/viewport route checks before t
 The browser suite also performs an in-place resize lifecycle without reloading:
 
 1. start at desktop
-2. insert a table that fits desktop
-3. verify it is not a keyboard scroll region
-4. resize to 390 × 844
-5. verify responsive mode becomes `phone-portrait`
-6. verify the table becomes locally scrollable and gains region semantics
-7. resize back to desktop
-8. verify scroll-region semantics and extra tab stop are removed
+2. insert a table that fits desktop and verify it remains unwrapped
+3. resize to 390 × 844
+4. verify responsive mode becomes `phone-portrait`
+5. verify the table is wrapped, becomes locally scrollable, and gains region semantics
+6. resize back to desktop
+7. verify the wrapper is removed and the table returns to its original parent
 
-This specifically protects orientation/split-view behavior.
+This specifically protects orientation/split-view behavior and prevents responsive helper markup from becoming permanent after the viewport expands again.
 
 ## Platform integration
 
