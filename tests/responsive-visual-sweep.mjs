@@ -4,15 +4,10 @@ import assert from 'node:assert/strict';
 
 const url=process.env.TEST_URL||'http://127.0.0.1:4173/';
 const inventory=JSON.parse(fs.readFileSync('visual-qa/inventory.json','utf8'));
-const devices=[
-  {name:'phone portrait',mode:'phone-portrait',viewport:{width:390,height:844},isMobile:true,hasTouch:true,groups:1,resources:2,world:1},
-  {name:'phone landscape',mode:'phone-landscape',viewport:{width:844,height:390},isMobile:true,hasTouch:true,groups:2,resources:4,world:1},
-  {name:'tablet',mode:'tablet',viewport:{width:834,height:1112},isMobile:true,hasTouch:true,groups:2,resources:4,world:1},
-  {name:'desktop',mode:'desktop',viewport:{width:1440,height:1000},isMobile:false,hasTouch:false,groups:2,resources:4,world:2},
-  {name:'wide',mode:'wide',viewport:{width:1920,height:1080},isMobile:false,hasTouch:false,groups:3,resources:4,world:2}
-];
+const matrix=JSON.parse(fs.readFileSync('visual-qa/responsive-matrix.json','utf8'));
+const devices=matrix.viewports.map(v=>({name:v.name,mode:v.id,viewport:{width:v.width,height:v.height},isMobile:v.isMobile,hasTouch:v.hasTouch,expect:v.expect}));
 async function settle(page,ms=45){await page.waitForTimeout(ms);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))}
-async function sync(page){await page.evaluate(()=>{window.frontierPageSweepSync?.();window.frontierResponsiveSync?.();window.frontierAccessibilitySync?.()});await settle(page,25)}
+async function sync(page){await page.evaluate(()=>{window.frontierPageSweepSync?.();window.frontierResponsiveSync?.();window.frontierAccessibilitySync?.();window.frontierOverlaySync?.()});await settle(page,25)}
 async function dismissStory(page){for(let i=0;i<10;i++){const overlay=page.locator('.story-overlay');if(!(await overlay.count()))break;const button=overlay.locator('button').last();if(!(await button.count()))break;await button.click();await settle(page,25)}}
 async function graduate(page){await page.evaluate(()=>{state.campaign||={version:1};state.campaign.graduated=true;state.campaign.companyPriority=state.campaign.companyPriority||'research';state.campaign.modelReviewed=true;save();render()});await settle(page,70);await sync(page)}
 async function goHome(page){await page.evaluate(()=>window.gameplayGoHome?.());await settle(page,50);await dismissStory(page);await sync(page)}
@@ -48,14 +43,14 @@ for(const d of devices){
   await assertBounds(page,page.locator('[data-fl-overlay-panel="story"]'),d,'intro story');
   await dismissStory(page);await graduate(page);await goHome(page);
 
-  assert.equal(await columns(page,'.company-system-groups'),d.groups,`${d.name}: Company system group columns drifted`);
-  assert.equal(await columns(page,'.resource-strip'),d.resources,`${d.name}: resource strip columns drifted`);
-  assert.equal(await columns(page,'.world-grid'),d.world,`${d.name}: world-grid columns drifted`);
-  assert.equal(await columns(page,'.gameplay-bottom-nav'),5,`${d.name}: bottom navigation must retain five destinations`);
+  assert.equal(await columns(page,'.company-system-groups'),d.expect.companyGroups,`${d.name}: Company system group columns drifted`);
+  assert.equal(await columns(page,'.resource-strip'),d.expect.resourceColumns,`${d.name}: resource strip columns drifted`);
+  assert.equal(await columns(page,'.world-grid'),d.expect.worldColumns,`${d.name}: world-grid columns drifted`);
+  assert.equal(await columns(page,'.gameplay-bottom-nav'),d.expect.bottomNavColumns,`${d.name}: bottom navigation destinations drifted`);
   await assertBounds(page,page.locator('.gameplay-bottom-nav'),d,'bottom navigation');await assertContainment(page,d,'company home');
 
-  await page.evaluate(()=>gameplayToggleMenu());await settle(page,60);await sync(page);await assertBounds(page,page.locator('[data-fl-overlay-panel="more"]'),d,'More sheet');await page.keyboard.press('Escape');await settle(page,40);
-  await page.evaluate(()=>showExplain('FSDP'));await settle(page,55);await sync(page);await assertBounds(page,page.locator('[data-fl-overlay-panel="modal"]'),d,'technical explainer');await page.keyboard.press('Escape');await settle(page,40);
+  await page.evaluate(()=>gameplayToggleMenu());await settle(page,60);await sync(page);await assertBounds(page,page.locator('[data-fl-overlay-panel="more"]'),d,'More sheet');await page.keyboard.press('Escape');await settle(page,40);await sync(page);
+  await page.evaluate(()=>showExplain('FSDP'));await settle(page,55);await sync(page);await assertBounds(page,page.locator('[data-fl-overlay-panel="modal"]'),d,'technical explainer');await page.keyboard.press('Escape');await settle(page,40);await sync(page);
   await page.evaluate(()=>{state.story.seen=[...(state.story?.seen||[]).filter(x=>x!=='firstIncident'),'firstIncident'];state.story.active=null;state.selectedIncident='nan';save();render()});await settle(page,80);await sync(page);await assertBounds(page,page.locator('[data-fl-overlay-panel="incident"]'),d,'incident');await page.evaluate(()=>{state.selectedIncident=null;save();render()});await settle(page,55);await sync(page);
 
   // A deliberately wider-than-any-viewport table must scroll locally without expanding the document.
