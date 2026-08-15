@@ -68,5 +68,22 @@ for(const d of devices){
   assert.equal(tested,inventory.screens.length,`${d.name}: incomplete responsive page sweep`);
   assert.equal(errors.length,0,`${d.name}: runtime errors: ${errors.join(' | ')}`);await ctx.close();
 }
+
+// Live viewport transition: resizing in-place must update mode and table scroll-region semantics without reload.
+{
+  const ctx=await browser.newContext({viewport:{width:1440,height:1000}});const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e?.stack||e)));
+  await page.goto(url,{waitUntil:'networkidle'});await page.evaluate(()=>localStorage.clear());await page.reload({waitUntil:'networkidle'});await settle(page,70);
+  assert.equal(await page.evaluate(()=>document.documentElement.dataset.flResponsiveMode),'desktop','resize lifecycle should begin on desktop');
+  await page.evaluate(()=>{const fixture=document.createElement('section');fixture.id='responsive-resize-fixture';fixture.innerHTML='<table style="min-width:720px"><caption>Resize lifecycle</caption><tr><th>Metric</th><td>Value</td></tr></table>';document.getElementById('app').appendChild(fixture)});await settle(page,80);
+  const wrap=page.locator('#responsive-resize-fixture .fl-responsive-table-wrap');assert.equal(await wrap.count(),1,'resize lifecycle table was not wrapped');assert.notEqual(await wrap.getAttribute('role'),'region','desktop-sized table should not add a scroll-region tab stop');
+
+  await page.setViewportSize({width:390,height:844});await settle(page,120);
+  assert.equal(await page.evaluate(()=>document.documentElement.dataset.flResponsiveMode),'phone-portrait','resize listener did not switch to phone portrait');assert.equal(await wrap.getAttribute('data-fl-responsive-scrollable'),'true','table did not become locally scrollable after shrink');assert.equal(await wrap.getAttribute('role'),'region','shrunken table did not gain scroll-region semantics');
+
+  await page.setViewportSize({width:1440,height:1000});await settle(page,120);
+  assert.equal(await page.evaluate(()=>document.documentElement.dataset.flResponsiveMode),'desktop','resize listener did not return to desktop');assert.equal(await wrap.getAttribute('data-fl-responsive-scrollable'),'false','table remained marked scrollable after expansion');assert.notEqual(await wrap.getAttribute('role'),'region','table retained unnecessary scroll-region semantics after expansion');assert.equal(await wrap.getAttribute('tabindex'),null,'table retained unnecessary tab stop after expansion');
+  assert.equal(errors.length,0,`resize lifecycle runtime errors: ${errors.join(' | ')}`);await ctx.close();
+}
+
 await browser.close();
-console.log(`Responsive visual sweep passed for ${inventory.screens.length} screens across ${devices.length} canonical viewports`);
+console.log(`Responsive visual sweep passed for ${inventory.screens.length} screens across ${devices.length} canonical viewports plus live resize lifecycle`);
