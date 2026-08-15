@@ -1,0 +1,120 @@
+/* Item 13.13 — responsive visual sweep.
+   Final composition layer across phone portrait/landscape, tablet, desktop and wide desktop. */
+:root{
+  --fl-responsive-gutter:18px;
+  --fl-responsive-gap:12px;
+  --fl-responsive-nav-space:96px;
+}
+html,body,#app{max-width:100%;min-width:0}
+body{overflow-x:clip}
+#app,[data-fl-responsive-mode]{min-width:0}
+#app :where(section,article,main,aside,header,footer,form,fieldset,div,label){min-width:0}
+#app :where(img,svg,canvas,video){max-width:100%;height:auto}
+
+/* Local scrolling is preferable to expanding the whole document. */
+.fl-responsive-table-wrap{
+  width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;
+  overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;border-radius:var(--fl-radius-md);
+  outline:1px solid var(--fl-border-subtle);outline-offset:-1px;
+}
+.fl-responsive-table-wrap:focus-visible{outline:3px solid var(--fl-border-focus);outline-offset:2px}
+.fl-responsive-table-wrap>table{min-width:100%;max-width:none}
+.fl-responsive-local-scroll{
+  max-width:100%!important;overflow-x:auto!important;overflow-y:hidden;
+  overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;
+}
+#app pre.fl-responsive-local-scroll{white-space:pre;overflow-wrap:normal;word-break:normal}
+
+/* Shared geometry survives any breakpoint. */
+.game-shell,.gameplay-guidance,.campaign-progress,#app>.fl-page-shell{width:min(100%,1500px);max-width:100%;margin-inline:auto}
+.game-shell{padding-inline:max(var(--fl-responsive-gutter),env(safe-area-inset-left)) max(var(--fl-responsive-gutter),env(safe-area-inset-right))}
+.hud,.panel-title,.company-system-hub-head,.company-system-group-head,.incident-head{min-width:0}
+.resource-strip,.telemetry-grid,.company-system-groups,.company-system-launch-grid,.gameplay-system-grid{min-width:0}
+.rolebar,.fl-page-tabs,.inspect-tabs{scroll-padding-inline:8px}
+
+/* PHONE PORTRAIT */
+html[data-fl-responsive-mode="phone-portrait"]{
+  --fl-responsive-gutter:10px;--fl-responsive-gap:8px;--fl-responsive-nav-space:86px;
+}
+html[data-fl-responsive-mode="phone-portrait"] body{padding-bottom:calc(var(--fl-responsive-nav-space) + env(safe-area-inset-bottom))}
+html[data-fl-responsive-mode="phone-portrait"] .game-shell{padding:8px max(10px,env(safe-area-inset-right)) 12px max(10px,env(safe-area-inset-left))}
+html[data-fl-responsive-mode="phone-portrait"] .hud{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+html[data-fl-responsive-mode="phone-portrait"] .resource-strip{width:100%;min-width:0;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html[data-fl-responsive-mode="phone-portrait"] :is(.world-grid,.hiring-layout,.lab-grid,.company-system-groups,.fl-page-grid){grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="phone-portrait"] :is([class$="-grid"],[class*="-grid "]):not(.telemetry-grid):not(.resource-strip):not(.campaign-dots):not(.gameplay-bottom-nav):not(.racks):not(.sparkline):not(.knowledge){grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="phone-portrait"] .telemetry-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html[data-fl-responsive-mode="phone-portrait"] .company-system-launch-grid{grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="phone-portrait"] :is(.panel-title,.company-system-hub-head,.company-system-group-head,.incident-head){flex-wrap:wrap}
+html[data-fl-responsive-mode="phone-portrait"] .gameplay-guidance{position:relative;grid-template-columns:1fr;padding:8px max(10px,env(safe-area-inset-right)) 4px max(10px,env(safe-area-inset-left));background:transparent;border:0}
+html[data-fl-responsive-mode="phone-portrait"] .gameplay-bottom-nav{left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));transform:none;width:auto;grid-template-columns:repeat(5,minmax(0,1fr));padding:5px}
+html[data-fl-responsive-mode="phone-portrait"] .gameplay-bottom-nav button{min-width:0;min-height:52px;padding-inline:2px}
+html[data-fl-responsive-mode="phone-portrait"] .gameplay-system-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html[data-fl-responsive-mode="phone-portrait"] .gameplay-more-sheet>section{width:100%;max-height:84dvh}
+html[data-fl-responsive-mode="phone-portrait"] .fl-overlay-panel{max-width:100%;max-height:calc(100dvh - 16px)}
+html[data-fl-responsive-mode="phone-portrait"] .fl-responsive-table-wrap>table{min-width:max(100%,620px)}
+
+/* PHONE LANDSCAPE: preserve width, aggressively protect vertical space. */
+html[data-fl-responsive-mode="phone-landscape"]{
+  --fl-responsive-gutter:8px;--fl-responsive-gap:8px;--fl-responsive-nav-space:60px;
+}
+html[data-fl-responsive-mode="phone-landscape"] body{padding-bottom:calc(var(--fl-responsive-nav-space) + env(safe-area-inset-bottom))}
+html[data-fl-responsive-mode="phone-landscape"] .game-shell{padding:6px max(10px,env(safe-area-inset-right)) 8px max(10px,env(safe-area-inset-left))}
+html[data-fl-responsive-mode="phone-landscape"] .hud{gap:8px;padding-bottom:9px}
+html[data-fl-responsive-mode="phone-landscape"] .hud h1{font-size:clamp(24px,5vw,36px)}
+html[data-fl-responsive-mode="phone-landscape"] .resource-strip{min-width:0;width:100%;grid-template-columns:repeat(4,minmax(0,1fr))!important}
+html[data-fl-responsive-mode="phone-landscape"] :is(.world-grid,.hiring-layout,.lab-grid,.fl-page-grid){grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="phone-landscape"] .company-system-groups{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html[data-fl-responsive-mode="phone-landscape"] .company-system-launch-grid{grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="phone-landscape"] .telemetry-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html[data-fl-responsive-mode="phone-landscape"] .gameplay-guidance{position:relative;display:block;padding:5px max(10px,env(safe-area-inset-right)) 3px max(10px,env(safe-area-inset-left));background:transparent;border:0}
+html[data-fl-responsive-mode="phone-landscape"] .gameplay-guide-copy{display:none}
+html[data-fl-responsive-mode="phone-landscape"] .gameplay-objective,html[data-fl-responsive-mode="phone-landscape"] lab-objective-card{padding:8px 10px}
+html[data-fl-responsive-mode="phone-landscape"] .gameplay-bottom-nav{left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));bottom:max(4px,env(safe-area-inset-bottom));transform:none;width:auto;padding:3px;border-radius:13px}
+html[data-fl-responsive-mode="phone-landscape"] .gameplay-bottom-nav button{min-height:44px;padding:2px 4px}
+html[data-fl-responsive-mode="phone-landscape"] .gameplay-bottom-nav i{font-size:16px}
+html[data-fl-responsive-mode="phone-landscape"] .gameplay-bottom-nav span{font-size:10px}
+html[data-fl-responsive-mode="phone-landscape"] .gameplay-more-sheet>section{width:min(760px,100%);max-height:calc(100dvh - 4px);padding-top:10px}
+html[data-fl-responsive-mode="phone-landscape"] .fl-overlay-panel{max-height:calc(100dvh - 8px)}
+html[data-fl-responsive-mode="phone-landscape"] .story-scene-art{min-height:82px!important;padding:10px 14px!important}
+html[data-fl-responsive-mode="phone-landscape"] .story-avatar{width:54px!important;height:54px!important;font-size:18px!important}
+html[data-fl-responsive-mode="phone-landscape"] .story-dialogue{padding:10px 14px!important}
+html[data-fl-responsive-mode="phone-landscape"] .story-dialogue p{min-height:0!important;margin-block:7px;font-size:14px!important}
+html[data-fl-responsive-mode="phone-landscape"] .story-scene-card aside{padding:8px 14px!important}
+html[data-fl-responsive-mode="phone-landscape"] .incident{padding:10px!important}
+html[data-fl-responsive-mode="phone-landscape"] .incident-head p{margin-block:4px}
+html[data-fl-responsive-mode="phone-landscape"] .evidence{min-height:72px}
+html[data-fl-responsive-mode="phone-landscape"] .fl-responsive-table-wrap>table{min-width:max(100%,700px)}
+
+/* TABLET: one major decision column, but retain useful two-column secondary groupings. */
+html[data-fl-responsive-mode="tablet"]{--fl-responsive-gutter:14px;--fl-responsive-gap:10px}
+html[data-fl-responsive-mode="tablet"] .game-shell{padding-inline:max(14px,env(safe-area-inset-left)) max(14px,env(safe-area-inset-right))}
+html[data-fl-responsive-mode="tablet"] :is(.world-grid,.hiring-layout,.lab-grid){grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="tablet"] .company-system-groups{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html[data-fl-responsive-mode="tablet"] .company-system-launch-grid{grid-template-columns:minmax(0,1fr)!important}
+html[data-fl-responsive-mode="tablet"] .gameplay-system-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html[data-fl-responsive-mode="tablet"] .gameplay-guidance{grid-template-columns:minmax(0,1fr) minmax(300px,.8fr)}
+html[data-fl-responsive-mode="tablet"] .fl-responsive-table-wrap>table{min-width:max(100%,760px)}
+
+/* DESKTOP: preserve the dense simulator layout but make all children shrinkable. */
+html[data-fl-responsive-mode="desktop"] :is(.world-grid,.company-system-groups,.company-system-launch-grid,.telemetry-grid){min-width:0}
+html[data-fl-responsive-mode="desktop"] .fl-responsive-table-wrap>table{min-width:max(100%,820px)}
+
+/* WIDE: use available space instead of leaving a narrow island in a large monitor. */
+html[data-fl-responsive-mode="wide"]{--fl-responsive-gutter:24px;--fl-responsive-gap:14px}
+html[data-fl-responsive-mode="wide"] :is(.game-shell,.gameplay-guidance,.campaign-progress,#app>.fl-page-shell){width:min(100%,1680px);max-width:1680px}
+html[data-fl-responsive-mode="wide"] .company-system-groups{grid-template-columns:repeat(3,minmax(0,1fr))}
+html[data-fl-responsive-mode="wide"] .company-system-launch-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+html[data-fl-responsive-mode="wide"] .gameplay-system-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+html[data-fl-responsive-mode="wide"] .fl-responsive-table-wrap>table{min-width:100%}
+
+/* First-paint fallbacks before the JS mode registry decorates <html>. */
+@media(max-width:600px) and (orientation:portrait){
+  .world-grid,.hiring-layout,.lab-grid{grid-template-columns:1fr!important}
+}
+@media(max-height:600px) and (orientation:landscape) and (max-width:1000px){
+  .gameplay-guidance{position:relative}
+  .fl-overlay-panel{max-height:calc(100dvh - 8px)}
+}
+@media(min-width:1600px){.game-shell{max-width:1680px}}
+@media(prefers-reduced-motion:reduce){.fl-responsive-local-scroll,.fl-responsive-table-wrap{scroll-behavior:auto!important}}
