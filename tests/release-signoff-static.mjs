@@ -1,4 +1,7 @@
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
@@ -59,4 +62,31 @@ assert(workflow.includes('if: always()'),'signoff/evidence publication must surv
 assert(workflow.includes('artifacts/release-signoff'),'workflow must upload Item 13.17 signoff artifact');
 assert(workflow.includes('Item 13.17 release sign-off'),'workflow must publish the Item 13.17 decision');
 
-console.log(JSON.stringify({releaseSignoffStatic:'pass',screenshots:expected,routes:190},null,2));
+// Behavioral contract: a complete reviewed candidate validates, review omission fails,
+// and removing one canonical capture fails. Dry-run guarantees this test never mutates
+// the committed baseline.
+const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'frontier-13-17-'));
+try{
+  const captures={};
+  for(const viewport of matrix.viewports){
+    for(const screen of inventory.screens)captures[`${viewport.id}/route-${screen.id}`]={sha256:'a'.repeat(64),width:viewport.width,height:viewport.height,bytes:1234,label:screen.label};
+    for(const special of autoSpecials)captures[`${viewport.id}/${special.id}`]={sha256:'b'.repeat(64),width:viewport.width,height:viewport.height,bytes:1234,label:special.label};
+  }
+  const candidate={
+    version:1,item:'13.14',status:'active',inventoryVersion:inventory.version,responsiveMatrixVersion:matrix.version,
+    playwrightVersion:pkg.devDependencies?.playwright,expectedCaptureCount:expected,generatedAt:'2026-08-15T00:00:00.000Z',capturePolicy:{},captures
+  };
+  const full=path.join(tmp,'candidate.json');fs.writeFileSync(full,JSON.stringify(candidate));
+  const ok=spawnSync(process.execPath,['scripts/promote-screenshot-baseline.mjs',full,'--reviewed','--dry-run'],{encoding:'utf8'});
+  assert.equal(ok.status,0,`complete reviewed candidate should validate: ${ok.stderr||ok.stdout}`);
+
+  const unreviewed=spawnSync(process.execPath,['scripts/promote-screenshot-baseline.mjs',full,'--dry-run'],{encoding:'utf8'});
+  assert.notEqual(unreviewed.status,0,'promotion must reject a candidate without explicit review acknowledgement');
+
+  const partial=structuredClone(candidate);delete partial.captures[Object.keys(partial.captures)[0]];
+  const partialPath=path.join(tmp,'partial.json');fs.writeFileSync(partialPath,JSON.stringify(partial));
+  const rejected=spawnSync(process.execPath,['scripts/promote-screenshot-baseline.mjs',partialPath,'--reviewed','--dry-run'],{encoding:'utf8'});
+  assert.notEqual(rejected.status,0,'promotion must reject a partial 254-capture candidate');
+}finally{fs.rmSync(tmp,{recursive:true,force:true})}
+
+console.log(JSON.stringify({releaseSignoffStatic:'pass',screenshots:expected,routes:190,promotionBehavior:'pass'},null,2));
