@@ -31,6 +31,7 @@
   .pd-toggle-copy{display:grid;gap:2px;min-width:0}
   .pd-toggle-copy b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fl-text-primary);font-size:12px;line-height:1.25}
   .pd-toggle-copy small{color:var(--fl-text-muted);font-size:9px;line-height:1.25;letter-spacing:.04em;text-transform:uppercase}
+  .pd-toggle-meta{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .pd-toggle-icon{font-style:normal;color:var(--fl-text-accent);font-size:20px;line-height:1;font-weight:700}
 
   .pd-enhanced[data-pd-state="empty"]>.pd-toggle{
