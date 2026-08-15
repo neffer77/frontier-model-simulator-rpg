@@ -5,6 +5,7 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const inventory=JSON.parse(fs.readFileSync('visual-qa/inventory.json','utf8'));
 const matrix=JSON.parse(fs.readFileSync('visual-qa/responsive-matrix.json','utf8'));
 const baseline=JSON.parse(fs.readFileSync('visual-qa/screenshot-baseline.json','utf8'));
+const policy=JSON.parse(fs.readFileSync('release-gate-policy.json','utf8'));
 const harness=fs.readFileSync('tests/screenshot-regression.mjs','utf8');
 const workflow=fs.readFileSync('.github/workflows/browser-qa.yml','utf8');
 const autoSpecials=inventory.specialCaptures.filter(x=>!x.manual);
@@ -26,8 +27,12 @@ assert.equal(pkg.scripts['test:screenshots'],'node tests/screenshot-regression.m
 assert.equal(pkg.scripts['visual:screenshot-baseline'],'node tests/screenshot-regression.mjs --update','baseline update script missing');
 assert.equal(pkg.scripts['test:screenshots-static'],'node tests/screenshot-regression-static.mjs','screenshot static script missing');
 assert(pkg.scripts['test:static'].includes('screenshot-regression-static.mjs'),'test:static must include screenshot regression static validation');
-assert(pkg.scripts['test:rc'].includes('test:screenshots'),'test:rc must gate on screenshot regression');
-assert(workflow.includes('npm run test:screenshots'),'browser QA workflow must execute screenshot regression');
+const screenshotGate=(policy.gates||[]).find(g=>g.id==='screenshot-regression');
+assert(screenshotGate,'Item 13.16 screenshot release gate missing');
+assert.equal(screenshotGate.script,'test:screenshots','Item 13.16 must execute test:screenshots');
+assert.equal(screenshotGate.severity,'blocker','screenshot regression must remain a release blocker');
+assert.equal(pkg.scripts['test:rc'],'node tests/release-gate.mjs','test:rc must route through Item 13.16');
+assert(workflow.includes('npm run test:rc'),'browser QA workflow must execute the canonical release gate');
 assert(workflow.includes('artifacts/screenshot-regression'),'browser QA workflow must upload screenshot regression artifacts');
 
 const captures=baseline.captures||{};
