@@ -10,6 +10,28 @@
   g.ensureExecutivePoliticsState=()=>call('ensureExecutivePolitics');
   g.ensureTalentState=()=>call('ensureTalentMemoryState');
 
+  // Canonical zero-argument route aliases used by Item 13 inventory/crawler/screenshot QA.
+  // Several modules predate the shared route naming convention, so expose stable openers
+  // without changing the module-owned state/view names or their normal launcher behavior.
+  g.workstationOpen=()=>{
+    const id=(typeof state!=='undefined'&&state.selectedIncident)||g.INCIDENTS?.[0]?.id||'nan';
+    return call('openIncident',[id]);
+  };
+  g.codeLabOpen=()=>call('codeOpen');
+  g.knowledgeOpen=()=>call('openKnowledgeBase');
+  g.postmortemsOpen=()=>call('openPostmortems');
+  g.postmortemOpen=()=>call('openPostmortems');
+  g.engineeringArtifactsOpen=()=>call('artifactOpen');
+  g.incidentArtifactsOpen=()=>call('artifactOpen');
+  g.programLearningOpen=()=>call('learningOpen');
+  g.familyForksOpen=()=>call('familyForkOpen');
+  g.familyOpen=()=>call('familyForkOpen');
+  g.sloOpen=()=>call('reliabilityOpen');
+  g.releaseGovOpen=()=>call('releaseGovernanceOpen');
+  g.orgOpen=()=>call('orgMgmtOpen');
+  g.orgManagementOpen=()=>call('orgMgmtOpen');
+  g.communicationsOpen=()=>call('commsOpen');
+
   // This is a single-page simulator, so browser scroll position otherwise survives view
   // changes. Reset to the top whenever state.view changes, after the new view has rendered.
   let lastView;
