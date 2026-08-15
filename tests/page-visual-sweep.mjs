@@ -13,7 +13,7 @@ async function settle(page,ms=55){await page.waitForTimeout(ms);await page.evalu
 async function dismissStory(page){for(let i=0;i<12;i++){const o=page.locator('.story-overlay');if(!(await o.count()))break;const b=o.locator('button').last();if(!(await b.count()))break;await b.click();await settle(page,25)}}
 async function graduate(page){await page.evaluate(()=>{state.campaign ||= {version:1};state.campaign.graduated=true;state.campaign.companyPriority=state.campaign.companyPriority||'research';state.campaign.modelReviewed=true;save();render()});await settle(page,80)}
 async function goHome(page){await page.evaluate(()=>window.gameplayGoHome?.());await settle(page,55);await dismissStory(page)}
-async function availableEntrypoint(page,names){return page.evaluate(xs=>xs.find(name=>typeof window[name]==='function')||null,names)}
+async function availableEntrypoint(page,names){return page.evaluate(xs=>xs.find(name=>typeof window[name]==='function'&&window[name].length===0)||null,names)}
 async function invoke(page,name){return page.evaluate(fn=>{try{window[fn]();return {ok:true}}catch(error){return {ok:false,error:String(error?.stack||error)}}},name)}
 async function unresolvedBright(page){return page.evaluate(()=>{
   const parse=color=>{const m=String(color).match(/rgba?\(([^)]+)\)/);if(!m)return null;const v=m[1].split(',').map(Number);return {r:v[0]||0,g:v[1]||0,b:v[2]||0,a:v.length>3?v[3]:1}};
@@ -45,7 +45,7 @@ for(const d of devices){
   for(const screen of inventory.screens){
     await goHome(page);
     const entry=await availableEntrypoint(page,screen.entrypoints||[]);
-    assert(entry,`${d.name}/${screen.id}: no available entrypoint from ${(screen.entrypoints||[]).join(', ')}`);
+    assert(entry,`${d.name}/${screen.id}: no zero-argument entrypoint from ${(screen.entrypoints||[]).join(', ')}`);
     const before=errors.length;
     const result=await invoke(page,entry);assert(result.ok,`${d.name}/${screen.id}: ${entry} threw ${result.error||''}`);await settle(page,70);await dismissStory(page);
     await page.evaluate(()=>window.frontierPageSweepSync?.());await settle(page,20);
