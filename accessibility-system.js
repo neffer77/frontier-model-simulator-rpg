@@ -31,7 +31,8 @@
   }
   function decorateButtons(root=document){
     for(const button of root.querySelectorAll('button')){
-      if(accessibleName(button))continue;
+      const current=accessibleName(button),raw=(button.textContent||'').replace(/\s+/g,' ').trim();
+      if(current&&!SYMBOL_LABELS[raw])continue;
       const label=inferButtonLabel(button);if(label){button.setAttribute('aria-label',label);button.dataset.flA11yGeneratedLabel='1'}
     }
     for(const close of root.querySelectorAll('.x,.fl-lock-close'))if(!close.getAttribute('aria-label'))close.setAttribute('aria-label','Close');
