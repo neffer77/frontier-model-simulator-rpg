@@ -26,9 +26,18 @@
   }
   function orientation(width,height){return width>height?'landscape':'portrait'}
 
-  function wrapTables(root=document){
+  function tableNeedsScroll(table){
+    const parent=table.parentElement;if(!parent)return false;
+    const vp=viewport(),available=Math.min(parent.clientWidth||vp.width,vp.width),r=table.getBoundingClientRect();
+    return Math.max(table.scrollWidth,r.width)>available+2;
+  }
+  function reconcileTables(root=document){
+    for(const wrap of [...root.querySelectorAll(`.${TABLE_WRAP}`)]){
+      const table=wrap.querySelector(':scope > table');if(!table){wrap.remove();continue}
+      if(Math.max(table.scrollWidth,table.getBoundingClientRect().width)<=wrap.clientWidth+2){const parent=wrap.parentNode;if(parent){parent.insertBefore(table,wrap);wrap.remove()}}
+    }
     for(const table of root.querySelectorAll('#app table')){
-      if(table.closest(`.${TABLE_WRAP}`))continue;
+      if(table.closest(`.${TABLE_WRAP}`)||!tableNeedsScroll(table))continue;
       const wrap=document.createElement('div');wrap.className=TABLE_WRAP;
       const caption=table.querySelector('caption')?.textContent?.trim();wrap.dataset.flResponsiveTableLabel=caption?`${caption} table, horizontally scrollable`:'Data table, horizontally scrollable';
       table.parentNode?.insertBefore(wrap,table);wrap.appendChild(table);
@@ -50,7 +59,7 @@
     html.dataset.flResponsiveSweep='1';html.dataset.flResponsiveMode=mode;html.dataset.flResponsiveOrientation=orient;
     html.style.setProperty('--fl-viewport-width',`${width}px`);html.style.setProperty('--fl-viewport-height',`${height}px`);
     if(app){app.dataset.flResponsiveMode=mode;app.dataset.flResponsiveOrientation=orient}
-    wrapTables();decorateScrollers();
+    reconcileTables();decorateScrollers();
     return {mode,orientation:orient,width,height};
   }
   function visible(el){const cs=getComputedStyle(el),r=el.getBoundingClientRect();return cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity)>.02&&r.width>1&&r.height>1&&!el.closest('[aria-hidden="true"]')}
