@@ -5,6 +5,7 @@ const url=process.env.TEST_URL||'http://127.0.0.1:4173/';
 const browser=await chromium.launch({headless:true});
 const page=await browser.newPage({viewport:{width:1280,height:1000}});
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
+async function dismissStory(p){for(let i=0;i<12&&await p.locator('.story-overlay').count();i++){const next=p.locator('.story-overlay button').last();if(!(await next.count()))break;await next.click();await p.waitForTimeout(30)}}
 await page.goto(url,{waitUntil:'networkidle'});
 
 assert(await page.locator('.replay-founder').isVisible(),'fresh founder screen should expose run configuration');
@@ -22,8 +23,7 @@ await page.getByRole('button',{name:/Redline/}).click();
 await page.getByRole('button',{name:/Systems Lab/}).click();
 await page.getByRole('button',{name:/Scale Race/}).click();
 await page.getByRole('button',{name:/Found the lab/i}).click();
-await page.waitForTimeout(120);
-for(let i=0;i<8&&await page.locator('.story-overlay').count();i++){const next=page.locator('.story-overlay button.primary');if(await next.count())await next.click();else break;await page.waitForTimeout(25)}
+await page.waitForTimeout(120);await dismissStory(page);
 
 const configured=await page.evaluate(()=>({report:replayReport(),cash:state.cashM,compute:state.compute,physics:trainingPhysics(MODEL_TIERS[0])}));
 assert.equal(configured.report.run.difficulty,'redline');
@@ -56,7 +56,7 @@ assert(wrong.cashLoss>=.18,'Redline wrong diagnosis should cost at least the exp
 assert.equal(wrong.wrong,1,'wrong diagnosis should still feed canonical balance telemetry');
 assert(wrong.feed.some(x=>/Difficulty consequence: wrong diagnosis cost 2d and \$0\.18M/.test(x)),'difficulty consequence should be visible in company history');
 
-await page.locator('.replay-hud').click();await page.waitForTimeout(50);
+await dismissStory(page);await page.locator('.replay-hud').click();await page.waitForTimeout(50);
 assert(await page.getByRole('heading',{name:'Run Archive'}).isVisible(),'run archive should open');
 assert(/80 core combinations/.test(await page.locator('.replay-card').last().textContent()),'archive should report the five-archetype replay matrix');
 await page.getByRole('button',{name:/Return to company/i}).click();await page.waitForTimeout(50);
@@ -80,7 +80,6 @@ assert(await page.getByText('New Game+ legacy perk').isVisible(),'a completed ru
 const careerText=await page.locator('.replay-founder-head em').textContent();
 assert(/1 career clear/.test(careerText),'career archive must survive company-save reset');
 
-// A technically completed objective after its deadline must remain a failed challenge.
 const lateCtx=await browser.newContext({viewport:{width:1280,height:1000}});
 const late=await lateCtx.newPage();const lateErrors=[];late.on('pageerror',e=>lateErrors.push(e.message));
 await late.goto(url,{waitUntil:'networkidle'});
