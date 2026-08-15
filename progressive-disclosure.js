@@ -72,15 +72,20 @@
     const view=viewName();
     if(!media.matches||!state?.started||!denseViews.has(view)){cleanup(app);return}
     const candidates=candidatesFor(rootFor(app));
-    if(candidates.length<2){cleanup(app);return}
+    if(!candidates.length){cleanup(app);return}
     const memory=saved(view),entries=stableKeys(candidates);
     entries.forEach(({section,title,key},i)=>{
-      // The first major section stays fully visible as page context; disclosure begins with secondary work.
-      if(i===0){
-        if(section.classList.contains('pd-enhanced'))cleanup(section.parentElement||app);
+      const status=disclosureState(section);
+      // Keep the first major section fully visible when there are multiple sections.
+      // A lone empty/locked section is itself the dense secondary surface, so compact it.
+      if(i===0&&entries.length>1){
+        if(section.classList.contains('pd-enhanced')){
+          section.querySelector(':scope > .pd-toggle')?.remove();
+          section.classList.remove('pd-enhanced','pd-collapsed');
+          delete section.dataset.pdState;delete section.dataset.pdKey;delete section.dataset.pdOpen;
+        }
         return;
       }
-      const status=disclosureState(section);
       const defaultOpen=status==='ready'&&i===1;
       enhance(section,title,key,status,defaultOpen,memory,view);
     });
