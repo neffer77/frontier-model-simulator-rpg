@@ -59,6 +59,7 @@
   color:var(--fl-text-primary);
 }
 .fl-zero-state[data-fl-zero-key="hiring.no-employees"]{margin-bottom:16px}
+.org-chart>.fl-zero-state[data-fl-zero-key="hiring.no-employees"]{order:-1}
 .fl-zero-state[data-fl-zero-key="critical-path.no-active-projects"]{margin-top:8px}
 .fl-zero-state[data-fl-zero-key="postmortems.none"]{max-width:860px;margin-left:auto;margin-right:auto}
 .fl-zero-state[hidden]{display:none}
