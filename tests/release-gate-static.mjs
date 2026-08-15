@@ -19,18 +19,29 @@ assert.equal(policy.semanticEvidence?.routeCrawl?.expectedVisits,190,'release ga
 assert.equal(policy.semanticEvidence?.screenshotRegression?.expectedCaptureCount,255,'release gate screenshot semantic policy drifted');
 assert(['active','bootstrap-pending'].includes(baseline.status),'screenshot baseline must use an understood lifecycle status');
 
-const gateById=new Map((policy.gates||[]).map(g=>[g.id,g]));
+const gates=policy.gates||[];
+const ids=gates.map(g=>g.id);
+assert.equal(new Set(ids).size,ids.length,'release gate IDs must be unique');
+for(const gate of gates){
+  assert(['blocker','advisory'].includes(gate.severity),`${gate.id}: invalid severity ${gate.severity}`);
+  assert(['preflight','build','browser'].includes(gate.phase),`${gate.id}: invalid phase ${gate.phase}`);
+  assert(pkg.scripts[gate.script],`${gate.id}: references missing npm script ${gate.script}`);
+}
+assert.equal(gates.filter(g=>g.phase==='build').length,1,'release gate must have exactly one production build gate');
+
+const gateById=new Map(gates.map(g=>[g.id,g]));
 const blockerIds=['static-contracts','production-build','browser-smoke','balance-pacing','technical-realism','replayability','browser-firewall','shared-surfaces','progressive-disclosure','shared-controls','company-dashboard','page-visual-sweep','empty-states','locked-states','overlay-system','accessibility','responsive','route-crawl','release-candidate','screenshot-regression'];
-for(const id of blockerIds){const gate=gateById.get(id);assert(gate,`missing release blocker gate ${id}`);assert.equal(gate.severity,'blocker',`${id} must remain a blocker`);assert(pkg.scripts[gate.script],`${id} references missing npm script ${gate.script}`);}
+for(const id of blockerIds){const gate=gateById.get(id);assert(gate,`missing release blocker gate ${id}`);assert.equal(gate.severity,'blocker',`${id} must remain a blocker`);}
 const visual=gateById.get('visual-inventory');assert(visual,'visual inventory advisory gate missing');assert.equal(visual.severity,'advisory','visual inventory must remain advisory evidence');
 assert.equal(visual.evidence,'artifacts/visual-inventory/report.json','visual inventory evidence path drifted');
 assert.equal(gateById.get('route-crawl').evidence,'artifacts/route-crawl/report.json','route crawl evidence path drifted');
 assert.equal(gateById.get('screenshot-regression').evidence,'artifacts/screenshot-regression/report.json','screenshot regression evidence path drifted');
 
-for(const marker of ['releaseDecision','gate-command-failed','required-evidence-missing','screenshot-baseline-inactive','route-crawl-failures','route-crawl-warnings','manual-check','spawnSync','python3','_site'])assert(runner.includes(marker),`release gate runner missing ${marker}`);
+for(const marker of ['releaseDecision','gate-command-failed','required-evidence-missing','screenshot-baseline-inactive','screenshot-report-invalid','route-report-invalid','visual-inventory-report-invalid','route-crawl-failures','route-crawl-warnings','manual-check','spawnSync','python3','_site','githubSha'])assert(runner.includes(marker),`release gate runner missing ${marker}`);
 assert(runner.includes("phase==='preflight'")&&runner.includes("phase==='build'")&&runner.includes("phase==='browser'"),'release gate must preserve preflight/build/browser phases');
 assert(runner.includes('finally')&&runner.includes('writeReport()'),'release gate must write its decision even when a gate throws');
 assert(runner.includes("path.join(outRoot,'REPORT.md')"),'release gate must emit a human-readable decision report');
+assert(runner.includes("summary.item!=='13.14'")&&runner.includes("summary.item!=='13.15'"),'semantic evidence must validate the screenshot/route report contracts');
 
 assert.equal(pkg.scripts['test:release-gate'],'node tests/release-gate.mjs','test:release-gate must invoke the canonical orchestrator');
 assert.equal(pkg.scripts['test:rc'],'node tests/release-gate.mjs','test:rc must resolve to the canonical Item 13.16 orchestrator');
@@ -43,5 +54,6 @@ assert(workflow.includes('if: always()'),'release evidence uploads must survive 
 assert(workflow.includes('Publish Item 13.16 release decision'),'workflow must surface the release decision without requiring artifact download');
 assert(workflow.includes('artifacts/release-gate/REPORT.md'),'workflow summary must publish the canonical Markdown report');
 assert(workflow.includes('GITHUB_STEP_SUMMARY'),'workflow must write the release decision to the GitHub Actions job summary');
+assert(/push:\s*\n\s*branches:\s*\n\s*- main/.test(workflow),'canonical release gate must rerun on pushes to main');
 
-console.log(JSON.stringify({releaseGateStatic:'pass',blockers:blockerIds.length,advisoryGates:(policy.gates||[]).filter(g=>g.severity==='advisory').length,routeVisits:190,screenshotCaptures:255,baselineStatus:baseline.status},null,2));
+console.log(JSON.stringify({releaseGateStatic:'pass',blockers:blockerIds.length,advisoryGates:gates.filter(g=>g.severity==='advisory').length,routeVisits:190,screenshotCaptures:255,baselineStatus:baseline.status},null,2));
