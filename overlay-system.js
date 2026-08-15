@@ -103,5 +103,6 @@
   new MutationObserver(records=>{
     if(records.some(r=>[...r.addedNodes,...r.removedNodes].some(n=>n.nodeType===1)))schedule();
   }).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
   addEventListener('resize',schedule);schedule();
 })();
