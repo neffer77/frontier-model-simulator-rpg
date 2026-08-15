@@ -56,9 +56,7 @@ body{line-height:1.45}
 :where(button,a[href],input,select,textarea,summary){min-inline-size:var(--fl-a11y-target);min-block-size:var(--fl-a11y-target)}
 .term,.tech-help,.knowledge button{min-width:28px;min-height:28px}
 [aria-disabled="true"],:disabled{color:var(--fl-disabled-text)}
-[aria-current="page"],[aria-selected="true"],[aria-pressed="true"]{
-  border-color:var(--fl-border-focus)!important;
-}
+[aria-current="page"],[aria-selected="true"],[aria-pressed="true"]{border-color:var(--fl-border-focus)!important}
 
 /* Legacy microcopy was often 8–9px. Preserve compactness while keeping it readable. */
 .eyebrow,
@@ -76,7 +74,14 @@ body{line-height:1.45}
 .story-scene-card aside span{
   font-size:max(10px,.625rem)!important;
 }
-:where(.sub,.lead,.feed>div,.modal p,.incident-head p,.story-dialogue p,.fl-zero-state p,.fl-lock-copy>p){line-height:1.5}
+:where(.sub,.lead,.feed>div,.sim-note,.incident-tip,.tier small,.tech-node small,.knowledge em,.company-system-group-head small){
+  color:var(--fl-text-muted)!important;
+}
+:where(.modal p,.incident-head p,.story-dialogue p,.fl-zero-state p,.fl-lock-copy>p){
+  color:var(--fl-text-secondary)!important;
+  line-height:1.5;
+}
+:where(.sub,.lead,.feed>div){line-height:1.5}
 :where(.panel,.fl-panel,.fl-card,.fl-overlay-panel,.company-system-group,.gameplay-system-grid button){overflow-wrap:anywhere}
 
 /* Progress is not communicated by color alone. Runtime adds progressbar semantics; this adds a visible track boundary. */
