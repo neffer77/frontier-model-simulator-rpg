@@ -82,7 +82,8 @@
   #app[data-fl-page-id]{overflow-x:hidden}
   .fl-page-head{gap:12px}
   .fl-page-head>button{max-width:100%}
-  .fl-page-grid{grid-template-columns:minmax(0,1fr)!important}
+  .fl-page-shell>:where(.fl-page-grid),
+  .fl-page-shell>main>:where(.fl-page-grid){grid-template-columns:minmax(0,1fr)!important}
   .fl-page-empty{min-height:82px;padding:18px 14px}
 }
 
