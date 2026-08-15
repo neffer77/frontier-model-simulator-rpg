@@ -18,6 +18,15 @@ const report={
   generatedAt:new Date().toISOString(),
   serverUrl,
   externalServer,
+  environment:{
+    node:process.version,
+    platform:process.platform,
+    arch:process.arch,
+    ci:Boolean(process.env.CI),
+    githubSha:process.env.GITHUB_SHA||null,
+    githubRef:process.env.GITHUB_REF||null,
+    githubEventName:process.env.GITHUB_EVENT_NAME||null
+  },
   gates:[],
   blockers:[],
   advisories:[],
@@ -27,8 +36,17 @@ const report={
 
 const blocker=(type,details={})=>report.blockers.push({type,...details});
 const advisory=(type,details={})=>report.advisories.push({type,...details});
-const safeReadJson=file=>{try{return JSON.parse(fs.readFileSync(file,'utf8'))}catch{return null}};
 const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,100);
+
+function readJsonEvidence(file,severity='blocker',type='invalid-json-evidence'){
+  if(!fs.existsSync(file))return null;
+  try{return JSON.parse(fs.readFileSync(file,'utf8'))}
+  catch(error){
+    const details={path:file,error:String(error?.message||error)};
+    severity==='blocker'?blocker(type,details):advisory(type,details);
+    return null;
+  }
+}
 
 function runCommandGate(gate,env={}){
   const started=Date.now();
@@ -79,34 +97,41 @@ function evaluateSemanticEvidence(){
   const semantics=policy.semanticEvidence||{};
   const screenshotPolicy=semantics.screenshotRegression||{};
   const baselineFile=screenshotPolicy.baselineFile||'visual-qa/screenshot-baseline.json';
-  const baseline=safeReadJson(baselineFile);
+  const baselineExists=fs.existsSync(baselineFile);
+  const baseline=readJsonEvidence(baselineFile,'blocker','screenshot-baseline-invalid');
   report.evidence.screenshotBaseline=baseline?{status:baseline.status||null,expectedCaptureCount:baseline.expectedCaptureCount||0,captureCount:Object.keys(baseline.captures||{}).length}:null;
-  if(!baseline)blocker('screenshot-baseline-missing',{path:baselineFile});
-  else {
+  if(!baselineExists)blocker('screenshot-baseline-missing',{path:baselineFile});
+  else if(baseline){
     if(baseline.status!==screenshotPolicy.requiredBaselineStatus)blocker('screenshot-baseline-inactive',{required:screenshotPolicy.requiredBaselineStatus,actual:baseline.status||null,path:baselineFile});
     if(Number(baseline.expectedCaptureCount)!==Number(screenshotPolicy.expectedCaptureCount))blocker('screenshot-baseline-count-contract',{expected:screenshotPolicy.expectedCaptureCount,actual:baseline.expectedCaptureCount});
     if(baseline.status===screenshotPolicy.requiredBaselineStatus&&Object.keys(baseline.captures||{}).length!==Number(screenshotPolicy.expectedCaptureCount))blocker('screenshot-baseline-incomplete',{expected:screenshotPolicy.expectedCaptureCount,actual:Object.keys(baseline.captures||{}).length});
   }
 
-  const screenshot=safeReadJson('artifacts/screenshot-regression/report.json');
+  const screenshotPath='artifacts/screenshot-regression/report.json';
+  const screenshot=readJsonEvidence(screenshotPath,'blocker','screenshot-report-invalid');
   if(screenshot){
-    const summary={baselineStatus:screenshot.baselineStatus||null,expectedCaptureCount:screenshot.expectedCaptureCount||0,producedCaptures:(screenshot.captures||[]).length,mismatches:(screenshot.mismatches||[]).length,missingBaseline:(screenshot.missingBaseline||[]).length,extraBaseline:(screenshot.extraBaseline||[]).length,missingCaptures:(screenshot.missingCaptures||[]).length,pageErrors:(screenshot.pageErrors||[]).length};
+    const summary={item:screenshot.item||null,baselineStatus:screenshot.baselineStatus||null,expectedCaptureCount:screenshot.expectedCaptureCount||0,producedCaptures:(screenshot.captures||[]).length,mismatches:(screenshot.mismatches||[]).length,missingBaseline:(screenshot.missingBaseline||[]).length,extraBaseline:(screenshot.extraBaseline||[]).length,missingCaptures:(screenshot.missingCaptures||[]).length,pageErrors:(screenshot.pageErrors||[]).length};
     report.evidence.screenshotRegression=summary;
+    if(summary.item!=='13.14')blocker('screenshot-report-contract',{expectedItem:'13.14',actualItem:summary.item});
+    if(summary.baselineStatus!==screenshotPolicy.requiredBaselineStatus)blocker('screenshot-report-baseline-status',{required:screenshotPolicy.requiredBaselineStatus,actual:summary.baselineStatus});
     if(summary.expectedCaptureCount!==Number(screenshotPolicy.expectedCaptureCount)||summary.producedCaptures!==Number(screenshotPolicy.expectedCaptureCount))blocker('screenshot-capture-count',{expected:screenshotPolicy.expectedCaptureCount,reportedExpected:summary.expectedCaptureCount,produced:summary.producedCaptures});
     for(const field of screenshotPolicy.blockOn||[]){const count=Array.isArray(screenshot[field])?screenshot[field].length:Number(screenshot[field]||0);if(count>0)blocker('screenshot-regression-evidence',{field,count});}
   }
 
   const routePolicy=semantics.routeCrawl||{};
-  const routes=safeReadJson('artifacts/route-crawl/report.json');
+  const routePath='artifacts/route-crawl/report.json';
+  const routes=readJsonEvidence(routePath,'blocker','route-report-invalid');
   if(routes){
-    const summary={expectedVisits:routes.expectedVisits||0,actualVisits:(routes.visits||[]).length,failures:(routes.failures||[]).length,warnings:(routes.warnings||[]).length,orphanRuntimePages:(routes.orphanRuntimePages||[]).length};
+    const summary={item:routes.item||null,expectedVisits:routes.expectedVisits||0,actualVisits:(routes.visits||[]).length,failures:(routes.failures||[]).length,warnings:(routes.warnings||[]).length,orphanRuntimePages:(routes.orphanRuntimePages||[]).length};
     report.evidence.routeCrawl=summary;
+    if(summary.item!=='13.15')blocker('route-report-contract',{expectedItem:'13.15',actualItem:summary.item});
     if(Number(summary.expectedVisits)!==Number(routePolicy.expectedVisits)||summary.actualVisits!==Number(routePolicy.expectedVisits))blocker('route-crawl-visit-count',{expected:routePolicy.expectedVisits,reportedExpected:summary.expectedVisits,actual:summary.actualVisits});
     if(routePolicy.blockOnFailures&&summary.failures>0)blocker('route-crawl-failures',{count:summary.failures});
     if(routePolicy.warningsAreAdvisory&&summary.warnings>0)advisory('route-crawl-warnings',{count:summary.warnings});
   }
 
-  const visual=safeReadJson('artifacts/visual-inventory/report.json');
+  const visualPath='artifacts/visual-inventory/report.json';
+  const visual=readJsonEvidence(visualPath,'advisory','visual-inventory-report-invalid');
   if(visual){
     const captures=Object.values(visual.devices||{}).flatMap(device=>device.captures||[]);
     const brightSurfaceSuspects=captures.reduce((n,capture)=>n+(capture.brightSurfaces||[]).length,0);
@@ -129,6 +154,7 @@ function writeReport(){
     `- Blockers: **${report.blockers.length}**`,
     `- Advisories: **${report.advisories.length}**`,
     `- Policy version: **${report.policyVersion}**`,
+    `- Commit: **${report.environment.githubSha||'local'}**`,
     '',
     '## Gate execution',
     '',
@@ -138,7 +164,7 @@ function writeReport(){
   for(const gate of report.gates)lines.push(`| ${gate.label} | ${gate.severity} | ${gate.status} | ${gate.exitCode??'—'} | ${gate.durationMs} ms |`);
   lines.push('','## Blockers','');if(report.blockers.length)for(const x of report.blockers)lines.push(`- **${x.type}** — \`${JSON.stringify(x)}\``);else lines.push('- None.');
   lines.push('','## Advisories','');if(report.advisories.length)for(const x of report.advisories)lines.push(`- **${x.type}** — \`${JSON.stringify(x)}\``);else lines.push('- None.');
-  lines.push('','## Evidence summary','', '```json',JSON.stringify(report.evidence,null,2),'```','');
+  lines.push('','## Evidence summary','', '```json',JSON.stringify(report.evidence,null,2),'```','','## Environment','', '```json',JSON.stringify(report.environment,null,2),'```','');
   fs.writeFileSync(path.join(outRoot,'REPORT.md'),lines.join('\n')+'\n');
 }
 
