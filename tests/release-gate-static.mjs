@@ -30,6 +30,7 @@ assert.equal(gateById.get('screenshot-regression').evidence,'artifacts/screensho
 for(const marker of ['releaseDecision','gate-command-failed','required-evidence-missing','screenshot-baseline-inactive','route-crawl-failures','route-crawl-warnings','manual-check','spawnSync','python3','_site'])assert(runner.includes(marker),`release gate runner missing ${marker}`);
 assert(runner.includes("phase==='preflight'")&&runner.includes("phase==='build'")&&runner.includes("phase==='browser'"),'release gate must preserve preflight/build/browser phases');
 assert(runner.includes('finally')&&runner.includes('writeReport()'),'release gate must write its decision even when a gate throws');
+assert(runner.includes("path.join(outRoot,'REPORT.md')"),'release gate must emit a human-readable decision report');
 
 assert.equal(pkg.scripts['test:release-gate'],'node tests/release-gate.mjs','test:release-gate must invoke the canonical orchestrator');
 assert.equal(pkg.scripts['test:rc'],'node tests/release-gate.mjs','test:rc must resolve to the canonical Item 13.16 orchestrator');
@@ -39,5 +40,8 @@ assert(workflow.includes('npm run test:rc'),'browser QA must execute the canonic
 assert(!/\n\s*run:\s*npm run test:static\s*\n/.test(workflow),'workflow must not fail early on a standalone static step before the evidence orchestrator');
 for(const artifact of ['artifacts/release-gate','artifacts/route-crawl','artifacts/screenshot-regression','artifacts/visual-inventory'])assert(workflow.includes(artifact),`workflow must preserve ${artifact}`);
 assert(workflow.includes('if: always()'),'release evidence uploads must survive failed gates');
+assert(workflow.includes('Publish Item 13.16 release decision'),'workflow must surface the release decision without requiring artifact download');
+assert(workflow.includes('artifacts/release-gate/REPORT.md'),'workflow summary must publish the canonical Markdown report');
+assert(workflow.includes('GITHUB_STEP_SUMMARY'),'workflow must write the release decision to the GitHub Actions job summary');
 
 console.log(JSON.stringify({releaseGateStatic:'pass',blockers:blockerIds.length,advisoryGates:(policy.gates||[]).filter(g=>g.severity==='advisory').length,routeVisits:190,screenshotCaptures:255,baselineStatus:baseline.status},null,2));
