@@ -39,11 +39,12 @@ for(const d of devices){
   await page.keyboard.press('Escape');await settle(page,120);await sync(page);assert.equal(await page.locator('.story-overlay').count(),0,`${d.name}: Escape did not dismiss story`);
   assert.equal(await page.evaluate(()=>document.body.classList.contains('fl-overlay-open')),false,`${d.name}: scroll lock survived story dismissal`);
 
-  // More sheet: focus is trapped and restored to the More navigation control after Escape.
-  const more=page.locator('.gameplay-bottom-nav button').filter({hasText:'More'});assert.equal(await more.count(),1,`${d.name}: More button missing`);await more.focus();await more.click();await settle(page,80);await sync(page);
-  await assertOverlay(page,d,'more');
+  // More sheet is class-driven: it must join/leave the overlay stack without a manual sync call.
+  const more=page.locator('.gameplay-bottom-nav button').filter({hasText:'More'});assert.equal(await more.count(),1,`${d.name}: More button missing`);await more.focus();await more.click();await settle(page,120);
+  assert.equal((await page.evaluate(()=>window.frontierOverlayTop?.()))?.type,'more',`${d.name}: body-class observer did not register More sheet`);await assertOverlay(page,d,'more');
   await page.keyboard.press('Shift+Tab');assert(await page.evaluate(()=>document.querySelector('[data-fl-overlay-panel="more"]')?.contains(document.activeElement)),`${d.name}: Shift+Tab escaped More sheet`);
-  await page.keyboard.press('Escape');await settle(page,80);await sync(page);assert.equal(await page.evaluate(()=>document.body.classList.contains('gameplay-menu-open')),false,`${d.name}: Escape did not close More sheet`);
+  await page.keyboard.press('Escape');await settle(page,120);assert.equal(await page.evaluate(()=>document.body.classList.contains('gameplay-menu-open')),false,`${d.name}: Escape did not close More sheet`);
+  assert.equal(await page.evaluate(()=>window.frontierOverlayTop?.()),null,`${d.name}: More sheet remained in stack after class-driven close`);
   assert(/more/i.test(await page.evaluate(()=>document.activeElement?.textContent||'')),`${d.name}: focus was not restored to More control`);
 
   // Company priority decision joins the same keyboard/scroll contract.
