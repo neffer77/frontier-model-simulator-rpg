@@ -1,0 +1,80 @@
+/* Item 13.9 — first-class empty / zero-data states. */
+.fl-zero-state{
+  --fl-zero-accent:var(--fl-page-accent,var(--fl-accent-cyan));
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:14px;
+  align-items:start;
+  width:100%;
+  min-width:0;
+  margin:12px 0;
+  padding:16px;
+  border:1px solid var(--fl-border-default);
+  border-left:3px solid var(--fl-zero-accent);
+  border-radius:var(--fl-radius-lg);
+  background:linear-gradient(145deg,var(--fl-surface-2),var(--fl-surface-inset));
+  color:var(--fl-text-primary);
+  box-shadow:var(--fl-shadow-soft);
+}
+.fl-zero-state[data-fl-zero-tone="quiet"]{--fl-zero-accent:var(--fl-accent-teal)}
+.fl-zero-state[data-fl-zero-tone="planning"]{--fl-zero-accent:var(--fl-accent-gold)}
+.fl-zero-state[data-fl-zero-tone="learning"]{--fl-zero-accent:var(--fl-accent-blue)}
+.fl-zero-icon{
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  border:1px solid color-mix(in srgb,var(--fl-zero-accent) 45%,var(--fl-border-default));
+  border-radius:12px;
+  background:color-mix(in srgb,var(--fl-zero-accent) 10%,var(--fl-surface-3));
+  color:var(--fl-zero-accent);
+  font:800 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+.fl-zero-copy{min-width:0}
+.fl-zero-kicker{
+  display:block;
+  margin-bottom:4px;
+  color:var(--fl-zero-accent);
+  font:800 10px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+.fl-zero-state h3{margin:0;color:var(--fl-text-primary);font-size:clamp(16px,2vw,20px)}
+.fl-zero-state p{margin:7px 0 0;color:var(--fl-text-secondary);line-height:1.5}
+.fl-zero-next{
+  display:flex;
+  gap:7px;
+  align-items:flex-start;
+  margin-top:10px;
+  color:var(--fl-text-muted);
+  font-size:12px;
+  line-height:1.45;
+}
+.fl-zero-next b{color:var(--fl-text-secondary);white-space:nowrap}
+.fl-zero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.fl-zero-actions button{min-height:38px}
+.fl-zero-actions .fl-zero-primary{
+  border-color:var(--fl-zero-accent);
+  background:color-mix(in srgb,var(--fl-zero-accent) 18%,var(--fl-surface-4));
+  color:var(--fl-text-primary);
+}
+.fl-zero-state[data-fl-zero-key="hiring.no-employees"]{margin-bottom:16px}
+.fl-zero-state[data-fl-zero-key="critical-path.no-active-projects"]{margin-top:8px}
+.fl-zero-state[data-fl-zero-key="postmortems.none"]{max-width:860px;margin-left:auto;margin-right:auto}
+.fl-zero-state[hidden]{display:none}
+
+/* Existing module empty fragments get the same hierarchy when they are not replaced by a registry card. */
+.fl-page-empty:not(.fl-zero-state),
+[data-fl-zero-native="true"]{
+  color:var(--fl-text-muted);
+  border-color:var(--fl-border-default);
+}
+[data-fl-zero-native="true"]:not([hidden]){background:var(--fl-surface-inset)}
+
+@media(max-width:720px){
+  .fl-zero-state{grid-template-columns:1fr;padding:14px;gap:10px}
+  .fl-zero-icon{width:34px;height:34px}
+  .fl-zero-next{display:grid;gap:3px}
+  .fl-zero-actions{display:grid;grid-template-columns:1fr}
+  .fl-zero-actions button{width:100%;min-height:44px}
+}
