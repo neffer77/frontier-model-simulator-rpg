@@ -137,6 +137,7 @@ function wsJuice(kind,message){
 function ensureWorkstation(){
   if(!state.workstation) state.workstation=null;
   if(!state.diagnosticMastery) state.diagnosticMastery={};
+  if(typeof ensureProblemQualityState==='function')ensureProblemQualityState();
 }
 
 function newWorkstation(id){
@@ -198,22 +199,26 @@ function executeWorkstationAction(actionId){
   if(!correctAction){
     w.falseMoves++;w.minutes+=4;state.day++;if(state.activeRun)state.activeRun.progress=Math.max(0,state.activeRun.progress-1);
     w.terminalOutput.push(`ACTION REJECTED: ${choice[2]}`);
-    state.knowledge[inc.term]=(state.knowledge[inc.term]||0)+1;
-    log(`⚠️ ${inc.title}: production action did not address the dominant cause.`);save();render();return;
+    if(typeof recordProblemQualityFailure==='function')recordProblemQualityFailure(inc,w);
+    log(`⚠️ ${inc.title}: production action did not address the dominant cause. Incorrect attempts do not grant mastery or resources.`);save();render();return;
   }
   const grade=diagnosticGrade(c,w,correctHypothesis);
-  const mastery={S:3,A:2,B:2,C:1}[grade];
-  state.knowledge[inc.term]=(state.knowledge[inc.term]||0)+mastery;
-  state.diagnosticMastery[inc.term]=(state.diagnosticMastery[inc.term]||0)+mastery;
-  state.research+=grade==="S"?2:1;
-  state.reputation+=grade==="S"?3:grade==="A"?2:1;
+  const baseMastery={S:3,A:2,B:2,C:1}[grade];
+  const quality=typeof problemQualityPreview==='function'?problemQualityPreview(inc,c,w,grade):{multiplier:1,protectedSolve:false,reasons:[]};
+  const rewards=typeof problemQualityRewards==='function'?problemQualityRewards(baseMastery,grade,quality):{mastery:baseMastery,research:grade==='S'?2:1,reputation:grade==='S'?3:grade==='A'?2:1};
+  state.knowledge[inc.term]=(state.knowledge[inc.term]||0)+rewards.mastery;
+  state.diagnosticMastery[inc.term]=(state.diagnosticMastery[inc.term]||0)+rewards.mastery;
+  state.research+=rewards.research;
+  state.reputation+=rewards.reputation;
+  if(typeof recordProblemQualitySolve==='function')recordProblemQualitySolve(inc,w,grade,quality,rewards);
   if(state.activeRun&&state.activeRun.incident===inc.id){
-    state.runHistory.push({run:state.activeRun.name,incident:inc.id,day:state.day,grade,minutes:w.minutes,compute:w.computeSpent,tools:[...w.investigated]});
+    state.runHistory.push({run:state.activeRun.name,incident:inc.id,day:state.day,grade,minutes:w.minutes,compute:w.computeSpent,tools:[...w.investigated],qualityMultiplier:quality.multiplier,masteryAwarded:rewards.mastery,antiGrindProtected:quality.protectedSolve});
     state.activeRun.incident=null;
   }
   w.resolved=true;
-  w.debrief={grade,correctHypothesis,choice:choice[1],why:choice[2],tools:w.investigated.length,minutes:w.minutes,compute:w.computeSpent,falseMoves:w.falseMoves,hints:w.hints,mastery};
-  log(`🏅 CLEAN DIAGNOSIS ${grade}: ${inc.title}. ${choice[2]}`);setTimeout(()=>wsJuice("success",`CLEAN DIAGNOSIS ${grade}`),0);
+  w.debrief={grade,correctHypothesis,choice:choice[1],why:choice[2],tools:w.investigated.length,minutes:w.minutes,compute:w.computeSpent,falseMoves:w.falseMoves,hints:w.hints,mastery:rewards.mastery,research:rewards.research,reputation:rewards.reputation,quality};
+  const qLabel=typeof problemQualityLabel==='function'?problemQualityLabel(quality):'Learning value';
+  log(`🏅 CLEAN DIAGNOSIS ${grade}: ${inc.title}. ${qLabel} ×${Number(quality.multiplier).toFixed(2)} · +${rewards.mastery} mastery · +${rewards.research} research · +${rewards.reputation} reputation.`);setTimeout(()=>wsJuice("success",`CLEAN DIAGNOSIS ${grade}`),0);
   save();render();
 }
 
@@ -250,7 +255,7 @@ function wsEvidence(w){
   return w.evidence.slice(-8).map(e=>`<div class="evidence-chip ${e.signal?"signal":""}"><b>${esc(e.title)}</b><span>${esc(e.text)}</span></div>`).join("");
 }
 
-function workstationDebrief(c,w,inc){const d=w.debrief;return `<div class="incident-back"><div class="ws-debrief grade-${d.grade}"><div class="grade-orb">${d.grade}</div><div class="eyebrow">INCIDENT RESOLVED</div><h2>Clean Diagnosis — ${d.grade}</h2><p>${esc(d.why)}</p><div class="debrief-grid"><div><span>Tools opened</span><b>${d.tools}</b></div><div><span>False moves</span><b>${d.falseMoves}</b></div><div><span>Diagnostic time</span><b>${d.minutes}m</b></div><div><span>Compute spent</span><b>${d.compute} H100h</b></div><div><span>Hints</span><b>${d.hints}</b></div><div><span>${inc.term} mastery</span><b>+${d.mastery}</b></div></div><div class="debrief-note"><b>Production action</b><br>${esc(d.choice)}</div><button class="primary resume-btn" onclick="closeWorkstationDebrief()">RESUME TRAINING →</button></div></div>`}
+function workstationDebrief(c,w,inc){const d=w.debrief,q=d.quality;const qLine=q?`<div class="debrief-note"><b>${esc(typeof problemQualityLabel==='function'?problemQualityLabel(q):'Learning value')} · ×${Number(q.multiplier).toFixed(2)}</b><br>${esc((q.reasons||[]).join(' · '))}${q.protectedSolve?'<br><strong>Repeat protection active: this solve is practice only and grants no progression.</strong>':''}</div>`:'';return `<div class="incident-back"><div class="ws-debrief grade-${d.grade}"><div class="grade-orb">${d.grade}</div><div class="eyebrow">INCIDENT RESOLVED</div><h2>Clean Diagnosis — ${d.grade}</h2><p>${esc(d.why)}</p><div class="debrief-grid"><div><span>Tools opened</span><b>${d.tools}</b></div><div><span>False moves</span><b>${d.falseMoves}</b></div><div><span>Diagnostic time</span><b>${d.minutes}m</b></div><div><span>Compute spent</span><b>${d.compute} H100h</b></div><div><span>Hints</span><b>${d.hints}</b></div><div><span>${inc.term} mastery</span><b>+${d.mastery}</b></div></div>${qLine}<div class="debrief-note"><b>Production action</b><br>${esc(d.choice)}</div><button class="primary resume-btn" onclick="closeWorkstationDebrief()">RESUME TRAINING →</button></div></div>`}
 
 function incidentOverlay(){
   ensureWorkstation();const inc=INCIDENTS.find(x=>x.id===state.selectedIncident),c=wsCase(),w=ws();if(!inc||!c||!w)return"";
