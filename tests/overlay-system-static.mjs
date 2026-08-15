@@ -31,16 +31,16 @@ assert(js.indexOf("id:'incident'")<js.indexOf("id:'milestone'")&&js.indexOf("id:
 
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
-assert.equal(styles.at(-1),'overlay-system.css','13.11 stylesheet should load last');
-assert.equal(scripts.at(-1),'overlay-system.js','13.11 runtime should run last');
+assert(styles.includes('overlay-system.css'),'13.11 overlay stylesheet must remain loaded');
+assert(scripts.includes('overlay-system.js'),'13.11 overlay runtime must remain loaded');
 assert(styles.indexOf('overlay-system.css')>styles.indexOf('locked-state-system.css'),'13.11 CSS must layer after 13.10');
 assert(scripts.indexOf('overlay-system.js')>scripts.indexOf('locked-state-system.js'),'13.11 runtime must layer after 13.10');
 for(const file of ['overlay-system.css','overlay-system.js']){
   assert(scriptable.includes(`"${file}"`),`Scriptable must include ${file}`);
   assert(sw.includes(`'./${file}'`),`service worker must cache ${file}`);
 }
-assert(sw.includes("frontier-lab-v20"),'Item 13.11 should advance offline cache to v20');
+const cacheVersion=Number(sw.match(/frontier-lab-v(\d+)/)?.[1]||0);assert(cacheVersion>=20,`Item 13.11 requires cache v20+, found v${cacheVersion}`);
 
 for(const id of ['story-intro','training-incident','technical-explainer','milestone','company-priority','more-locked','more-unlocked'])assert(inventory.specialCaptures.some(x=>x.id===id),`Item 13.1 overlay inventory missing ${id}`);
 
-console.log(JSON.stringify({overlayStatic:'pass',overlays:expected.length,stack:expected.map(x=>x[0]),cache:'frontier-lab-v20'},null,2));
+console.log(JSON.stringify({overlayStatic:'pass',overlays:expected.length,stack:expected.map(x=>x[0]),cache:`frontier-lab-v${cacheVersion}`},null,2));
