@@ -53,7 +53,7 @@ for(const d of devices){
     document.getElementById('app').appendChild(host)
   });await settle(page);
   const expected=[['.future-card','fl-card'],['.future-launch','fl-launch'],['.future-row','fl-row'],['.future-actions','fl-actions'],['.future-empty','fl-empty'],['.future-badge','fl-badge']];
-  for(const [selector,cls] of expected)assert(await page.locator(selector).evaluate(el=>el.classList.contains(cls)),`${d.name}: ${selector} missing ${cls}`);
+  for(const [selector,cls] of expected)assert(await page.locator(selector).evaluate((el,expectedClass)=>el.classList.contains(expectedClass),cls),`${d.name}: ${selector} missing ${cls}`);
   assert(await page.locator('.future-summary').evaluate(el=>el.classList.contains('fl-kpi-grid')),`${d.name}: future summary missing KPI grid primitive`);
   assert(await page.locator('.future-summary > div').evaluateAll(els=>els.every(el=>el.classList.contains('fl-kpi'))),`${d.name}: future summary children missing KPI primitive`);
   assert(!(await page.locator('#special-card-fixture').evaluate(el=>el.classList.contains('fl-card'))),`${d.name}: cinematic story cards should remain specialized`);
