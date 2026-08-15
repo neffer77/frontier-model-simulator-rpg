@@ -29,8 +29,8 @@
   function wrapTables(root=document){
     for(const table of root.querySelectorAll('#app table')){
       if(table.closest(`.${TABLE_WRAP}`))continue;
-      const wrap=document.createElement('div');wrap.className=TABLE_WRAP;wrap.setAttribute('role','region');
-      const caption=table.querySelector('caption')?.textContent?.trim();wrap.setAttribute('aria-label',caption?`${caption} table, horizontally scrollable`:'Data table, horizontally scrollable');wrap.tabIndex=0;
+      const wrap=document.createElement('div');wrap.className=TABLE_WRAP;
+      const caption=table.querySelector('caption')?.textContent?.trim();wrap.dataset.flResponsiveTableLabel=caption?`${caption} table, horizontally scrollable`:'Data table, horizontally scrollable';
       table.parentNode?.insertBefore(wrap,table);wrap.appendChild(table);
     }
   }
@@ -39,6 +39,11 @@
       if(el.scrollWidth>el.clientWidth+2)el.classList.add('fl-responsive-local-scroll');else el.classList.remove('fl-responsive-local-scroll');
     }
     for(const pre of root.querySelectorAll('#app pre'))pre.classList.add('fl-responsive-local-scroll');
+    for(const wrap of root.querySelectorAll(`.${TABLE_WRAP}`)){
+      const scrollable=wrap.scrollWidth>wrap.clientWidth+2;wrap.dataset.flResponsiveScrollable=String(scrollable);
+      if(scrollable){wrap.setAttribute('role','region');wrap.setAttribute('aria-label',wrap.dataset.flResponsiveTableLabel||'Data table, horizontally scrollable');wrap.tabIndex=0}
+      else{wrap.removeAttribute('role');wrap.removeAttribute('aria-label');wrap.removeAttribute('tabindex')}
+    }
   }
   function applyMode(){
     const {width,height}=viewport(),mode=modeFor(width,height),orient=orientation(width,height),html=document.documentElement,app=document.getElementById('app');
@@ -58,7 +63,7 @@
       if(offenders.length>=20)break;
     }
     const nav=document.querySelector('.gameplay-bottom-nav');const nr=nav&&visible(nav)?nav.getBoundingClientRect():null;
-    return {mode:modeFor(vp.width,vp.height),orientation:orientation(vp.width,vp.height),viewport:vp,documentWidth:docWidth,overflow:Math.max(0,docWidth-vp.width),offenders,tableWraps:document.querySelectorAll(`.${TABLE_WRAP}`).length,nav:nr?{left:Math.round(nr.left),right:Math.round(nr.right),top:Math.round(nr.top),bottom:Math.round(nr.bottom),width:Math.round(nr.width),height:Math.round(nr.height)}:null};
+    return {mode:modeFor(vp.width,vp.height),orientation:orientation(vp.width,vp.height),viewport:vp,documentWidth:docWidth,overflow:Math.max(0,docWidth-vp.width),offenders,tableWraps:document.querySelectorAll(`.${TABLE_WRAP}`).length,scrollableTables:document.querySelectorAll(`.${TABLE_WRAP}[data-fl-responsive-scrollable="true"]`).length,nav:nr?{left:Math.round(nr.left),right:Math.round(nr.right),top:Math.round(nr.top),bottom:Math.round(nr.bottom),width:Math.round(nr.width),height:Math.round(nr.height)}:null};
   }
   function sync(){queued=false;return applyMode()}
   function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>requestAnimationFrame(sync))}
