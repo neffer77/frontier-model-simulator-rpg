@@ -14,7 +14,7 @@ for(const token of ['--fl-surface-2','--fl-surface-inset','--fl-border-default',
 
 const keys=['model-lab.no-models','portfolio.no-projects','critical-path.no-active-projects','operations.no-incidents','hiring.no-employees','governance.no-votes','programs.no-trains','postmortems.none'];
 for(const key of keys)assert(js.includes(`key:'${key}'`),`missing zero-data rule ${key}`);
-for(const contract of ['frontierEmptyStateSync','frontierEmptyStateRegistry','MutationObserver','data.flZeroHiddenFor','addEventListener(\'click\'','restoreNative','hideNative'])assert(js.includes(contract),`empty-state runtime missing ${contract}`);
+for(const contract of ['frontierEmptyStateSync','frontierEmptyStateRegistry','MutationObserver','dataset.flZeroHiddenFor','addEventListener(\'click\'','restoreNative','hideNative'])assert(js.includes(contract),`empty-state runtime missing ${contract}`);
 
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
