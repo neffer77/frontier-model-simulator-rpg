@@ -15,7 +15,8 @@
   function visible(el,cfg){
     if(!el?.isConnected)return false;
     if(cfg.id==='more'&&!document.body.classList.contains('gameplay-menu-open'))return false;
-    const cs=getComputedStyle(el);if(cs.display==='none'||cs.visibility==='hidden')return false;
+    const cs=getComputedStyle(el);if(cs.display==='none')return false;
+    if(cs.visibility==='hidden'&&!el.classList.contains('fl-overlay-suspended'))return false;
     return el.getClientRects().length>0;
   }
   function panelFor(host,cfg){return host.querySelector(cfg.panel)||host}
