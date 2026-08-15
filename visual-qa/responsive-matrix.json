@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "item": "13.13",
+  "description": "Canonical viewport matrix for responsive visual QA and future screenshot regression.",
+  "viewports": [
+    {
+      "id": "phone-portrait",
+      "name": "Phone portrait",
+      "width": 390,
+      "height": 844,
+      "isMobile": true,
+      "hasTouch": true,
+      "expect": {"companyGroups": 1, "resourceColumns": 2, "worldColumns": 1, "bottomNavColumns": 5}
+    },
+    {
+      "id": "phone-landscape",
+      "name": "Phone landscape",
+      "width": 844,
+      "height": 390,
+      "isMobile": true,
+      "hasTouch": true,
+      "expect": {"companyGroups": 2, "resourceColumns": 4, "worldColumns": 1, "bottomNavColumns": 5}
+    },
+    {
+      "id": "tablet",
+      "name": "Tablet portrait",
+      "width": 834,
+      "height": 1112,
+      "isMobile": true,
+      "hasTouch": true,
+      "expect": {"companyGroups": 2, "resourceColumns": 4, "worldColumns": 1, "bottomNavColumns": 5}
+    },
+    {
+      "id": "desktop",
+      "name": "Desktop",
+      "width": 1440,
+      "height": 1000,
+      "isMobile": false,
+      "hasTouch": false,
+      "expect": {"companyGroups": 2, "resourceColumns": 4, "worldColumns": 2, "bottomNavColumns": 5}
+    },
+    {
+      "id": "wide",
+      "name": "Wide desktop",
+      "width": 1920,
+      "height": 1080,
+      "isMobile": false,
+      "hasTouch": false,
+      "expect": {"companyGroups": 3, "resourceColumns": 4, "worldColumns": 2, "bottomNavColumns": 5}
+    }
+  ],
+  "contracts": [
+    "No page-level horizontal document overflow",
+    "Fixed bottom navigation remains inside the visual viewport",
+    "Dialogs and sheets fit inside both viewport axes",
+    "Wide tables scroll locally instead of widening the document",
+    "Phone landscape protects vertical space",
+    "Tablet uses one primary work column with useful secondary grouping",
+    "Wide desktop uses additional horizontal space without stretching controls excessively"
+  ]
+}
