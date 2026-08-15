@@ -23,8 +23,9 @@ async function prepare(page){
   await page.goto(url,{waitUntil:'networkidle'});await page.evaluate(()=>localStorage.clear());await page.reload({waitUntil:'networkidle'});
   assert.equal(await page.evaluate(()=>document.documentElement.dataset.flEmptyStateSystem),'1','empty-state runtime missing');
   const founder=page.getByRole('button',{name:/found the lab/i});assert(await founder.count(),'founder CTA missing');await founder.click();await settle(page);await dismissStory(page);
-  await page.evaluate(()=>{state.campaign||={version:1};state.campaign.graduated=true;state.campaign.companyPriority='research';state.campaign.modelReviewed=true;save();render()});await settle(page);
+  await page.evaluate(()=>{state.campaign||={version:1};state.campaign.graduated=true;state.campaign.companyPriority='research';state.campaign.modelReviewed=true;window.__emptyTestEmployees=structuredClone(state.npcEmployees||[]);save();render()});await settle(page);
 }
+async function restoreEmployees(page){await page.evaluate(()=>{state.npcEmployees=structuredClone(window.__emptyTestEmployees||[]);ensureHiring?.();save()})}
 async function openZero(page,kind,id,view){
   await page.evaluate(({kind,id,view})=>{
     if(kind==='model'){ensureModelLabState?.();state.models=[];state.modelLab.selectedModelId=null;state.modelLab.tab='overview'}
@@ -60,6 +61,7 @@ for(const d of devices){
   const registry=await page.evaluate(()=>window.frontierEmptyStateRegistry?.()||[]);assert.equal(registry.length,8,`${d.name}: expected eight registered zero-data states`);
 
   for(const [kind,id,view,key] of cases){await openZero(page,kind,id,view);await assertCard(page,d,key)}
+  await restoreEmployees(page);
 
   // Critical Path action must route to the place where data is created.
   await openZero(page,'critical','critical-path','criticalPath');await page.getByRole('button',{name:'Open project portfolio'}).click();await settle(page,100);assert.equal(await page.evaluate(()=>state.view),'portfolio',`${d.name}: Critical Path CTA did not open Project Portfolio`);
