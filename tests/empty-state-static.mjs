@@ -20,14 +20,15 @@ const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
 assert(styles.includes('empty-state-system.css'),'browser build must load empty-state-system.css');
 assert(styles.indexOf('empty-state-system.css')>styles.indexOf('page-visual-sweep.css'),'13.9 CSS must layer after 13.8 page sweep');
-assert.equal(scripts.at(-1),'empty-state-system.js','13.9 runtime should run last');
+assert(scripts.includes('empty-state-system.js'),'browser build must retain empty-state-system.js');
+assert(scripts.indexOf('empty-state-system.js')>scripts.indexOf('page-visual-sweep.js'),'13.9 runtime must remain after the 13.8 page sweep');
 for(const file of ['empty-state-system.css','empty-state-system.js']){
   assert(scriptable.includes(`"${file}"`),`Scriptable must include ${file}`);
   assert(sw.includes(`'./${file}'`),`service worker must cache ${file}`);
 }
-assert(sw.includes("frontier-lab-v18"),'Item 13.9 should advance offline cache to v18');
+assert(/frontier-lab-v\d+/.test(sw),'service-worker cache must remain versioned after Item 13.9');
 
 for(const id of ['model-lab','hiring','operations','governance','portfolio','critical-path','programs','postmortems']){
   const screen=inventory.screens.find(x=>x.id===id);assert(screen,`inventory screen missing ${id}`);assert(screen.requiredStates.includes('empty'),`${id} must retain Item 13.1 empty-state coverage`);
 }
-console.log(JSON.stringify({emptyStateStatic:'pass',rules:keys.length,cache:'frontier-lab-v18'},null,2));
+console.log(JSON.stringify({emptyStateStatic:'pass',rules:keys.length,cumulative:true},null,2));
