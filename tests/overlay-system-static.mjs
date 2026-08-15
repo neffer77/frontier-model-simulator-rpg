@@ -15,12 +15,17 @@ assert(css.includes('overflow:hidden')&&css.includes('overscroll-behavior:none')
 assert(css.includes('visibility:hidden!important')&&css.includes('pointer-events:none!important'),'suspended overlays must not remain interactive or visible');
 
 const expected=[['more',10,true],['priority',20,true],['incident',30,false],['milestone',40,true],['story',50,true],['modal',60,true]];
-for(const [id,priority,dismissible] of expected){
+for(const [id,priority] of expected){
   assert(js.includes(`id:'${id}'`),`overlay registry missing ${id}`);
   assert(js.includes(`priority:${priority}`),`overlay registry missing priority ${priority} for ${id}`);
-  if(id==='incident')assert(js.includes("{id:'incident'")&&js.includes('dismissible:false'), 'incident must remain non-dismissible');
 }
-for(const contract of ['frontierOverlaySync','frontierOverlayDismissTop','frontierOverlayTop','frontierOverlayRegistry','MutationObserver','aria-modal','aria-hidden','role\',\'dialog','restoreFocus','trapTab','event.key===\'Escape\'','event.key===\'Tab\'','host.inert=true','fl-overlay-suspended','fl-overlay-open'])assert(js.includes(contract.replace(/\\'/g,"'")),`overlay runtime missing ${contract}`);
+assert(js.includes("{id:'incident'")&&js.includes('dismissible:false'),'incident must remain non-dismissible');
+for(const contract of [
+  'frontierOverlaySync','frontierOverlayDismissTop','frontierOverlayTop','frontierOverlayRegistry','MutationObserver','aria-modal','aria-hidden',
+  "setAttribute('role','dialog')",'restoreFocus','trapTab',"event.key==='Escape'","event.key==='Tab'",'host.inert=true','fl-overlay-suspended','fl-overlay-open',
+  "new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']})"
+])assert(js.includes(contract),`overlay runtime missing ${contract}`);
+assert(js.includes("cs.visibility==='hidden'&&!el.classList.contains('fl-overlay-suspended')"),'manager-owned suspension must remain logically active so lower overlays can resume');
 assert(js.indexOf("id:'story'")<js.indexOf("id:'modal'"),'technical explainer must have higher overlay priority than story');
 assert(js.indexOf("id:'incident'")<js.indexOf("id:'milestone'")&&js.indexOf("id:'milestone'")<js.indexOf("id:'story'"),'incident → milestone → story stacking contract drifted');
 
