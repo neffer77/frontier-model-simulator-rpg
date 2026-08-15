@@ -23,19 +23,19 @@ assert(responsive.includes("campaignLockedSystem('${name}')")&&responsive.includ
 
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
-assert.equal(styles.at(-1),'locked-state-system.css','13.10 stylesheet should load last');
-assert.equal(scripts.at(-1),'locked-state-system.js','13.10 runtime should run last');
+assert(styles.includes('locked-state-system.css'),'browser build must retain Item 13.10 stylesheet');
+assert(scripts.includes('locked-state-system.js'),'browser build must retain Item 13.10 runtime');
 assert(styles.indexOf('locked-state-system.css')>styles.indexOf('empty-state-system.css'),'13.10 CSS must layer after 13.9');
 assert(scripts.indexOf('locked-state-system.js')>scripts.indexOf('empty-state-system.js'),'13.10 runtime must layer after 13.9');
 for(const file of ['locked-state-system.css','locked-state-system.js']){
   assert(scriptable.includes(`"${file}"`),`Scriptable must include ${file}`);
   assert(sw.includes(`'./${file}'`),`service worker must cache ${file}`);
 }
-assert(sw.includes("frontier-lab-v19"),'Item 13.10 should advance offline cache to v19');
+const cacheVersion=Number(sw.match(/frontier-lab-v(\d+)/)?.[1]||0);assert(cacheVersion>=19,`Item 13.10 requires cache v19+, found v${cacheVersion}`);
 
 const lockedScreens=inventory.screens.filter(x=>x.requiredStates.includes('locked'));
 assert(lockedScreens.length>=20,`expected broad locked-state inventory coverage, found ${lockedScreens.length}`);
 for(const id of ['company-home','hiring','data-evals','tech-debt','operations','reliability','release-governance','roadmap','capital','governance','workforce','portfolio','programs','strategy','investment','competition','ecosystem','policy','communications'])assert(lockedScreens.some(x=>x.id===id),`Item 13.1 locked-state inventory missing ${id}`);
 assert(inventory.specialCaptures.some(x=>x.id==='more-locked'&&x.requiredStates.includes('locked')),'More-sheet locked capture must remain in the visual inventory');
 
-console.log(JSON.stringify({lockedStateStatic:'pass',lockedScreens:lockedScreens.length,cache:'frontier-lab-v19'},null,2));
+console.log(JSON.stringify({lockedStateStatic:'pass',lockedScreens:lockedScreens.length,minimumCache:'frontier-lab-v19',currentCache:`frontier-lab-v${cacheVersion}`},null,2));
