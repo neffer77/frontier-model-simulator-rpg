@@ -14,7 +14,7 @@ concurrency:
 jobs:
   release-candidate:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 24
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,7 +33,7 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run full browser release-candidate suite and visual inventory against _site
+      - name: Run full browser release-candidate suite, visual inventory, and screenshot regression against _site
         run: |
           python3 -m http.server 4173 --directory _site >/tmp/frontier-http.log 2>&1 &
           SERVER_PID=$!
@@ -54,11 +54,14 @@ jobs:
           QA_STATUS=$?
           npm run visual:inventory
           VISUAL_STATUS=$?
+          npm run test:screenshots
+          SCREENSHOT_STATUS=$?
           set -e
 
-          if [ "$QA_STATUS" -ne 0 ] || [ "$VISUAL_STATUS" -ne 0 ]; then
+          if [ "$QA_STATUS" -ne 0 ] || [ "$VISUAL_STATUS" -ne 0 ] || [ "$SCREENSHOT_STATUS" -ne 0 ]; then
             echo "RC QA status: $QA_STATUS"
             echo "Visual inventory status: $VISUAL_STATUS"
+            echo "Screenshot regression status: $SCREENSHOT_STATUS"
             exit 1
           fi
 
@@ -68,5 +71,14 @@ jobs:
         with:
           name: visual-inventory-${{ github.event.pull_request.number || github.run_number }}
           path: artifacts/visual-inventory
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Item 13.14 screenshot regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-regression-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/screenshot-regression
           if-no-files-found: warn
           retention-days: 14

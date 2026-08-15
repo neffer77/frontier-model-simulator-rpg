@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "item": "13.14",
+  "status": "bootstrap-pending",
+  "description": "Deterministic SHA-256 baselines for Item 13.14 full-page Playwright screenshots.",
+  "inventoryVersion": 1,
+  "responsiveMatrixVersion": 1,
+  "playwrightVersion": "1.54.2",
+  "expectedCaptureCount": 255,
+  "capturePolicy": {
+    "routes": "Every visual-qa/inventory.json screen in graduated empty state",
+    "specials": "Every non-manual visual-qa/inventory.json special capture",
+    "screenshot": "Full-page PNG, deviceScaleFactor 1, animations disabled, caret hidden",
+    "deterministicRuntime": "UTC timezone, en-US locale, dark color scheme, reduced motion, fixed Date and seeded Math.random",
+    "comparison": "Exact SHA-256 plus PNG dimensions under the pinned Playwright/Chromium toolchain"
+  },
+  "captures": {}
+}
