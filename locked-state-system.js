@@ -29,8 +29,8 @@
 
   function targetFor(el){
     const explicit=el.dataset?.campaignTarget||el.dataset?.flLockTarget;if(explicit)return explicit;
-    const signal=normalize([el.className,el.getAttribute?.('aria-label'),el.getAttribute?.('title'),el.textContent].filter(Boolean).join(' '));
-    const hit=TARGET_HINTS.find(row=>row.hints.some(h=>signal.includes(h)));
+    const signal=normalize([el.className,el.getAttribute?.('aria-label'),el.getAttribute?.('title'),el.getAttribute?.('onclick'),String(el.onclick||''),el.textContent].filter(Boolean).join(' '));
+    const hit=TARGET_HINTS.find(row=>signal.includes(row.target.toLowerCase())||row.hints.some(h=>signal.includes(h)));
     return hit?.target||null;
   }
   function metaLabel(plan){return plan.unlockStageId==='graduated'?'After Ch 7':`Ch ${plan.unlockChapter}`}
