@@ -35,7 +35,8 @@ async function openZero(page,kind,id,view){
     if(kind==='programs'){ensureProgram?.();state.program.trains=[];state.program.history=[];evaluatePrograms?.()}
     if(kind==='postmortems'){ensureOrgHistory?.();state.organization.postmortems=[];state.organization.incidents=[];state.organization.actionItems=[]}
     if(kind==='hiring'){ensureHiring?.();state.npcEmployees=[];for(const t of Object.values(state.hiring.teams||{})){t.memberIds=[];t.managerId=null}syncManagers?.()}
-    window.frontierPageSweepSet?.(id);state.view=view;save();render();
+    window.frontierPageSweepSet?.(id);state.view=view;save();
+    if(kind==='hiring'&&typeof renderHiring==='function')document.getElementById('app').innerHTML=renderHiring();else render();
   },{kind,id,view});
   await settle(page,100);await page.evaluate(()=>{window.frontierPageSweepSync?.();window.frontierEmptyStateSync?.()});await settle(page,30);
 }
