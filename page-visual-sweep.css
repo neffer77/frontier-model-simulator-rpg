@@ -1,0 +1,91 @@
+/* Item 13.8 — page-by-page module visual normalization.
+   Preserve each module's identity while enforcing shared geometry, dark surfaces and overflow safety. */
+
+#app[data-fl-page-id]{
+  min-width:0;
+  max-width:100%;
+  overflow-x:clip;
+  color:var(--fl-text-primary);
+}
+
+#app[data-fl-page-id]>.fl-page-shell,
+#app[data-fl-page-id] .fl-page-shell{
+  min-width:0;
+  max-width:100%;
+  color:inherit;
+}
+
+.fl-page-shell :where(div,section,article,main,aside,header,footer,form,label){min-width:0}
+.fl-page-shell :where(img,svg,canvas,video){max-width:100%}
+.fl-page-shell :where(pre,code){max-width:100%;overflow-wrap:anywhere}
+
+.fl-page-head{
+  width:min(1380px,100%);
+  margin-left:auto;
+  margin-right:auto;
+  gap:16px;
+}
+.fl-page-head>button{flex:0 0 auto}
+.fl-page-head :where(h1,h2){text-wrap:balance}
+.fl-page-head :where(p,.lead){max-width:860px}
+
+.fl-page-grid{min-width:0;max-width:100%}
+.fl-page-grid>*{min-width:0}
+.fl-page-tabs{max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:thin}
+
+.fl-page-empty{
+  min-height:96px;
+  display:grid;
+  place-items:center;
+  gap:8px;
+  padding:24px;
+  border:1px dashed var(--fl-border-default)!important;
+  border-radius:var(--fl-radius-lg)!important;
+  background:linear-gradient(145deg,var(--fl-surface-1),var(--fl-surface-inset))!important;
+  color:var(--fl-text-muted)!important;
+  text-align:center;
+  box-shadow:none!important;
+}
+.fl-page-empty :where(h2,h3,b,strong){color:var(--fl-text-secondary)}
+.fl-page-empty :where(p,small,span){color:var(--fl-text-muted)}
+
+/* Only applied after the runtime confirms an opaque, near-white UI surface. */
+.fl-page-bright-repair{
+  background:var(--fl-surface-2)!important;
+  background-image:none!important;
+  color:var(--fl-text-primary)!important;
+  border-color:var(--fl-border-default)!important;
+  box-shadow:var(--fl-shadow-soft)!important;
+}
+.fl-page-bright-repair :where(span,small,p,em){color:var(--fl-text-secondary)!important}
+
+.fl-page-overflow-guard{
+  max-width:100%!important;
+  overflow-x:auto!important;
+  overscroll-behavior-inline:contain;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Category-level accent variables let shared descendants feel coherent without repainting modules. */
+#app[data-fl-page-category="core"]{--fl-page-accent:var(--fl-accent-cyan)}
+#app[data-fl-page-category="learning"]{--fl-page-accent:var(--fl-accent-blue)}
+#app[data-fl-page-category="engineering"]{--fl-page-accent:var(--fl-accent-teal)}
+#app[data-fl-page-category="company"]{--fl-page-accent:var(--fl-accent-gold)}
+#app[data-fl-page-category="external"]{--fl-page-accent:var(--fl-accent-cyan-strong)}
+
+#app[data-fl-page-id] :where(.fl-badge,.status):focus-visible,
+#app[data-fl-page-id] :where(a,button,input,select,textarea,summary):focus-visible{
+  outline-color:var(--fl-page-accent,var(--fl-border-focus));
+}
+
+@media(max-width:720px){
+  #app[data-fl-page-id]{overflow-x:hidden}
+  .fl-page-head{gap:12px}
+  .fl-page-head>button{max-width:100%}
+  .fl-page-grid{grid-template-columns:minmax(0,1fr)!important}
+  .fl-page-empty{min-height:82px;padding:18px 14px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .fl-page-tabs{scroll-behavior:auto!important}
+}
