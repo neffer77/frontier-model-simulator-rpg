@@ -9,10 +9,14 @@ const scriptable=read('Frontier Model Simulator.js');
 const sw=read('sw.js');
 const pkg=JSON.parse(read('package.json'));
 const inventory=JSON.parse(read('visual-qa/inventory.json'));
+const matrix=JSON.parse(read('visual-qa/responsive-matrix.json'));
 
 const modes=['phone-portrait','phone-landscape','tablet','desktop','wide'];
+assert.equal(matrix.version,1,'responsive matrix version drifted');
+assert.equal(matrix.item,'13.13','responsive matrix item drifted');
+assert.deepEqual(matrix.viewports.map(x=>x.id),modes,'responsive matrix mode order drifted');
 for(const mode of modes){assert(js.includes(`id:'${mode}'`),`responsive registry missing ${mode}`);assert(css.includes(`data-fl-responsive-mode="${mode}"`),`responsive CSS missing ${mode}`)}
-for(const viewport of ['width:390,height:844','width:844,height:390','width:834,height:1112','width:1440,height:1000','width:1920,height:1080'])assert(js.includes(viewport),`canonical viewport missing ${viewport}`);
+for(const v of matrix.viewports){assert(js.includes(`width:${v.width},height:${v.height}`),`runtime registry does not match matrix for ${v.id}`);assert(v.expect.bottomNavColumns===5,`${v.id}: bottom nav contract must retain five destinations`)}
 for(const contract of ['frontierResponsiveSync','frontierResponsiveMode','frontierResponsiveRegistry','frontierResponsiveAudit','flResponsiveSweep','flResponsiveMode','flResponsiveOrientation','visualViewport','orientationchange','ResizeObserver','MutationObserver','fl-responsive-table-wrap','fl-responsive-local-scroll','flResponsiveScrollable'])assert(js.includes(contract),`responsive runtime missing ${contract}`);
 assert(js.includes("if(width<=600&&!landscape)return 'phone-portrait'"),'phone portrait classifier drifted');
 assert(js.includes("if(landscape&&height<=600&&width<=1000)return 'phone-landscape'"),'phone landscape classifier drifted');
@@ -40,5 +44,7 @@ assert.equal(pkg.scripts['test:responsive-static'],'node tests/responsive-visual
 assert(pkg.scripts['test:static'].includes('responsive-visual-static.mjs'),'responsive static regression missing from RC gate');
 assert(pkg.scripts['test:qa'].includes('responsive-visual-sweep.mjs'),'responsive browser regression missing from RC gate');
 assert(inventory.screens.length>=30,`expected broad page inventory, found ${inventory.screens.length}`);
+assert(matrix.contracts.some(x=>/horizontal document overflow/i.test(x)),'responsive matrix must document page-overflow contract');
+assert(matrix.contracts.some(x=>/tables scroll locally/i.test(x)),'responsive matrix must document table-local-scroll contract');
 
-console.log(JSON.stringify({responsiveStatic:'pass',modes,inventoryScreens:inventory.screens.length,cache:'frontier-lab-v22'},null,2));
+console.log(JSON.stringify({responsiveStatic:'pass',modes,inventoryScreens:inventory.screens.length,viewports:matrix.viewports.length,cache:'frontier-lab-v22'},null,2));
