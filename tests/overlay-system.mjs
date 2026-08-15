@@ -14,7 +14,7 @@ async function found(page){
   const founder=page.getByRole('button',{name:/found the lab/i});assert(await founder.count(),'founder CTA missing');await founder.click();await settle(page,120);await sync(page);
 }
 async function assertOverlay(page,d,type){
-  const host=page.locator(`[data-fl-overlay-type="${type}"]`).filter({visible:true});
+  const host=page.locator(`[data-fl-overlay-type="${type}"]:visible`);
   assert.equal(await host.count(),1,`${d.name}/${type}: expected one visible overlay`);
   const panel=host.locator(`[data-fl-overlay-panel="${type}"]`);assert.equal(await panel.count(),1,`${d.name}/${type}: panel missing`);
   assert.equal(await panel.getAttribute('role'),'dialog',`${d.name}/${type}: dialog role missing`);
@@ -26,9 +26,6 @@ async function assertOverlay(page,d,type){
   assert(visual.lum<.68,`${d.name}/${type}: panel surface unexpectedly bright (${visual.bg})`);
   const top=await page.evaluate(()=>window.frontierOverlayTop?.());assert.equal(top?.type,type,`${d.name}/${type}: not reported as top overlay`);
   return {host,panel};
-}
-async function clearIntro(page){
-  if(await page.locator('.story-overlay').count()){await page.keyboard.press('Escape');await settle(page,100);await sync(page)}
 }
 
 const browser=await chromium.launch({headless:true});
@@ -44,7 +41,7 @@ for(const d of devices){
 
   // More sheet: focus is trapped and restored to the More navigation control after Escape.
   const more=page.locator('.gameplay-bottom-nav button').filter({hasText:'More'});assert.equal(await more.count(),1,`${d.name}: More button missing`);await more.focus();await more.click();await settle(page,80);await sync(page);
-  const moreOverlay=await assertOverlay(page,d,'more');
+  await assertOverlay(page,d,'more');
   await page.keyboard.press('Shift+Tab');assert(await page.evaluate(()=>document.querySelector('[data-fl-overlay-panel="more"]')?.contains(document.activeElement)),`${d.name}: Shift+Tab escaped More sheet`);
   await page.keyboard.press('Escape');await settle(page,80);await sync(page);assert.equal(await page.evaluate(()=>document.body.classList.contains('gameplay-menu-open')),false,`${d.name}: Escape did not close More sheet`);
   assert(/more/i.test(await page.evaluate(()=>document.activeElement?.textContent||'')),`${d.name}: focus was not restored to More control`);
