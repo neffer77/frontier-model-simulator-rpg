@@ -33,9 +33,10 @@ for(const selector of ['.fl-sr-only','.fl-skip-link',':focus-visible','[aria-dis
 for(const contract of ['--fl-a11y-target:24px','--fl-a11y-target:44px','prefers-reduced-motion:reduce','prefers-contrast:more','forced-colors:active','text-size-adjust:100%','outline:3px solid var(--fl-border-focus)'])assert(css.includes(contract),`missing accessibility CSS behavior ${contract}`);
 for(const legacy of ['.sub','.sim-note','.incident-tip','.tier small','.tech-node small','.knowledge em'])assert(css.includes(legacy),`legacy contrast bridge missing ${legacy}`);
 
-for(const contract of ['frontierAccessibilitySync','frontierAccessibilityAudit','frontierA11yAnnounce','flAccessibilitySystem','fl-skip-link','fl-a11y-live','role\',\'progressbar','role\',\'tablist','aria-selected','aria-pressed','alertdialog','scope\',\'col','MutationObserver']){
-  const needle=contract.replace(/\\'/g,"'");assert(js.includes(needle),`accessibility runtime missing ${needle}`);
-}
+for(const contract of [
+  'frontierAccessibilitySync','frontierAccessibilityAudit','frontierA11yAnnounce','flAccessibilitySystem','fl-skip-link','fl-a11y-live',
+  "setAttribute('role','progressbar')","setAttribute('role','tablist')",'aria-selected','aria-pressed','alertdialog',"setAttribute('scope','col')",'MutationObserver'
+])assert(js.includes(contract),`accessibility runtime missing ${contract}`);
 assert(js.includes("skip.addEventListener('click'"),'skip link must explicitly move focus to the workspace');
 assert(js.includes("['ArrowLeft','ArrowRight','Home','End']"),'incident tabs need arrow/Home/End keyboard navigation');
 
