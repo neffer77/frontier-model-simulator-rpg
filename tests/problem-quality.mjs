@@ -37,7 +37,13 @@ for(let i=0;i<2;i++){
 }
 const fourth=context.problemQualityPreview(incident,hardCase,clean,'S');
 assert.equal(fourth.protectedSolve,true,'fourth successful repeat should be anti-farm protected');
-assert.deepEqual(context.problemQualityRewards(3,'S',fourth),{mastery:0,research:0,reputation:0,baseMastery:3,baseResearch:2,baseReputation:3});
+const protectedRewards=context.problemQualityRewards(3,'S',fourth);
+assert.equal(protectedRewards.mastery,0);
+assert.equal(protectedRewards.research,0);
+assert.equal(protectedRewards.reputation,0);
+assert.equal(protectedRewards.baseMastery,3);
+assert.equal(protectedRewards.baseResearch,2);
+assert.equal(protectedRewards.baseReputation,3);
 
 const before=context.state.diagnosticMastery.GRAD;
 context.recordProblemQualityFailure(incident,{hints:0,falseMoves:1});
