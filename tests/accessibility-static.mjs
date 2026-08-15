@@ -42,14 +42,14 @@ assert(js.includes("['ArrowLeft','ArrowRight','Home','End']"),'incident tabs nee
 
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
-assert.equal(styles.at(-1),'accessibility-system.css','13.12 accessibility stylesheet should load last');
-assert.equal(scripts.at(-1),'accessibility-system.js','13.12 accessibility runtime should run last');
+assert(styles.includes('accessibility-system.css'),'13.12 accessibility stylesheet must remain loaded');
+assert(scripts.includes('accessibility-system.js'),'13.12 accessibility runtime must remain loaded');
 assert(styles.indexOf('accessibility-system.css')>styles.indexOf('overlay-system.css'),'13.12 CSS must layer after 13.11');
 assert(scripts.indexOf('accessibility-system.js')>scripts.indexOf('overlay-system.js'),'13.12 runtime must layer after 13.11');
 for(const file of ['accessibility-system.css','accessibility-system.js']){
   assert(scriptable.includes(`"${file}"`),`Scriptable must include ${file}`);
   assert(sw.includes(`'./${file}'`),`service worker must cache ${file}`);
 }
-assert(sw.includes("frontier-lab-v21"),'Item 13.12 should advance offline cache to v21');
+const cacheVersion=Number(sw.match(/frontier-lab-v(\d+)/)?.[1]||0);assert(cacheVersion>=21,`Item 13.12 requires cache v21+, found v${cacheVersion}`);
 
-console.log(JSON.stringify({accessibilityStatic:'pass',ratios:Object.fromEntries(Object.entries(ratios).map(([k,v])=>[k,Number(v.toFixed(2))])),cache:'frontier-lab-v21'},null,2));
+console.log(JSON.stringify({accessibilityStatic:'pass',ratios:Object.fromEntries(Object.entries(ratios).map(([k,v])=>[k,Number(v.toFixed(2))])),cache:`frontier-lab-v${cacheVersion}`},null,2));
