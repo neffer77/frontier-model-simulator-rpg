@@ -17,14 +17,17 @@ assert.equal(matrix.item,'13.13','responsive matrix item drifted');
 assert.deepEqual(matrix.viewports.map(x=>x.id),modes,'responsive matrix mode order drifted');
 for(const mode of modes){assert(js.includes(`id:'${mode}'`),`responsive registry missing ${mode}`);assert(css.includes(`data-fl-responsive-mode="${mode}"`),`responsive CSS missing ${mode}`)}
 for(const v of matrix.viewports){assert(js.includes(`width:${v.width},height:${v.height}`),`runtime registry does not match matrix for ${v.id}`);assert(v.expect.bottomNavColumns===5,`${v.id}: bottom nav contract must retain five destinations`)}
-for(const contract of ['frontierResponsiveSync','frontierResponsiveMode','frontierResponsiveRegistry','frontierResponsiveAudit','flResponsiveSweep','flResponsiveMode','flResponsiveOrientation','visualViewport','orientationchange','ResizeObserver','MutationObserver','fl-responsive-table-wrap','fl-responsive-local-scroll','flResponsiveScrollable'])assert(js.includes(contract),`responsive runtime missing ${contract}`);
+for(const contract of ['frontierResponsiveSync','frontierResponsiveMode','frontierResponsiveRegistry','frontierResponsiveAudit','flResponsiveSweep','flResponsiveMode','flResponsiveOrientation','visualViewport','orientationchange','ResizeObserver','MutationObserver','fl-responsive-table-wrap','fl-responsive-local-scroll','flResponsiveScrollable','reconcileTables','tableNeedsScroll'])assert(js.includes(contract),`responsive runtime missing ${contract}`);
 assert(js.includes("if(width<=600&&!landscape)return 'phone-portrait'"),'phone portrait classifier drifted');
 assert(js.includes("if(landscape&&height<=600&&width<=1000)return 'phone-landscape'"),'phone landscape classifier drifted');
 assert(js.includes("if(width<1100)return 'tablet'")&&js.includes("if(width<1600)return 'desktop'")&&js.includes("return 'wide'"),'tablet/desktop/wide classifier drifted');
+assert(js.includes("parent.insertBefore(table,wrap);wrap.remove()"),'fitting tables must return to their original DOM after responsive overflow clears');
 assert(js.includes("wrap.removeAttribute('tabindex')"),'table wrappers must stop being keyboard regions when they no longer overflow');
 
 for(const contract of ['100dvh','env(safe-area-inset-left)','env(safe-area-inset-right)','env(safe-area-inset-bottom)','overflow-x:auto','overscroll-behavior-inline:contain','--fl-responsive-gutter','--fl-responsive-nav-space','max-width:1680px','grid-template-columns:repeat(3,minmax(0,1fr))'])assert(css.includes(contract),`responsive CSS missing ${contract}`);
-for(const selector of ['.fl-responsive-table-wrap','.fl-responsive-local-scroll','.gameplay-bottom-nav','.gameplay-more-sheet>section','.story-scene-art','.company-system-groups','.telemetry-grid','.resource-strip'])assert(css.includes(selector),`responsive CSS missing selector ${selector}`);
+for(const selector of ['.fl-responsive-table-wrap','.fl-responsive-local-scroll','.gameplay-bottom-nav','.gameplay-more-sheet>section','.story-scene-art','.company-system-groups','.telemetry-grid','.resource-strip','.fl-page-shell>:where(.fl-page-grid)'])assert(css.includes(selector),`responsive CSS missing selector ${selector}`);
+assert(!css.includes('[class$="-grid"]'),'13.13 must not blanket-collapse every nested metric/visualization grid');
+assert(!css.includes('canvas,video){max-width:100%;height:auto}'),'13.13 must not override visualization/media heights globally');
 assert(css.includes('@media(max-height:600px) and (orientation:landscape) and (max-width:1000px)'),'landscape first-paint fallback missing');
 assert(css.includes('@media(max-width:600px) and (orientation:portrait)'),'portrait first-paint fallback missing');
 
