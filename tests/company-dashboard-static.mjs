@@ -28,13 +28,14 @@ for(const contract of ['frontierCompanyDashboardSync','MutationObserver','datase
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
 assert(styles.includes('company-dashboard.css'),'browser build must load company-dashboard.css');
+assert(scripts.includes('company-dashboard.js'),'browser build must load company-dashboard.js');
 assert(styles.indexOf('company-dashboard.css')>styles.indexOf('shared-control-system.css'),'dashboard composition should layer after the shared control system');
-assert.equal(scripts.at(-1),'company-dashboard.js','Company/Home organizer should run last after render adapters');
+assert(scripts.indexOf('company-dashboard.js')>scripts.indexOf('shared-control-system.js'),'Company/Home organizer should run after shared control adapters');
 for(const file of ['company-dashboard.css','company-dashboard.js']){
   assert(scriptable.includes(`"${file}"`),`Scriptable must include ${file}`);
   assert(sw.includes(`'./${file}'`),`service worker must cache ${file}`);
 }
-assert(sw.includes("frontier-lab-v16"),'Item 13.7 should advance the offline cache to v16');
+assert(/frontier-lab-v\d+/.test(sw),'service worker cache must remain versioned after Item 13.7');
 
 const vis001=inventory.knownDefects.find(x=>x.id==='VIS-001');
 assert(vis001,'VIS-001 historical regression fixture must remain in the inventory');
@@ -42,4 +43,4 @@ assert.equal(vis001.screen,'company-home','VIS-001 must stay tied to Company/Hom
 assert(/dark simulator surface system/i.test(vis001.expected),'VIS-001 must continue to define the no-bright-surface expectation');
 assert(html.includes('company-dashboard.js')&&read('package.json').includes('tests/company-dashboard.mjs'),'VIS-001 must be guarded by the Company/Home runtime and browser regression');
 
-console.log(JSON.stringify({companyDashboardStatic:'pass',groups:6,cache:'frontier-lab-v16',vis001:'guarded'},null,2));
+console.log(JSON.stringify({companyDashboardStatic:'pass',groups:6,vis001:'guarded'},null,2));

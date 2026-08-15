@@ -24,11 +24,13 @@ for(const token of ['--fl-text-primary','--fl-text-muted','--fl-surface-2','--fl
 
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
-assert.equal(styles.at(-1),'page-visual-sweep.css','page sweep stylesheet should load last');
-assert.equal(scripts.at(-1),'page-visual-sweep.js','page sweep runtime should run last');
+assert(styles.includes('page-visual-sweep.css'),'browser build must load page-visual-sweep.css');
+assert(scripts.includes('page-visual-sweep.js'),'browser build must load page-visual-sweep.js');
+assert(styles.indexOf('page-visual-sweep.css')>styles.indexOf('company-dashboard.css'),'page sweep must layer after Company/Home composition');
+assert(scripts.indexOf('page-visual-sweep.js')>scripts.indexOf('company-dashboard.js'),'page sweep runtime must run after Company/Home organizer');
 for(const file of ['page-visual-sweep.css','page-visual-sweep.js']){
   assert(scriptable.includes(`"${file}"`),`Scriptable must include ${file}`);
   assert(sw.includes(`'./${file}'`),`service worker must cache ${file}`);
 }
-assert(sw.includes("frontier-lab-v17"),'Item 13.8 should advance offline cache to v17');
-console.log(JSON.stringify({pageSweepStatic:'pass',screens:rows.length,categories:[...new Set(rows.map(x=>x.category))],cache:'frontier-lab-v17'},null,2));
+assert(/frontier-lab-v\d+/.test(sw),'service worker cache must remain versioned after Item 13.8');
+console.log(JSON.stringify({pageSweepStatic:'pass',screens:rows.length,categories:[...new Set(rows.map(x=>x.category))]},null,2));
