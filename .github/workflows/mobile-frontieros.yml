@@ -1,0 +1,52 @@
+name: FrontierOS mobile UI evidence
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-frontieros:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Build production site
+        run: npm run build:site
+      - name: Start production site
+        run: python3 -m http.server 4173 --directory _site > /tmp/frontieros-mobile-server.log 2>&1 &
+      - name: Wait for site
+        run: |
+          for i in $(seq 1 40); do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep .25
+          done
+          cat /tmp/frontieros-mobile-server.log
+          exit 1
+      - name: Run P5.1.2 mobile FrontierOS regression
+        env:
+          TEST_URL: http://127.0.0.1:4173/
+        run: npm run test:mobile-os
+      - name: Publish mobile evidence summary
+        if: always()
+        run: |
+          if [ -f artifacts/mobile-frontieros/REPORT.md ]; then
+            cat artifacts/mobile-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload mobile FrontierOS evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/mobile-frontieros
+          if-no-files-found: error
+          retention-days: 30
