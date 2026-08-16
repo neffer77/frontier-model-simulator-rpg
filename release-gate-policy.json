@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "item": "13.16",
   "name": "Frontier Lab release gate policy",
   "description": "Canonical blocker/advisory policy for the final Item 13 release decision and FrontierOS foundation/app invariants, including explicit per-gate timeout budgets and UI-mode ownership.",
@@ -16,6 +16,7 @@
     {"id":"frontieros-session","label":"P5.1.4 Navigation, Notifications & Session","script":"test:os-session","severity":"blocker","phase":"browser","evidence":"artifacts/frontieros-session/report.json","timeoutMs":90000},
     {"id":"frontieros-pager","label":"P5.2.1 Native FrontierOS Pager","script":"test:pager-os","severity":"blocker","phase":"browser","evidence":"artifacts/pager-frontieros/report.json","timeoutMs":90000},
     {"id":"frontieros-run-monitor","label":"P5.2.2 Native FrontierOS Run Monitor","script":"test:run-monitor","severity":"blocker","phase":"browser","evidence":"artifacts/run-monitor-frontieros/report.json","timeoutMs":90000},
+    {"id":"frontieros-evalbench","label":"P5.2.3 Native FrontierOS EvalBench","script":"test:evalbench","severity":"blocker","phase":"browser","evidence":"artifacts/evalbench-frontieros/report.json","timeoutMs":90000},
     {"id":"browser-smoke","label":"Browser smoke","script":"test:browser","severity":"blocker","phase":"browser","uiMode":"legacy","timeoutMs":120000},
     {"id":"balance-pacing","label":"Balance and pacing","script":"test:balance","severity":"blocker","phase":"browser","timeoutMs":120000},
     {"id":"technical-realism","label":"Technical realism","script":"test:realism","severity":"blocker","phase":"browser","timeoutMs":120000},
