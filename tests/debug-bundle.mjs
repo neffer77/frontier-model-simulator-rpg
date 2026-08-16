@@ -61,7 +61,7 @@ let bundle;
   assert(bundle.dom?.app?.exists,'DOM context missing app root');
   assert(bundle.performance?.resources?.count>=0,'performance context missing');
 
-  await page.evaluate(()=>frontierOpenDiagnostics());
+  await page.evaluate(async()=>{await frontierOpenDiagnostics();return true});
   await page.locator('.frontier-debug-panel').waitFor({state:'visible'});
   assert.equal(await page.locator('.frontier-debug-panel').getAttribute('role'),'dialog','diagnostics panel must be a dialog');
   assert(await page.getByText('FrontierOS Diagnostics').isVisible(),'diagnostics heading missing');
@@ -73,7 +73,7 @@ let bundle;
   // The documented keyboard shortcut should open the same console.
   await page.keyboard.press(process.platform==='darwin'?'Meta+Shift+D':'Control+Shift+D');
   await page.locator('.frontier-debug-panel').waitFor({state:'visible'});
-  await page.evaluate(()=>frontierCloseDiagnostics());
+  await page.evaluate(()=>{frontierCloseDiagnostics();return true});
 
   await context.tracing.stop({path:path.join(outDir,'trace.zip')});
   await context.close();
@@ -86,7 +86,7 @@ let bundle;
   const page=await context.newPage();
   page.on('pageerror',error=>pageErrors.push(String(error?.stack||error)));
   await page.goto(base,{waitUntil:'networkidle'});
-  await page.evaluate(()=>frontierOpenDiagnostics());
+  await page.evaluate(async()=>{await frontierOpenDiagnostics();return true});
   await page.locator('.frontier-debug-panel').waitFor({state:'visible'});
   const layout=await page.locator('.frontier-debug-window').evaluate(el=>({left:el.getBoundingClientRect().left,right:el.getBoundingClientRect().right,width:el.getBoundingClientRect().width,viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
   assert(layout.left>=-1&&layout.right<=layout.viewport+1,'phone diagnostics escapes viewport');
