@@ -15,7 +15,12 @@ const browser=await chromium.launch({headless:true});
 
   const initial=await page.evaluate(()=>frontierDiagnostics());
   assert.equal(initial.schemaVersion,1,'identity schema must be 1');
-  assert.equal(initial.build.buildId,'local','source server should use local build fallback');
+  assert(initial.build.buildId,'build identity missing');
+  if(initial.build.buildId!=='local'){
+    assert.match(initial.build.buildId,/^[a-f0-9]{12}$/i,'generated build id must be a 12-character Git SHA');
+    assert(initial.build.gitSha?.startsWith(initial.build.buildId),'generated build id must match full Git SHA');
+    assert(initial.build.builtAt,'generated build timestamp missing');
+  }
   assert.match(initial.session.sessionId,/^sess_/,'session id missing');
   assert.equal(initial.state.stateRevision,0,'fresh unsaved state should begin at revision 0');
   assert.equal(initial.device.mode,'desktop','desktop device classification drifted');
@@ -59,15 +64,19 @@ const browser=await chromium.launch({headless:true});
   await context.close();
 }
 
-// Mobile classification is part of the canonical identity payload.
-{
-  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+for(const device of [
+  {name:'phone portrait',viewport:{width:390,height:844},mode:'phone-portrait'},
+  {name:'phone landscape',viewport:{width:844,height:390},mode:'phone-landscape'},
+  {name:'tablet',viewport:{width:834,height:1112},mode:'tablet'},
+  {name:'wide desktop',viewport:{width:1920,height:1080},mode:'wide-desktop'}
+]){
+  const context=await browser.newContext({viewport:device.viewport,isMobile:device.mode.startsWith('phone'),hasTouch:device.mode.startsWith('phone')});
   const page=await context.newPage();
   await page.goto(url,{waitUntil:'networkidle'});
   const diag=await page.evaluate(()=>frontierDiagnostics());
-  assert.equal(diag.device.mode,'phone-portrait','phone portrait classification drifted');
-  assert.equal(diag.device.viewport.width,390,'phone viewport width missing from diagnostics');
-  assert.equal(diag.device.viewport.height,844,'phone viewport height missing from diagnostics');
+  assert.equal(diag.device.mode,device.mode,`${device.name} classification drifted`);
+  assert.equal(diag.device.viewport.width,device.viewport.width,`${device.name} viewport width missing`);
+  assert.equal(diag.device.viewport.height,device.viewport.height,`${device.name} viewport height missing`);
   await context.close();
 }
 
