@@ -17,8 +17,13 @@
     return `sess_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,12)}`;
   }
   function parse(raw){try{return raw?JSON.parse(raw):null}catch(e){return null}}
-  function previousEnvelope(storage){
-    try{return parse(nativeGetItem.call(storage,SAVE_KEY))?._frontier||null}catch(e){return null}
+  function domainSnapshot(value){
+    if(!value||typeof value!=='object'||Array.isArray(value))return null;
+    const copy={...value};delete copy._frontier;
+    try{return JSON.stringify(copy)}catch(e){return null}
+  }
+  function previousState(storage){
+    try{return parse(nativeGetItem.call(storage,SAVE_KEY))}catch(e){return null}
   }
   function inferMutation(){
     try{
@@ -31,19 +36,22 @@
   function augmentSavedState(storage,value){
     const candidate=parse(value);
     if(!candidate||typeof candidate!=='object'||Array.isArray(candidate))return value;
-    const prior=previousEnvelope(storage);
+    const previous=previousState(storage);
+    const previousMeta=previous?._frontier||null;
     const candidateRevision=Number(candidate._frontier?.stateRevision)||0;
-    const priorRevision=Number(prior?.stateRevision)||0;
-    const stateRevision=Math.max(candidateRevision,priorRevision)+1;
+    const priorRevision=Number(previousMeta?.stateRevision)||0;
+    const changed=!previous||domainSnapshot(candidate)!==domainSnapshot(previous);
+    const stateRevision=changed?Math.max(candidateRevision,priorRevision)+1:Math.max(candidateRevision,priorRevision);
+    const now=new Date().toISOString();
     candidate._frontier={
       schemaVersion:IDENTITY_SCHEMA,
       stateRevision,
       saveFormatVersion:candidate.version??null,
-      lastMutationAt:new Date().toISOString(),
-      lastMutation:inferMutation()
+      lastMutationAt:changed?now:(previousMeta?.lastMutationAt||null),
+      lastMutation:changed?inferMutation():(previousMeta?.lastMutation||null)
     };
     queueMicrotask(()=>{
-      try{window.dispatchEvent(new CustomEvent('frontier:state-saved',{detail:{...candidate._frontier}}))}catch(e){}
+      try{window.dispatchEvent(new CustomEvent('frontier:state-saved',{detail:{...candidate._frontier,changed}}))}catch(e){}
     });
     return JSON.stringify(candidate);
   }
