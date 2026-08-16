@@ -2,8 +2,20 @@
 (function(){
   const g=window;
   const q=s=>document.querySelector(s);
-  function afterRenderScroll(anchor){requestAnimationFrame(()=>requestAnimationFrame(()=>{if(anchor)q(anchor)?.scrollIntoView({block:'start',behavior:'instant'});else g.scrollTo({top:0,left:0,behavior:'instant'})}))}
-  function goCompany(anchor){state.view='company';save();render();afterRenderScroll(anchor)}
+  function settleScroll(anchor){
+    const place=()=>{
+      if(!anchor){g.scrollTo({top:0,left:0,behavior:'instant'});return}
+      const target=q(anchor);if(!target)return;
+      const top=Math.max(0,g.scrollY+target.getBoundingClientRect().top-12);
+      g.scrollTo({top,left:0,behavior:'instant'});
+    };
+    requestAnimationFrame(()=>requestAnimationFrame(place));
+    // Guidance, install affordances, dashboard grouping and other post-render adapters can
+    // still change geometry after the first animation frame. Re-anchor after that chrome
+    // settles so Train/Home navigation is deterministic on both desktop and mobile.
+    setTimeout(place,80);setTimeout(place,220);
+  }
+  function goCompany(anchor){state.view='company';save();render();settleScroll(anchor)}
   function coreUnlocked(name){return typeof g.campaignCoreUnlocked!=='function'||g.campaignCoreUnlocked(name)}
   function systemUnlocked(fn){return typeof g.campaignSystemUnlocked!=='function'||g.campaignSystemUnlocked(fn)}
   function locked(target){if(typeof g.campaignLockedSystem==='function')g.campaignLockedSystem(target)}
