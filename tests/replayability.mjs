@@ -73,8 +73,9 @@ assert.equal(cleared.run.medal,'gold','Day 60 of a Day 96 challenge should earn 
 assert.equal(cleared.career.completedRuns,1,'career archive should persist completed run');
 assert(cleared.career.points>=2,'Redline gold clear should award career points');
 
-await page.evaluate(()=>localStorage.removeItem('frontier-lab-v3'));
-await page.reload({waitUntil:'networkidle'});await page.waitForTimeout(80);
+// Start a fresh company in-memory while preserving the separate career archive.
+await page.evaluate(()=>{localStorage.removeItem('frontier-lab-v3');state=fresh();render()});
+await page.waitForTimeout(120);
 assert(await page.locator('.replay-founder').isVisible(),'new run should return to founder setup');
 assert(await page.getByText('New Game+ legacy perk').isVisible(),'a completed run should unlock New Game+ perk selection');
 const careerText=await page.locator('.replay-founder-head em').textContent();
