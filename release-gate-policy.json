@@ -7,7 +7,8 @@
   "gates": [
     {"id":"static-contracts","label":"Static contracts and release integrity","script":"test:static","severity":"blocker","phase":"preflight"},
     {"id":"production-build","label":"Production artifact build","script":"build:site","severity":"blocker","phase":"build"},
-    {"id":"runtime-identity","label":"FrontierOS state/build/session identity","script":"test:identity","severity":"blocker","phase":"browser"},
+    {"id":"runtime-identity","label":"FrontierOS state/build/session identity","script":"test:identity","severity":"blocker","phase":"browser","evidence":"artifacts/state-identity/report.json"},
+    {"id":"command-event-bus","label":"FrontierOS command + event bus","script":"test:command-bus","severity":"blocker","phase":"browser","evidence":"artifacts/command-event-bus/report.json"},
     {"id":"browser-smoke","label":"Browser smoke","script":"test:browser","severity":"blocker","phase":"browser"},
     {"id":"balance-pacing","label":"Balance and pacing","script":"test:balance","severity":"blocker","phase":"browser"},
     {"id":"technical-realism","label":"Technical realism","script":"test:realism","severity":"blocker","phase":"browser"},
