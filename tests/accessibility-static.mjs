@@ -38,7 +38,8 @@ for(const contract of [
   "setAttribute('role','progressbar')","setAttribute('role','tablist')",'aria-selected','aria-pressed','alertdialog',"setAttribute('scope','col')",'MutationObserver'
 ])assert(js.includes(contract),`accessibility runtime missing ${contract}`);
 assert(js.includes("skip.addEventListener('click'"),'skip link must explicitly move focus to the workspace');
-assert(js.includes("['ArrowLeft','ArrowRight','Home','End']"),'incident tabs need arrow/Home/End keyboard navigation');
+for(const key of ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'])assert(js.includes(`'${key}'`),`incident tabs need ${key} keyboard navigation`);
+assert(js.includes('event.preventDefault();tabs[index].focus();tabs[index].click()'),'tab keyboard navigation must move focus and activate the selected tab');
 
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
