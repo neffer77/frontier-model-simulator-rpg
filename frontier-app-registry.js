@@ -8,7 +8,7 @@
     {id:'mail',label:'Frontier Mail',shortLabel:'Mail',icon:'✉',category:'communication',route:'os/mail',aliases:['email','messages','inbox'],status:'planned',surfaces:['phone','desktop'],window:{width:760,height:620,minWidth:420,minHeight:360},description:'NPC, executive, research and company communication.'},
     {id:'pager',label:'Pager',shortLabel:'Pager',icon:'!',category:'operations',route:'os/pager',aliases:['incidents','alerts'],status:'ready',command:'pager.open',surfaces:['phone','desktop'],window:{width:920,height:680,minWidth:520,minHeight:420},badge:'incidents',description:'Incident alerts and active production investigations.'},
     {id:'training',label:'Run Monitor',shortLabel:'Training',icon:'▣',category:'engineering',route:'os/training',aliases:['train','runs','run-monitor'],status:'ready',command:'navigation.training.open',surfaces:['phone','desktop'],window:{width:1120,height:760,minWidth:600,minHeight:480},badge:'activeRun',description:'Training runs, metrics, diagnostics, checkpoints and production actions.'},
-    {id:'evals',label:'EvalBench',shortLabel:'Evals',icon:'▥',category:'engineering',route:'os/evals',aliases:['evaluation','bench'],status:'ready',command:'data.evals.open',surfaces:['phone','desktop'],window:{width:1040,height:720,minWidth:560,minHeight:440},description:'Model evaluation, datasets, scorecards and capability measurement.'},
+    {id:'evals',label:'EvalBench',shortLabel:'Evals',icon:'▥',category:'engineering',route:'os/evals',aliases:['evaluation','bench'],status:'ready',command:'evalbench.open',surfaces:['phone','desktop'],window:{width:1040,height:720,minWidth:560,minHeight:440},description:'Model evaluation, trusted holdouts, scorecards and release-gate evidence.'},
     {id:'model-lab',label:'Model Lab',shortLabel:'Lab',icon:'⚗',category:'research',route:'os/model-lab',aliases:['lab','research'],status:'ready',command:'model.lab.open',surfaces:['phone','desktop'],window:{width:1100,height:760,minWidth:600,minHeight:460},description:'Architecture experiments, ablations and research progression.'},
     {id:'terminal',label:'Terminal',shortLabel:'Term',icon:'>_',category:'engineering',route:'os/terminal',aliases:['console','cli'],status:'planned',surfaces:['phone','desktop'],window:{width:900,height:620,minWidth:500,minHeight:360},description:'Command-line engineering and operational workflows.'},
     {id:'data',label:'Data Explorer',shortLabel:'Data',icon:'▤',category:'engineering',route:'os/data',aliases:['datasets','shards'],status:'ready',command:'data.evals.open',surfaces:['phone','desktop'],window:{width:1040,height:720,minWidth:560,minHeight:440},description:'Dataset mixtures, shards, provenance and replay evidence.'},
@@ -21,113 +21,21 @@
     {id:'settings',label:'System',shortLabel:'System',icon:'⚙',category:'system',route:'os/settings',aliases:['settings','diagnostics','system'],status:'ready',command:'diagnostics.open',surfaces:['phone','desktop'],window:{width:820,height:620,minWidth:480,minHeight:360},description:'Diagnostics, support bundle, accessibility and FrontierOS settings.'}
   ];
 
-  const byId=new Map();
-  const aliases=new Map();
-  for(const raw of APPS){
-    const app=Object.freeze({...raw,aliases:Object.freeze([...(raw.aliases||[])]),surfaces:Object.freeze([...(raw.surfaces||[])]),window:Object.freeze({...raw.window})});
-    if(byId.has(app.id))throw new Error(`Duplicate FrontierOS app id: ${app.id}`);
-    byId.set(app.id,app);
-    for(const key of [app.id,app.route,app.label,app.shortLabel,...app.aliases]){
-      const normalized=normalize(key);if(normalized&&!aliases.has(normalized))aliases.set(normalized,app.id);
-    }
-  }
-
+  const byId=new Map();const aliases=new Map();
+  for(const raw of APPS){const app=Object.freeze({...raw,aliases:Object.freeze([...(raw.aliases||[])]),surfaces:Object.freeze([...(raw.surfaces||[])]),window:Object.freeze({...raw.window})});if(byId.has(app.id))throw new Error(`Duplicate FrontierOS app id: ${app.id}`);byId.set(app.id,app);for(const key of [app.id,app.route,app.label,app.shortLabel,...app.aliases]){const normalized=normalize(key);if(normalized&&!aliases.has(normalized))aliases.set(normalized,app.id)}}
   function normalize(value){return String(value||'').trim().toLowerCase().replace(/^frontieros:\/\//,'').replace(/^\/+|\/+$/g,'').replace(/\s+/g,'-')}
   function liveState(){try{return typeof state!=='undefined'?state:{} }catch(e){return{}}}
   function cloneApp(app){return app?{...app,aliases:[...app.aliases],surfaces:[...app.surfaces],window:{...app.window}}:null}
-  function resolve(input){
-    if(input&&typeof input==='object'&&input.id)return resolve(input.id);
-    let key=normalize(input);
-    if(key.startsWith('app/'))key=key.slice(4);
-    if(key.startsWith('os/')&&!aliases.has(key))key=key.slice(3);
-    const id=aliases.get(key)||aliases.get(`os/${key}`)||key;
-    return cloneApp(byId.get(id));
-  }
-  function unlockState(app){
-    const s=liveState();
-    if(!app)return {unlocked:false,reason:'unknown-app'};
-    if(app.status==='planned')return {unlocked:false,reason:'planned'};
-    if(!app.unlock)return {unlocked:true,reason:null};
-    if(app.unlock==='started')return {unlocked:!!s.started,reason:s.started?null:'start-company'};
-    if(typeof app.unlock==='function')try{return app.unlock(s)}catch(e){return{unlocked:false,reason:'unlock-error'}};
-    return {unlocked:true,reason:null};
-  }
-  function badgeValue(app){
-    const s=liveState();
-    if(!app?.badge)return 0;
-    if(app.badge==='incidents')return s.activeRun?.incident||s.selectedIncident?1:0;
-    if(app.badge==='activeRun')return s.activeRun?1:0;
-    if(app.badge==='team')return Number(s.npcTeam?.advice?1:0);
-    return 0;
-  }
-  function appState(input){
-    const app=resolve(input);if(!app)return null;
-    const unlock=unlockState(app);
-    return {...app,launchState:app.status==='planned'?'planned':unlock.unlocked?'ready':'locked',unlocked:unlock.unlocked,lockReason:unlock.reason,badge:badgeValue(app)};
-  }
-  function list(options={}){
-    const surface=options.surface||null;
-    const category=options.category||null;
-    const includePlanned=options.includePlanned!==false;
-    return [...byId.values()].filter(app=>(!surface||app.surfaces.includes(surface))&&(!category||app.category===category)&&(includePlanned||app.status!=='planned')).map(app=>appState(app.id));
-  }
-  function registrySnapshot(){
-    return {schemaVersion:SCHEMA,capturedAt:new Date().toISOString(),count:byId.size,categories:[...new Set([...byId.values()].map(x=>x.category))].sort(),apps:list()};
-  }
+  function resolve(input){if(input&&typeof input==='object'&&input.id)return resolve(input.id);let key=normalize(input);if(key.startsWith('app/'))key=key.slice(4);if(key.startsWith('os/')&&!aliases.has(key))key=key.slice(3);const id=aliases.get(key)||aliases.get(`os/${key}`)||key;return cloneApp(byId.get(id))}
+  function unlockState(app){const s=liveState();if(!app)return {unlocked:false,reason:'unknown-app'};if(app.status==='planned')return {unlocked:false,reason:'planned'};if(!app.unlock)return {unlocked:true,reason:null};if(app.unlock==='started')return {unlocked:!!s.started,reason:s.started?null:'start-company'};if(typeof app.unlock==='function')try{return app.unlock(s)}catch(e){return{unlocked:false,reason:'unlock-error'}};return {unlocked:true,reason:null}}
+  function badgeValue(app){const s=liveState();if(!app?.badge)return 0;if(app.badge==='incidents')return s.activeRun?.incident||s.selectedIncident?1:0;if(app.badge==='activeRun')return s.activeRun?1:0;if(app.badge==='team')return Number(s.npcTeam?.advice?1:0);return 0}
+  function appState(input){const app=resolve(input);if(!app)return null;const unlock=unlockState(app);return {...app,launchState:app.status==='planned'?'planned':unlock.unlocked?'ready':'locked',unlocked:unlock.unlocked,lockReason:unlock.reason,badge:badgeValue(app)}}
+  function list(options={}){const surface=options.surface||null,category=options.category||null,includePlanned=options.includePlanned!==false;return [...byId.values()].filter(app=>(!surface||app.surfaces.includes(surface))&&(!category||app.category===category)&&(includePlanned||app.status!=='planned')).map(app=>appState(app.id))}
+  function registrySnapshot(){return {schemaVersion:SCHEMA,capturedAt:new Date().toISOString(),count:byId.size,categories:[...new Set([...byId.values()].map(x=>x.category))].sort(),apps:list()}}
   function availableCommand(name){try{return window.frontierCommandRegistry?.().some(x=>x.name===name)}catch(e){return false}}
   function findLegacy(names=[]){for(const name of names){if(typeof window[name]==='function')return {name,fn:window[name]}}return null}
-
-  async function launch(input,options={}){
-    const app=appState(input);
-    const source=options.source||'frontier-app-registry';
-    if(!app){
-      const result={ok:false,status:'unknown',appId:null,input:String(input||'')};
-      window.frontierEmitEvent?.('os.app.launch.failed',result,{source,severity:'warn'});return result;
-    }
-    if(app.launchState!=='ready'){
-      const result={ok:false,status:app.launchState,appId:app.id,reason:app.lockReason||app.status};
-      window.frontierEmitEvent?.('os.app.launch.blocked',result,{source,severity:app.launchState==='planned'?'info':'warn'});return result;
-    }
-    window.frontierEmitEvent?.('os.app.launch.started',{appId:app.id,route:app.route,surface:options.surface||null},{source});
-    try{
-      let via=null;
-      if(app.command&&availableCommand(app.command)){
-        await window.frontierDispatchCommand(app.command,options.payload||{},{source:`app:${app.id}`,correlationId:options.correlationId});
-        via=`command:${app.command}`;
-      }else{
-        const legacy=findLegacy(app.legacy||[]);
-        if(legacy){legacy.fn();via=`legacy:${legacy.name}`}
-      }
-      if(!via){
-        const result={ok:false,status:'unavailable',appId:app.id,reason:'no-launch-handler'};
-        window.frontierEmitEvent?.('os.app.launch.failed',result,{source,severity:'error'});return result;
-      }
-      const result={ok:true,status:'launched',appId:app.id,route:app.route,via};
-      window.frontierEmitEvent?.('os.app.launch.completed',result,{source});return result;
-    }catch(error){
-      const result={ok:false,status:'error',appId:app.id,error:String(error?.message||error)};
-      window.frontierEmitEvent?.('os.app.launch.failed',result,{source,severity:'error'});return result;
-    }
-  }
-  function deepLink(input){
-    const raw=String(input||'');
-    let appPart=raw;let detail='';
-    try{
-      if(/^frontieros:\/\//i.test(raw)){const url=new URL(raw);appPart=url.hostname||url.pathname.split('/').filter(Boolean)[0]||'';detail=url.pathname.split('/').filter(Boolean).slice(url.hostname?0:1).join('/')}
-      else {const clean=normalize(raw);const bits=clean.split('/');appPart=bits[0]==='os'?bits[1]:bits[0];detail=bits.slice(bits[0]==='os'?2:1).join('/')}
-    }catch(e){}
-    const app=resolve(appPart);return app?{schemaVersion:SCHEMA,appId:app.id,route:app.route,detail:detail||null,raw}:null;
-  }
+  async function launch(input,options={}){const app=appState(input),source=options.source||'frontier-app-registry';if(!app){const result={ok:false,status:'unknown',appId:null,input:String(input||'')};window.frontierEmitEvent?.('os.app.launch.failed',result,{source,severity:'warn'});return result}if(app.launchState!=='ready'){const result={ok:false,status:app.launchState,appId:app.id,reason:app.lockReason||app.status};window.frontierEmitEvent?.('os.app.launch.blocked',result,{source,severity:app.launchState==='planned'?'info':'warn'});return result}window.frontierEmitEvent?.('os.app.launch.started',{appId:app.id,route:app.route,surface:options.surface||null},{source});try{let via=null;if(app.command&&availableCommand(app.command)){await window.frontierDispatchCommand(app.command,options.payload||{},{source:`app:${app.id}`,correlationId:options.correlationId});via=`command:${app.command}`}else{const legacy=findLegacy(app.legacy||[]);if(legacy){legacy.fn();via=`legacy:${legacy.name}`}}if(!via){const result={ok:false,status:'unavailable',appId:app.id,reason:'no-launch-handler'};window.frontierEmitEvent?.('os.app.launch.failed',result,{source,severity:'error'});return result}const result={ok:true,status:'launched',appId:app.id,route:app.route,via};window.frontierEmitEvent?.('os.app.launch.completed',result,{source});return result}catch(error){const result={ok:false,status:'error',appId:app.id,error:String(error?.message||error)};window.frontierEmitEvent?.('os.app.launch.failed',result,{source,severity:'error'});return result}}
+  function deepLink(input){const raw=String(input||'');let appPart=raw,detail='';try{if(/^frontieros:\/\//i.test(raw)){const url=new URL(raw);appPart=url.hostname||url.pathname.split('/').filter(Boolean)[0]||'';detail=url.pathname.split('/').filter(Boolean).slice(url.hostname?0:1).join('/')}else{const clean=normalize(raw),bits=clean.split('/');appPart=bits[0]==='os'?bits[1]:bits[0];detail=bits.slice(bits[0]==='os'?2:1).join('/')}}catch(e){}const app=resolve(appPart);return app?{schemaVersion:SCHEMA,appId:app.id,route:app.route,detail:detail||null,raw}:null}
   async function openDeepLink(input,options={}){const link=deepLink(input);return link?launch(link.appId,{...options,payload:{...(options.payload||{}),detail:link.detail}}):{ok:false,status:'unknown-link',input:String(input||'')}}
-
-  window.frontierAppRegistry=registrySnapshot;
-  window.frontierApps=list;
-  window.frontierApp=appState;
-  window.frontierResolveApp=resolve;
-  window.frontierLaunchApp=launch;
-  window.frontierParseDeepLink=deepLink;
-  window.frontierOpenDeepLink=openDeepLink;
-  window.frontierAppRegistrySchema=SCHEMA;
-
-  window.frontierEmitEvent?.('os.app-registry.ready',{schemaVersion:SCHEMA,count:byId.size,apps:[...byId.keys()]},{source:'frontier-app-registry'});
+  window.frontierAppRegistry=registrySnapshot;window.frontierApps=list;window.frontierApp=appState;window.frontierResolveApp=resolve;window.frontierLaunchApp=launch;window.frontierParseDeepLink=deepLink;window.frontierOpenDeepLink=openDeepLink;window.frontierAppRegistrySchema=SCHEMA;window.frontierEmitEvent?.('os.app-registry.ready',{schemaVersion:SCHEMA,count:byId.size,apps:[...byId.keys()]},{source:'frontier-app-registry'});
 })();
