@@ -27,10 +27,15 @@
   }
   async function openIncidentFromPager(id){
     mark(id,'ack');
-    const nav=await window.frontierOsNavigate?.('training',{source:'pager-investigation'})||await window.frontierLaunchApp?.('training',{surface:document.documentElement.dataset.frontierOsSurface||'legacy',source:'pager-investigation'});
-    if(nav?.ok===false)return nav;
-    if(typeof openIncident==='function')openIncident(id);else{const s=live();s.selectedIncident=id;if(typeof save==='function')save();if(typeof render==='function')render();}
-    window.frontierEmitEvent?.('pager.investigation.opened',{incidentId:id},{source:'pager-frontieros'});return {ok:true,status:'opened',incidentId:id};
+    window.frontierEmitEvent?.('pager.investigation.opening',{incidentId:id},{source:'pager-frontieros'});
+    const payload={source:'pager-investigation',incidentId:id,detail:id};
+    const nav=await window.frontierOsNavigate?.('training',payload)||await window.frontierLaunchApp?.('training',{...payload,surface:document.documentElement.dataset.frontierOsSurface||'legacy'});
+    if(nav?.ok===false){window.frontierEmitEvent?.('pager.investigation.failed',{incidentId:id,status:nav?.status||'navigation-failed'},{source:'pager-frontieros',severity:'error'});return nav;}
+    // The native Run Monitor owns incident initialization and rendering. Do not call
+    // legacy openIncident() here: its presentation side effects can throw after the
+    // OS handoff has already succeeded and prevent Pager from recording completion.
+    window.frontierEmitEvent?.('pager.investigation.opened',{incidentId:id,appId:'training'},{source:'pager-frontieros'});
+    return {ok:true,status:'opened',incidentId:id};
   }
   async function onClick(event){
     const filter=event.target.closest('[data-pager-filter]');if(filter){ui.filter=filter.dataset.pagerFilter;render();return}
