@@ -30,7 +30,7 @@ for(const gate of gates){
 assert.equal(gates.filter(g=>g.phase==='build').length,1,'release gate must have exactly one production build gate');
 
 const gateById=new Map(gates.map(g=>[g.id,g]));
-const blockerIds=['static-contracts','production-build','runtime-identity','command-event-bus','browser-smoke','balance-pacing','technical-realism','replayability','browser-firewall','shared-surfaces','progressive-disclosure','shared-controls','company-dashboard','page-visual-sweep','empty-states','locked-states','overlay-system','accessibility','responsive','npc-advice-workstation','route-crawl','release-candidate','screenshot-regression'];
+const blockerIds=['static-contracts','production-build','runtime-identity','command-event-bus','debug-bundle','browser-smoke','balance-pacing','technical-realism','replayability','browser-firewall','shared-surfaces','progressive-disclosure','shared-controls','company-dashboard','page-visual-sweep','empty-states','locked-states','overlay-system','accessibility','responsive','npc-advice-workstation','route-crawl','release-candidate','screenshot-regression'];
 for(const id of blockerIds){const gate=gateById.get(id);assert(gate,`missing release blocker gate ${id}`);assert.equal(gate.severity,'blocker',`${id} must remain a blocker`);}
 const visual=gateById.get('visual-inventory');assert(visual,'visual inventory advisory gate missing');assert.equal(visual.severity,'advisory','visual inventory must remain advisory evidence');
 assert.equal(visual.evidence,'artifacts/visual-inventory/report.json','visual inventory evidence path drifted');
@@ -41,6 +41,8 @@ assert.equal(gateById.get('runtime-identity').script,'test:identity','FrontierOS
 assert.equal(gateById.get('runtime-identity').evidence,'artifacts/state-identity/report.json','runtime identity evidence path drifted');
 assert.equal(gateById.get('command-event-bus').script,'test:command-bus','FrontierOS command event bus must remain release blocking');
 assert.equal(gateById.get('command-event-bus').evidence,'artifacts/command-event-bus/report.json','command event bus evidence path drifted');
+assert.equal(gateById.get('debug-bundle').script,'test:debug-bundle','FrontierOS debug bundle must remain release blocking');
+assert.equal(gateById.get('debug-bundle').evidence,'artifacts/debug-bundle/report.json','debug bundle evidence path drifted');
 
 for(const marker of ['releaseDecision','gate-command-failed','required-evidence-missing','screenshot-baseline-inactive','screenshot-report-invalid','route-report-invalid','visual-inventory-report-invalid','route-crawl-failures','route-crawl-warnings','manual-check','spawnSync','python3','_site','githubSha'])assert(runner.includes(marker),`release gate runner missing ${marker}`);
 assert(runner.includes("phase==='preflight'")&&runner.includes("phase==='build'")&&runner.includes("phase==='browser'"),'release gate must preserve preflight/build/browser phases');
@@ -54,7 +56,7 @@ assert(pkg.scripts['test:static'].includes('tests/release-gate-static.mjs'),'rel
 
 assert(workflow.includes('npm run test:rc'),'browser QA must execute the canonical release gate');
 assert(!/\n\s*run:\s*npm run test:static\s*\n/.test(workflow),'workflow must not fail early on a standalone static step before the evidence orchestrator');
-for(const artifact of ['artifacts/release-gate','artifacts/state-identity','artifacts/command-event-bus','artifacts/route-crawl','artifacts/screenshot-regression','artifacts/visual-inventory'])assert(workflow.includes(artifact),`workflow must preserve ${artifact}`);
+for(const artifact of ['artifacts/release-gate','artifacts/state-identity','artifacts/command-event-bus','artifacts/debug-bundle','artifacts/route-crawl','artifacts/screenshot-regression','artifacts/visual-inventory'])assert(workflow.includes(artifact),`workflow must preserve ${artifact}`);
 assert(workflow.includes('if: always()'),'release evidence uploads must survive failed gates');
 assert(workflow.includes('Publish Item 13.16 release decision'),'workflow must surface the release decision without requiring artifact download');
 assert(workflow.includes('artifacts/release-gate/REPORT.md'),'workflow summary must publish the canonical Markdown report');
