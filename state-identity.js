@@ -70,10 +70,11 @@
   function deviceMode(){
     const width=Math.max(0,window.innerWidth||document.documentElement.clientWidth||0);
     const height=Math.max(0,window.innerHeight||document.documentElement.clientHeight||0);
-    if(width<=600)return height<width?'phone-landscape':'phone-portrait';
-    if(width<=1100)return 'tablet';
-    if(width>=1800)return 'wide-desktop';
-    return 'desktop';
+    if(width<=600&&height>=width)return'phone-portrait';
+    if(height<=600&&width>height&&width<=900)return'phone-landscape';
+    if(width<=1100)return'tablet';
+    if(width>=1800)return'wide-desktop';
+    return'desktop';
   }
   function displayMode(){
     try{
