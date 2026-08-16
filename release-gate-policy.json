@@ -12,6 +12,7 @@
     {"id":"debug-bundle","label":"FrontierOS debug bundle + diagnostics","script":"test:debug-bundle","severity":"blocker","phase":"browser","evidence":"artifacts/debug-bundle/report.json"},
     {"id":"frontieros-app-registry","label":"P5.1.1 FrontierOS App Registry","script":"test:app-registry","severity":"blocker","phase":"browser","evidence":"artifacts/app-registry/report.json"},
     {"id":"frontieros-mobile-home","label":"P5.1.2 Mobile FrontierOS Home","script":"test:mobile-os","severity":"blocker","phase":"browser","evidence":"artifacts/mobile-frontieros/report.json"},
+    {"id":"frontieros-desktop-shell","label":"P5.1.3 Desktop FrontierOS Shell","script":"test:desktop-os","severity":"blocker","phase":"browser","evidence":"artifacts/desktop-frontieros/report.json"},
     {"id":"browser-smoke","label":"Browser smoke","script":"test:browser","severity":"blocker","phase":"browser"},
     {"id":"balance-pacing","label":"Balance and pacing","script":"test:balance","severity":"blocker","phase":"browser"},
     {"id":"technical-realism","label":"Technical realism","script":"test:realism","severity":"blocker","phase":"browser"},
