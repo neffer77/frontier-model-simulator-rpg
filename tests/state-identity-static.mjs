@@ -8,6 +8,9 @@ const buildSite=fs.readFileSync('scripts/build-site.mjs','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const policy=JSON.parse(fs.readFileSync('release-gate-policy.json','utf8'));
+const pages=fs.readFileSync('.github/workflows/pages.yml','utf8');
+const browserQa=fs.readFileSync('.github/workflows/browser-qa.yml','utf8');
+const browserTest=fs.readFileSync('tests/state-identity.mjs','utf8');
 
 for(const marker of [
   "SAVE_KEY='frontier-lab-v3'",
@@ -54,4 +57,8 @@ assert(gate,'release policy missing runtime-identity gate');
 assert.equal(gate.severity,'blocker','runtime identity must be release blocking');
 assert.equal(gate.script,'test:identity','runtime identity gate must invoke test:identity');
 
-console.log(JSON.stringify({stateIdentityStatic:'pass',identitySchema:1,releaseBlocker:true},null,2));
+for(const marker of ['_site/frontier-build.js','_site/state-identity.js','runtime identity verified'])assert(pages.includes(marker),`Pages deployment missing identity verification: ${marker}`);
+for(const marker of ['artifacts/state-identity','state-identity-${{ github.event.pull_request.number || github.run_number }}','Publish P5.0.1 runtime identity evidence'])assert(browserQa.includes(marker),`browser QA missing identity evidence contract: ${marker}`);
+for(const marker of ['artifacts/state-identity','report.json','REPORT.md','legacy-save-migrated','phone-landscape','wide-desktop'])assert(browserTest.includes(marker),`identity browser test missing evidence case: ${marker}`);
+
+console.log(JSON.stringify({stateIdentityStatic:'pass',identitySchema:1,releaseBlocker:true,evidenceArtifact:true,liveDeployVerification:true},null,2));
