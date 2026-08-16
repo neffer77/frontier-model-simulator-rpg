@@ -14,9 +14,7 @@
 
   const sensitiveKey=/pass(word)?|secret|token|cookie|authorization|auth|api[_-]?key|session[_-]?cookie/i;
 
-  function identity(){
-    try{return window.frontierDiagnostics?.()||null}catch(e){return null}
-  }
+  function identity(){try{return window.frontierDiagnostics?.()||null}catch(e){return null}}
   function route(){return identity()?.route||'unknown'}
   function revision(){return Number(identity()?.state?.stateRevision)||0}
   function sessionId(){return identity()?.session?.sessionId||'session_unknown'}
@@ -24,10 +22,7 @@
   function shortSession(){return sessionId().replace(/^sess_/,'').replace(/[^a-zA-Z0-9]/g,'').slice(0,10)||'unknown'}
   function now(){return new Date().toISOString()}
   function nextId(prefix){return `${prefix}_${shortSession()}_${String(++sequence).padStart(6,'0')}`}
-  function trimText(value,max=MAX_TEXT){
-    const text=String(value??'');
-    return text.length>max?`${text.slice(0,max)}…`:text;
-  }
+  function trimText(value,max=MAX_TEXT){const text=String(value??'');return text.length>max?`${text.slice(0,max)}…`:text}
   function safeValue(value,depth=0,key=''){
     if(sensitiveKey.test(String(key)))return '[REDACTED]';
     if(value==null||typeof value==='boolean'||typeof value==='number')return value;
@@ -43,18 +38,11 @@
     }
     return trimText(value);
   }
-  function matches(pattern,type){
-    if(pattern==='*')return true;
-    if(pattern.endsWith('*'))return type.startsWith(pattern.slice(0,-1));
-    return pattern===type;
-  }
+  function matches(pattern,type){if(pattern==='*')return true;if(pattern.endsWith('*'))return type.startsWith(pattern.slice(0,-1));return pattern===type}
   function notify(event){
     for(const {pattern,handler} of subscribers.values()){
       if(!matches(pattern,event.type))continue;
-      try{handler(event)}catch(error){
-        // Subscriber failures must never destabilize gameplay or recursively emit.
-        console.error('[FrontierOS bus subscriber error]',error);
-      }
+      try{handler(event)}catch(error){console.error('[FrontierOS bus subscriber error]',error)}
     }
     try{window.dispatchEvent(new CustomEvent('frontier:event',{detail:event}))}catch(e){}
   }
@@ -87,15 +75,7 @@
     if(typeof handler!=='function')throw new TypeError(`Command ${name} requires a handler function`);
     const normalized=name.trim();
     if(registry.has(normalized)&&!options.replace)throw new Error(`Command already registered: ${normalized}`);
-    registry.set(normalized,{
-      name:normalized,
-      handler,
-      description:options.description||'',
-      source:options.source||'runtime',
-      replayable:options.replayable!==false,
-      idempotent:!!options.idempotent,
-      registeredAt:now()
-    });
+    registry.set(normalized,{name:normalized,handler,description:options.description||'',source:options.source||'runtime',replayable:options.replayable!==false,idempotent:!!options.idempotent,registeredAt:now()});
     emit('command.registered',{name:normalized,replayable:options.replayable!==false,idempotent:!!options.idempotent},{source:'command-bus'});
     return ()=>registry.delete(normalized);
   }
@@ -107,19 +87,9 @@
     const correlationId=meta.correlationId||commandId;
     const startedAt=performance.now();
     const beforeRevision=revision();
-    const commandContext={
-      commandId,
-      correlationId,
-      name:normalized,
-      source:meta.source||spec?.source||'runtime',
-      route:route(),
-      stateRevisionBefore:beforeRevision,
-      sessionId:sessionId(),
-      buildId:buildId()
-    };
+    const commandContext={commandId,correlationId,name:normalized,source:meta.source||spec?.source||'runtime',route:route(),stateRevisionBefore:beforeRevision,sessionId:sessionId(),buildId:buildId()};
 
     emit('command.started',{name:normalized,payload,registered:!!spec,replayable:spec?.replayable??false},{...commandContext,source:commandContext.source,stateRevision:beforeRevision});
-
     if(!spec){
       const error=new Error(`Unknown command: ${normalized}`);
       emit('command.failed',{name:normalized,error:{name:error.name,message:error.message},durationMs:Math.round((performance.now()-startedAt)*100)/100},{...commandContext,severity:'error',stateRevision:revision()});
@@ -127,34 +97,20 @@
     }
 
     try{
-      const result=await spec.handler(safeValue(payload),{
+      // Handlers receive the original payload. Only journaled evidence is redacted.
+      const result=await spec.handler(payload,{
         ...commandContext,
         emit:(type,data={},eventMeta={})=>emit(type,data,{...eventMeta,commandId,correlationId,source:eventMeta.source||commandContext.source})
       });
-      // save() is synchronous, but state identity emits its DOM event in a microtask.
       await Promise.resolve();
       const afterRevision=revision();
       const durationMs=Math.round((performance.now()-startedAt)*100)/100;
-      emit('command.completed',{
-        name:normalized,
-        result:safeValue(result),
-        durationMs,
-        stateRevisionBefore:beforeRevision,
-        stateRevisionAfter:afterRevision,
-        stateChanged:afterRevision!==beforeRevision
-      },{...commandContext,stateRevision:afterRevision});
+      emit('command.completed',{name:normalized,result,durationMs,stateRevisionBefore:beforeRevision,stateRevisionAfter:afterRevision,stateChanged:afterRevision!==beforeRevision},{...commandContext,stateRevision:afterRevision});
       return result;
     }catch(error){
       await Promise.resolve();
       const afterRevision=revision();
-      emit('command.failed',{
-        name:normalized,
-        error:{name:error?.name||'Error',message:trimText(error?.message||error),stack:trimText(error?.stack||'',1600)},
-        durationMs:Math.round((performance.now()-startedAt)*100)/100,
-        stateRevisionBefore:beforeRevision,
-        stateRevisionAfter:afterRevision,
-        stateChanged:afterRevision!==beforeRevision
-      },{...commandContext,severity:'error',stateRevision:afterRevision});
+      emit('command.failed',{name:normalized,error:{name:error?.name||'Error',message:trimText(error?.message||error),stack:trimText(error?.stack||'',1600)},durationMs:Math.round((performance.now()-startedAt)*100)/100,stateRevisionBefore:beforeRevision,stateRevisionAfter:afterRevision,stateChanged:afterRevision!==beforeRevision},{...commandContext,severity:'error',stateRevision:afterRevision});
       throw error;
     }
   }
@@ -165,55 +121,32 @@
     subscribers.set(id,{pattern:String(pattern||'*'),handler});
     return ()=>subscribers.delete(id);
   }
+  function cloneEvent(event){return typeof structuredClone==='function'?structuredClone(event):JSON.parse(JSON.stringify(event))}
   function events(filter={}){
     const since=Number(filter.sinceSequence)||0;
     const type=filter.type||null;
     const correlationId=filter.correlationId||null;
     const commandId=filter.commandId||null;
     const limit=Math.max(1,Math.min(Number(filter.limit)||MAX_EVENTS,MAX_EVENTS));
-    return journal.filter(event=>event.sequence>since&&(!type||matches(type,event.type))&&(!correlationId||event.correlationId===correlationId)&&(!commandId||event.commandId===commandId)).slice(-limit).map(event=>structuredClone?structuredClone(event):JSON.parse(JSON.stringify(event)));
+    return journal.filter(event=>event.sequence>since&&(!type||matches(type,event.type))&&(!correlationId||event.correlationId===correlationId)&&(!commandId||event.commandId===commandId)).slice(-limit).map(cloneEvent);
   }
-  function commandRegistry(){
-    return [...registry.values()].map(({handler,...spec})=>({...spec})).sort((a,b)=>a.name.localeCompare(b.name));
-  }
-  function snapshot(){
-    return {
-      schemaVersion:BUS_SCHEMA,
-      buildId:buildId(),
-      sessionId:sessionId(),
-      capturedAt:now(),
-      route:route(),
-      stateRevision:revision(),
-      commandCount:registry.size,
-      eventCount:journal.length,
-      commands:commandRegistry(),
-      events:events()
-    };
-  }
-  function clearJournal(){
-    journal.splice(0,journal.length);
-    emit('runtime.journal.cleared',{}, {source:'command-bus'});
-  }
+  function commandRegistry(){return [...registry.values()].map(({handler,...spec})=>({...spec})).sort((a,b)=>a.name.localeCompare(b.name))}
+  function snapshot(){return {schemaVersion:BUS_SCHEMA,buildId:buildId(),sessionId:sessionId(),capturedAt:now(),route:route(),stateRevision:revision(),commandCount:registry.size,eventCount:journal.length,commands:commandRegistry(),events:events()}}
+  function clearJournal(){journal.splice(0,journal.length);emit('runtime.journal.cleared',{}, {source:'command-bus'})}
 
-  // Bridge the P5.0.1 persistence boundary into the event journal so legacy
-  // functions are observable before they are migrated to explicit commands.
+  // Bridge P5.0.1 so legacy save mutations are observable before each old action is
+  // migrated to an explicit FrontierOS command.
   window.addEventListener('frontier:state-saved',event=>{
     const detail=event.detail||{};
     emit('state.saved',detail,{source:'state-identity',stateRevision:Number(detail.stateRevision)||revision()});
   });
 
-  // Immediate legacy interaction visibility. Future FrontierOS controls should
-  // dispatch explicit commands; this click event is intentionally observational.
+  // Legacy interaction visibility. Future FrontierOS controls should dispatch
+  // explicit commands; this remains useful evidence during migration.
   document.addEventListener('click',event=>{
     const target=event.target?.closest?.('button,a,[role="button"],[data-command]');
     if(!target)return;
-    emit('ui.click',{
-      tag:target.tagName?.toLowerCase()||null,
-      id:target.id||null,
-      classes:[...target.classList||[]].slice(0,8),
-      label:trimText(target.getAttribute?.('aria-label')||target.textContent?.trim()||'',160),
-      dataCommand:target.getAttribute?.('data-command')||null
-    },{source:'dom'});
+    emit('ui.click',{tag:target.tagName?.toLowerCase()||null,id:target.id||null,classes:[...target.classList||[]].slice(0,8),label:trimText(target.getAttribute?.('aria-label')||target.textContent?.trim()||'',160),dataCommand:target.getAttribute?.('data-command')||null},{source:'dom'});
   },true);
 
   window.addEventListener('error',event=>emit('runtime.error',{message:event.message,filename:event.filename,lineno:event.lineno,colno:event.colno,error:{name:event.error?.name,message:event.error?.message,stack:event.error?.stack}},{source:'window',severity:'error'}));
