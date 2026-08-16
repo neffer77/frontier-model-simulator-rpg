@@ -55,33 +55,43 @@ jobs:
         if: always()
         shell: bash
         run: |
-          if [ -f artifacts/state-identity/REPORT.md ]; then
-            cat artifacts/state-identity/REPORT.md >> "$GITHUB_STEP_SUMMARY"
-          fi
+          if [ -f artifacts/state-identity/REPORT.md ]; then cat artifacts/state-identity/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Publish P5.0.2 Command + Event Bus evidence
         if: always()
         shell: bash
         run: |
-          if [ -f artifacts/command-event-bus/REPORT.md ]; then
-            cat artifacts/command-event-bus/REPORT.md >> "$GITHUB_STEP_SUMMARY"
-          fi
+          if [ -f artifacts/command-event-bus/REPORT.md ]; then cat artifacts/command-event-bus/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Publish P5.0.3 Debug Bundle + Diagnostics evidence
         if: always()
         shell: bash
         run: |
-          if [ -f artifacts/debug-bundle/REPORT.md ]; then
-            cat artifacts/debug-bundle/REPORT.md >> "$GITHUB_STEP_SUMMARY"
-          fi
+          if [ -f artifacts/debug-bundle/REPORT.md ]; then cat artifacts/debug-bundle/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Publish P5.1.1 FrontierOS App Registry evidence
         if: always()
         shell: bash
         run: |
-          if [ -f artifacts/app-registry/REPORT.md ]; then
-            cat artifacts/app-registry/REPORT.md >> "$GITHUB_STEP_SUMMARY"
-          fi
+          if [ -f artifacts/app-registry/REPORT.md ]; then cat artifacts/app-registry/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Publish P5.1.2 Mobile FrontierOS evidence
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/mobile-frontieros/REPORT.md ]; then cat artifacts/mobile-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Publish P5.1.3 Desktop FrontierOS evidence
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/desktop-frontieros/REPORT.md ]; then cat artifacts/desktop-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Publish P5.1.4 Navigation + Session evidence
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/frontieros-session/REPORT.md ]; then cat artifacts/frontieros-session/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Publish Item 13.17 release sign-off
         if: always()
@@ -130,6 +140,33 @@ jobs:
         with:
           name: app-registry-${{ github.event.pull_request.number || github.run_number }}
           path: artifacts/app-registry
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload P5.1.2 Mobile FrontierOS evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/mobile-frontieros
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload P5.1.3 Desktop FrontierOS evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/desktop-frontieros
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload P5.1.4 Navigation + Session evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontieros-session-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/frontieros-session
           if-no-files-found: warn
           retention-days: 30
 
