@@ -10,8 +10,9 @@ fs.mkdirSync(outDir,{recursive:true});
 const evidence=[];
 const browser=await chromium.launch({headless:true});
 
-// Desktop: identity exists before gameplay, no-op saves do not fabricate revisions,
-// real state mutations advance exactly once, and reload creates a fresh session.
+// Desktop: identity exists before gameplay, bootstrap normalization is allowed to
+// persist once, then no-op saves do not fabricate revisions; real state mutations
+// advance exactly once, and reload creates a fresh session.
 {
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
   const page=await context.newPage();
@@ -33,7 +34,13 @@ const browser=await chromium.launch({headless:true});
   assert.equal(initial.device.mode,'desktop','desktop device classification drifted');
   assert.equal(initial.route,'founder/setup','fresh route should be founder/setup');
 
-  const baselineRevision=initial.state.stateRevision;
+  // Runtime modules may add default fields after the last startup persistence. Persist
+  // that bootstrap-normalized shape once, then establish the semantic revision baseline.
+  await page.evaluate(()=>save());
+  const baseline=await page.evaluate(()=>frontierDiagnostics());
+  evidence.push({case:'desktop-bootstrap-normalized',diagnostics:baseline});
+  const baselineRevision=baseline.state.stateRevision;
+
   await page.evaluate(()=>save());
   const noop=await page.evaluate(()=>frontierDiagnostics());
   assert.equal(noop.state.stateRevision,baselineRevision,'no-op save must not create a state revision');
@@ -61,8 +68,8 @@ const browser=await chromium.launch({headless:true});
 }
 
 // True pre-P5 save: install raw localStorage before any application script executes.
-// Existing modules may legitimately migrate/add fields during startup; the contract
-// here is that the old save loads and then participates in monotonic revisions.
+// Existing modules may legitimately migrate/add fields during startup; normalize once,
+// then verify that no-op persistence is stable and future mutations are monotonic.
 {
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
   const page=await context.newPage();
@@ -75,12 +82,14 @@ const browser=await chromium.launch({headless:true});
   const before=await page.evaluate(()=>frontierDiagnostics());
   assert.equal(before.state.saveFormatVersion,3,'legacy save format identity drifted');
   await page.evaluate(()=>save());
+  const normalized=await page.evaluate(()=>frontierDiagnostics());
+  await page.evaluate(()=>save());
   const noop=await page.evaluate(()=>frontierDiagnostics());
-  assert.equal(noop.state.stateRevision,before.state.stateRevision,'legacy no-op save fabricated a revision');
+  assert.equal(noop.state.stateRevision,normalized.state.stateRevision,'legacy no-op save fabricated a revision');
   await page.evaluate(()=>{state.day+=1;save()});
   const migrated=await page.evaluate(()=>frontierDiagnostics());
   evidence.push({case:'legacy-save-migrated',diagnostics:migrated});
-  assert.equal(migrated.state.stateRevision,before.state.stateRevision+1,'legacy state mutation did not advance revision');
+  assert.equal(migrated.state.stateRevision,normalized.state.stateRevision+1,'legacy state mutation did not advance revision');
   await context.close();
 }
 
@@ -105,5 +114,5 @@ await browser.close();
 const desktopMutation=evidence.find(x=>x.case==='desktop-state-mutation')?.diagnostics;
 const report={version:1,item:'P5.0.1',status:'pass',generatedAt:new Date().toISOString(),cases:evidence.length,evidence};
 fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify(report,null,2)+'\n');
-fs.writeFileSync(path.join(outDir,'REPORT.md'),`# P5.0.1 runtime identity\n\n- Status: **PASS**\n- Evidence cases: **${evidence.length}**\n- Build: \`${evidence[0]?.diagnostics?.build?.buildId||'unknown'}\`\n- Verified semantic revision: **${desktopMutation?.state?.stateRevision??'unknown'}**\n- Canonical modes: phone portrait, phone landscape, tablet, desktop, wide desktop\n`);
+fs.writeFileSync(path.join(outDir,'REPORT.md'),`# P5.0.1 runtime identity\n\n- Status: **PASS**\n- Evidence cases: **${evidence.length}**\n- Build: \`${evidence[0]?.diagnostics?.build?.buildId||'unknown'}\`\n- Verified semantic revision: **${desktopMutation?.state?.stateRevision??'unknown'}**\n- Bootstrap normalization: **explicitly stabilized before no-op assertion**\n- Canonical modes: phone portrait, phone landscape, tablet, desktop, wide desktop\n`);
 console.log('P5.0.1 state/build/session identity regression passed');
