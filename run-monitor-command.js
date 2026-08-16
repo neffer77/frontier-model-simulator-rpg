@@ -9,10 +9,22 @@
       return window.frontierOsSessionSnapshot?.().current?.appId==='training';
     }catch(e){return false}
   }
+  async function callNative(payload){
+    try{return {result:await window.frontierRunMonitorOpen(payload||{}),legacyRenderError:null}}
+    catch(error){
+      // Incident initialization in the legacy workstation mutates/saves canonical state
+      // before its old presentation render runs. If that presentation render fails on a
+      // partial/migrated run, the second native open can use the now-initialized
+      // workstation without depending on the obsolete legacy screen.
+      window.frontierEmitEvent?.('run-monitor.legacy-render-bypassed',{error:String(error?.message||error),detail:payload?.detail||null},{source:'run-monitor-frontieros',severity:'warn'});
+      return {result:await window.frontierRunMonitorOpen(payload||{}),legacyRenderError:String(error?.message||error)};
+    }
+  }
   async function openNative(payload={}){
     const open=window.frontierRunMonitorOpen;
     if(typeof open!=='function')return {ok:false,status:'run-monitor-unavailable'};
-    const result=await open(payload||{});
+    const first=await callNative(payload);
+    const result=first.result;
     // Legacy render wrappers can finish in the same turn after incident setup. Verify
     // the native app still owns #app and deterministically restore it if necessary.
     await Promise.resolve();
@@ -20,7 +32,7 @@
     await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
     if(!document.querySelector('[data-frontieros-native-app="training"]'))await open(payload||{});
     const visible=!!document.querySelector('[data-frontieros-native-app="training"]');
-    window.frontierEmitEvent?.('run-monitor.command.render-verified',{visible,detail:payload?.detail||null,incidentId:payload?.incidentId||null,view:payload?.view||null},{source:'run-monitor-frontieros',severity:visible?'info':'error'});
+    window.frontierEmitEvent?.('run-monitor.command.render-verified',{visible,detail:payload?.detail||null,incidentId:payload?.incidentId||null,view:payload?.view||null,legacyRenderError:first.legacyRenderError},{source:'run-monitor-frontieros',severity:visible?'info':'error'});
     return visible?{...result,ok:true,status:'opened'}:{...result,ok:false,status:'render-missing'};
   }
   async function reconcileAfterLegacyRender(){
