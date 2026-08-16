@@ -22,9 +22,10 @@ for(const [id,priority] of expected){
 assert(js.includes("{id:'incident'")&&js.includes('dismissible:false'),'incident must remain non-dismissible');
 for(const contract of [
   'frontierOverlaySync','frontierOverlayDismissTop','frontierOverlayTop','frontierOverlayRegistry','MutationObserver','aria-modal','aria-hidden',
-  "setAttribute('role','dialog')",'restoreFocus','trapTab',"event.key==='Escape'","event.key==='Tab'",'host.inert=true','fl-overlay-suspended','fl-overlay-open',
+  "panel.setAttribute('role'",'alertdialog',"'dialog'",'restoreFocus','trapTab',"event.key==='Escape'","event.key==='Tab'",'host.inert=true','fl-overlay-suspended','fl-overlay-open',
   "new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']})"
 ])assert(js.includes(contract),`overlay runtime missing ${contract}`);
+assert(js.includes("cfg.id==='incident'?'alertdialog':'dialog'"),'incident overlays must use alertdialog while other overlays use dialog');
 assert(js.includes("cs.visibility==='hidden'&&!el.classList.contains('fl-overlay-suspended')"),'manager-owned suspension must remain logically active so lower overlays can resume');
 assert(js.indexOf("id:'story'")<js.indexOf("id:'modal'"),'technical explainer must have higher overlay priority than story');
 assert(js.indexOf("id:'incident'")<js.indexOf("id:'milestone'")&&js.indexOf("id:'milestone'")<js.indexOf("id:'story'"),'incident → milestone → story stacking contract drifted');
@@ -43,4 +44,4 @@ const cacheVersion=Number(sw.match(/frontier-lab-v(\d+)/)?.[1]||0);assert(cacheV
 
 for(const id of ['story-intro','training-incident','technical-explainer','milestone','company-priority','more-locked','more-unlocked'])assert(inventory.specialCaptures.some(x=>x.id===id),`Item 13.1 overlay inventory missing ${id}`);
 
-console.log(JSON.stringify({overlayStatic:'pass',overlays:expected.length,stack:expected.map(x=>x[0]),cache:`frontier-lab-v${cacheVersion}`},null,2));
+console.log(JSON.stringify({overlayStatic:'pass',overlays:expected.length,stack:expected.map(x=>x[0]),roleContract:'incident=alertdialog, others=dialog',cache:`frontier-lab-v${cacheVersion}`},null,2));
