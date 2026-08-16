@@ -7,7 +7,8 @@
     if(qs().get('frontieros')==='0')return false;
     if(qs().get('frontieros')==='1')return true;
     const touch=(navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches;
-    return touch&&Math.min(innerWidth,screen?.width||innerWidth)<=900;
+    const shortSide=Math.min(innerWidth||0,innerHeight||0),longSide=Math.max(innerWidth||0,innerHeight||0);
+    return touch&&shortSide<=430&&longSide<=900;
   }
   function timeText(){return new Intl.DateTimeFormat([], {hour:'numeric',minute:'2-digit'}).format(new Date())}
   function shell(){return document.querySelector('.frontieros-phone-shell')}
