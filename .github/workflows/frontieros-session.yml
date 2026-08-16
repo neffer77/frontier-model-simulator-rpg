@@ -10,16 +10,22 @@ on:
       - 'frontier-app-registry.js'
       - 'tests/frontieros-session.mjs'
       - 'tests/frontieros-session-static.mjs'
+      - 'tests/release-gate.mjs'
+      - 'release-gate-policy.json'
       - '.github/workflows/frontieros-session.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: frontieros-session-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   evidence:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,10 +43,18 @@ jobs:
         run: npm run test:os-session
         env:
           TEST_URL: http://127.0.0.1:4173/
+          OS_SESSION_PHASE_TIMEOUT_MS: '12000'
+          OS_SESSION_TEST_TIMEOUT_MS: '90000'
       - name: Publish summary
         if: always()
         run: |
           if [ -f artifacts/frontieros-session/REPORT.md ]; then cat artifacts/frontieros-session/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+          if [ -f artifacts/frontieros-session/progress.json ]; then
+            echo '### P5.1.4 phase checkpoints' >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat artifacts/frontieros-session/progress.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Upload P5.1.4 evidence
         if: always()
         uses: actions/upload-artifact@v4
