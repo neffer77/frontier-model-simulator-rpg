@@ -21,7 +21,11 @@
     if(section.matches('.fl-empty,[class*="empty"]')||section.querySelector('.fl-empty,[class*="empty"]')||EMPTY_COPY.test(section.textContent||''))return 'empty';
     return 'ready';
   }
-  function rootFor(app){return [...app.children].find(x=>!x.classList.contains('gameplay-guidance'))||app}
+  function rootFor(app){
+    const preferred=app.querySelector(':scope > .fl-page-shell,:scope > .game-shell,:scope > .cp-shell,:scope > .hiring-shell');
+    if(preferred)return preferred;
+    return [...app.children].find(x=>x.nodeType===1&&!x.matches('.gameplay-guidance,.campaign-progress,lab-install-prompt,.fl-sr-page-title'))||app;
+  }
   function candidatesFor(root){
     return [...root.querySelectorAll(':scope > section, :scope > main > section, :scope > div > section')]
       .filter(s=>!s.closest('.gameplay-guidance,.story-overlay,.modal-back,.incident-back,.gameplay-more-sheet')&&!s.matches('[data-pd-ignore]'));
