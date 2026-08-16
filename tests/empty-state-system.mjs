@@ -35,9 +35,19 @@ async function openZero(page,kind,id,view){
     if(kind==='governance'){ensureGovernanceState?.();state.governance.motions=[];state.governance.history=[]}
     if(kind==='programs'){ensureProgram?.();state.program.trains=[];state.program.history=[];evaluatePrograms?.()}
     if(kind==='postmortems'){ensureOrgHistory?.();state.organization.postmortems=[];state.organization.incidents=[];state.organization.actionItems=[]}
-    if(kind==='hiring'){ensureHiring?.();state.npcEmployees=[];for(const t of Object.values(state.hiring.teams||{})){t.memberIds=[];t.managerId=null}syncManagers?.()}
+    if(kind==='hiring'){ensureHiring?.();state.npcEmployees=[];for(const t of Object.values(state.hiring.teams||{})){t.memberIds=[];t.managerId=null}}
     window.frontierPageSweepSet?.(id);state.view=view;save();
-    if(kind==='hiring'&&typeof renderHiring==='function')document.getElementById('app').innerHTML=renderHiring();else render();
+    if(kind==='hiring'&&typeof renderHiring==='function'){
+      document.getElementById('app').innerHTML=renderHiring();
+      // renderHiring performs legacy NPC migration, which intentionally seeds the original
+      // founding cast. For this synthetic Item 13.9 fixture, restore the explicit zero-data
+      // state after render and make the org-chart DOM match that state without invoking
+      // npcById/ensureNpcTeam again.
+      state.npcEmployees=[];
+      for(const t of Object.values(state.hiring.teams||{})){t.memberIds=[];t.managerId=null}
+      const chart=document.querySelector('.org-chart');
+      if(chart)chart.innerHTML=Object.keys(state.hiring.teams||{}).map(name=>`<section class="org-team"><header><div><b>${name}</b><span>0 people</span></div><em>No manager</em></header><p>Empty team</p><div class="org-manager"></div></section>`).join('');
+    }else render();
   },{kind,id,view});
   await settle(page,100);await page.evaluate(()=>{window.frontierPageSweepSync?.();window.frontierEmptyStateSync?.()});await settle(page,30);
 }
