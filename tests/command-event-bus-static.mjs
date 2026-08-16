@@ -25,7 +25,7 @@ assert(bus.includes("pattern.endsWith('*')"),'prefix subscription contract missi
 assert(bus.includes('Handlers receive the original payload'),'redaction must not mutate command handler input');
 
 for(const command of [
-  'navigation.home.open','navigation.training.open','training.incident.open','training.diagnostic.run',
+  'navigation.home.open','navigation.training.open','training.incident.open','training.diagnostic.run','training.hint.request',
   'training.hypothesis.commit','training.production.execute','npc.advice.request','npc.advice.close',
   'team.open','model.lab.open','data.evals.open'
 ])assert(adapters.includes(command),`starter command catalog missing ${command}`);
@@ -57,4 +57,4 @@ assert.equal(gate.evidence,'artifacts/command-event-bus/report.json','command-ev
 assert(workflow.includes('artifacts/command-event-bus'),'browser QA must retain command/event bus evidence');
 assert(workflow.includes('Command + Event Bus'),'browser QA summary must publish P5.0.2 evidence');
 
-console.log(JSON.stringify({commandEventBusStatic:'pass',schemaVersion:1,maxEvents:600,starterCommands:11,releaseBlocker:true},null,2));
+console.log(JSON.stringify({commandEventBusStatic:'pass',schemaVersion:1,maxEvents:600,starterCommands:12,releaseBlocker:true},null,2));
