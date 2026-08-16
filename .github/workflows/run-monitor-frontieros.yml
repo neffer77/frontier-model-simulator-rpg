@@ -1,0 +1,49 @@
+name: FrontierOS Run Monitor evidence
+
+on:
+  pull_request:
+    paths:
+      - 'run-monitor-frontieros.js'
+      - 'run-monitor-frontieros.css'
+      - 'run-monitor-command.js'
+      - 'pager-frontieros.js'
+      - 'index.html'
+      - 'sw.js'
+      - 'tests/run-monitor-frontieros.mjs'
+      - '.github/workflows/run-monitor-frontieros.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Build production site
+        run: npm run build:site
+      - name: Start production server
+        run: python3 -m http.server 4173 --directory _site > /tmp/run-monitor-server.log 2>&1 &
+      - name: Run native Run Monitor evidence
+        run: node tests/run-monitor-frontieros.mjs
+        env:
+          TEST_URL: http://127.0.0.1:4173/
+      - name: Publish summary
+        if: always()
+        run: |
+          if [ -f artifacts/run-monitor-frontieros/REPORT.md ]; then cat artifacts/run-monitor-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Upload P5.2.2 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-monitor-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/run-monitor-frontieros
+          if-no-files-found: error
+          retention-days: 30
