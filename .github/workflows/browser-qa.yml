@@ -123,6 +123,12 @@ jobs:
         run: |
           if [ -f artifacts/run-monitor-frontieros/REPORT.md ]; then cat artifacts/run-monitor-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
 
+      - name: Publish P5.2.3 EvalBench evidence
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/evalbench-frontieros/REPORT.md ]; then cat artifacts/evalbench-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+
       - name: Publish Item 13.17 release sign-off
         if: always()
         shell: bash
@@ -215,6 +221,15 @@ jobs:
         with:
           name: run-monitor-frontieros-${{ github.event.pull_request.number || github.run_number }}
           path: artifacts/run-monitor-frontieros
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload P5.2.3 EvalBench evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evalbench-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/evalbench-frontieros
           if-no-files-found: warn
           retention-days: 30
 
