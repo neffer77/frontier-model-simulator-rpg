@@ -19,15 +19,25 @@ for(const file of files){
   fs.mkdirSync(path.dirname(dst),{recursive:true});
   fs.copyFileSync(src,dst);
 }
+
+const gitSha=process.env.GITHUB_SHA||null;
+const builtAt=new Date().toISOString();
+const ref=process.env.GITHUB_REF_NAME||'local';
+const buildId=(gitSha||'local').slice(0,12);
+const runtimeBuild={schemaVersion:1,buildId,gitSha,builtAt,ref};
+fs.writeFileSync(path.join(out,'frontier-build.js'),`window.__FRONTIER_BUILD__=Object.freeze(${JSON.stringify(runtimeBuild)});\n`);
+
 fs.writeFileSync(path.join(out,'.nojekyll'),'');
 fs.writeFileSync(path.join(out,'build-info.json'),JSON.stringify({
-  version:(process.env.GITHUB_SHA||'local').slice(0,12),
-  builtAt:new Date().toISOString(),
-  ref:process.env.GITHUB_REF_NAME||'local',
+  version:buildId,
+  buildId,
+  gitSha,
+  builtAt,
+  ref,
   runtimeFiles:files.length
 },null,2)+'\n');
 
 const forbidden=['package.json','tests','docs','.github','node_modules','release-budgets.json','scripts'];
 for(const name of forbidden){if(fs.existsSync(path.join(out,name)))throw new Error(`Repo-only path leaked into release artifact: ${name}`)}
 const total=files.reduce((n,f)=>n+fs.statSync(path.join(out,f)).size,0);
-console.log(`Built minimal _site: ${files.length} runtime files, ${total} bytes`);
+console.log(`Built minimal _site: ${files.length} runtime files, ${total} bytes, build ${buildId}`);
