@@ -1,0 +1,8 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const js=fs.readFileSync('desktop-frontieros.js','utf8');const css=fs.readFileSync('desktop-frontieros.css','utf8');const html=fs.readFileSync('index.html','utf8');const sw=fs.readFileSync('sw.js','utf8');const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
+for(const m of ['frontierDesktopShellActivate','frontierDesktopAppOpen','frontierDesktopWindowFocus','frontierDesktopWindowMinimize','frontierDesktopWindowClose','frontierDesktopShellSnapshot','os.desktop.shell.ready','os.desktop.app.opened','os.desktop.window.focused','os.desktop.window.minimized','os.desktop.window.closed'])assert(js.includes(m),`desktop shell missing ${m}`);
+for(const m of ['frontieros-desktop','frontieros-window','frontieros-taskbar','frontieros-start-menu','frontieros-window-titlebar'])assert(css.includes(m),`desktop CSS missing ${m}`);
+assert(html.includes('desktop-frontieros.css')&&html.includes('desktop-frontieros.js'),'desktop assets missing from runtime');assert(html.indexOf('frontier-app-registry.js')<html.indexOf('desktop-frontieros.js'),'desktop shell must load after registry');
+assert(sw.includes("CACHE='frontier-lab-v33'"),'P5.1.3 must advance cache to v33');assert(sw.includes('./desktop-frontieros.js')&&sw.includes('./desktop-frontieros.css'),'desktop assets missing from PWA cache');
+assert.equal(pkg.scripts['test:desktop-os'],'node tests/desktop-frontieros.mjs');assert.equal(pkg.scripts['test:desktop-os-static'],'node tests/desktop-frontieros-static.mjs');
+console.log(JSON.stringify({desktopFrontierOsStatic:'pass',surface:'desktop',cache:'v33'},null,2));
