@@ -4,13 +4,8 @@ import assert from 'node:assert/strict';
 const url=process.env.TEST_URL||'http://127.0.0.1:4173/';
 const browser=await chromium.launch({headless:true});
 
-async function settle(page,ms=80){
-  await page.waitForTimeout(ms);
-  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
-}
-
 // Desktop: identity exists before gameplay, revisions monotonically increase,
-// old saves remain compatible, and reload creates a fresh runtime session.
+// and reload creates a fresh runtime session without resetting simulation state.
 {
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
   const page=await context.newPage();
@@ -26,8 +21,6 @@ async function settle(page,ms=80){
   assert.equal(initial.device.mode,'desktop','desktop device classification drifted');
   assert.equal(initial.route,'founder/setup','fresh route should be founder/setup');
 
-  // Call the simulator's canonical save boundary twice. P5.0.1 instruments the
-  // persistence boundary, not individual gameplay functions.
   await page.evaluate(()=>save());
   const first=await page.evaluate(()=>frontierDiagnostics());
   await page.evaluate(()=>save());
@@ -42,27 +35,27 @@ async function settle(page,ms=80){
   assert.notEqual(afterReload.session.sessionId,sessionBefore,'reload must create a new runtime session');
   assert.equal(afterReload.state.stateRevision,2,'state revision must survive reload');
 
-  // Legacy v3 save without P5 metadata must still load untouched, then acquire
-  // identity metadata on its next ordinary save.
-  await page.evaluate(()=>{
+  const text=await page.evaluate(()=>frontierDiagnosticsText());
+  for(const marker of ['FrontierOS Diagnostics','Build','Session','State rev','Device','Viewport','Route'])assert(text.includes(marker),`diagnostics text missing ${marker}`);
+  await context.close();
+}
+
+// True pre-P5 save: install raw localStorage before any application script (and
+// therefore before the Storage.setItem instrumentation) executes.
+{
+  const context=await browser.newContext({viewport:{width:1440,height:1000}});
+  const page=await context.newPage();
+  await page.addInitScript(()=>{
     const legacy={version:3,company:'Legacy Lab',prefix:'OLD',day:7,cashM:2.4,compute:18000,reputation:0,research:0,infra:1,employees:5,role:'Full-Stack Frontier Engineer',tech:[],models:[],activeRun:null,runHistory:[],selectedIncident:null,incidentTab:'metrics',knowledge:{},feed:[],started:false};
     localStorage.setItem('frontier-lab-v3',JSON.stringify(legacy));
   });
-  // The identity layer intentionally decorates writes, so simulate a true pre-P5
-  // save by deleting only the metadata from the serialized record.
-  await page.evaluate(()=>{
-    const row=JSON.parse(localStorage.getItem('frontier-lab-v3'));
-    delete row._frontier;
-    Storage.prototype.setItem.__frontierNative?.call(localStorage,'frontier-lab-v3',JSON.stringify(row));
-  }).catch(()=>{});
-  // Fallback for browsers where native helper is not exposed: direct page reload
-  // still proves current saves are accepted. Old-save migration is additionally
-  // protected by the static contract.
-  await page.reload({waitUntil:'networkidle'});
-  assert.equal(await page.evaluate(()=>state.version),3,'v3 save format stopped loading');
-
-  const text=await page.evaluate(()=>frontierDiagnosticsText());
-  for(const marker of ['FrontierOS Diagnostics','Build','Session','State rev','Device','Viewport','Route'])assert(text.includes(marker),`diagnostics text missing ${marker}`);
+  await page.goto(url,{waitUntil:'networkidle'});
+  assert.equal(await page.evaluate(()=>state.company),'Legacy Lab','legacy v3 save stopped loading');
+  assert.equal((await page.evaluate(()=>frontierDiagnostics())).state.stateRevision,0,'legacy save should begin without fabricated history');
+  await page.evaluate(()=>save());
+  const migrated=await page.evaluate(()=>frontierDiagnostics());
+  assert.equal(migrated.state.stateRevision,1,'legacy save must acquire revision metadata on first ordinary save');
+  assert.equal(migrated.state.saveFormatVersion,3,'legacy save format identity drifted');
   await context.close();
 }
 
