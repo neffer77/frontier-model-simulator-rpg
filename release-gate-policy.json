@@ -22,6 +22,7 @@
     {"id":"overlay-system","label":"Overlay system","script":"test:overlay","severity":"blocker","phase":"browser"},
     {"id":"accessibility","label":"Accessibility system","script":"test:a11y","severity":"blocker","phase":"browser"},
     {"id":"responsive","label":"Responsive visual sweep","script":"test:responsive","severity":"blocker","phase":"browser"},
+    {"id":"npc-advice-workstation","label":"NPC advice workstation return flow","script":"test:npc-advice","severity":"blocker","phase":"browser"},
     {"id":"route-crawl","label":"Route / page crawler","script":"test:routes","severity":"blocker","phase":"browser","evidence":"artifacts/route-crawl/report.json"},
     {"id":"release-candidate","label":"Release candidate performance, migration, and offline PWA","script":"test:release","severity":"blocker","phase":"browser"},
     {"id":"screenshot-regression","label":"Screenshot regression","script":"test:screenshots","severity":"blocker","phase":"browser","evidence":"artifacts/screenshot-regression/report.json"},
