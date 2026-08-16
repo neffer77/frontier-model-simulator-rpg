@@ -1,9 +1,9 @@
 {
-  "version": 1,
+  "version": 2,
   "runtime": {
     "maxJavaScriptBytes": 1500000,
     "maxCssBytes": 600000,
-    "maxRuntimeAssets": 130,
+    "maxRuntimeAssets": 160,
     "maxSingleRuntimeAssetBytes": 300000
   },
   "browser": {
@@ -13,5 +13,8 @@
     "renderIterations": 40,
     "maxRenderLoopMs": 1800,
     "offlineReloadMs": 5000
+  },
+  "rationale": {
+    "runtimeAssets": "FrontierOS intentionally decomposes the simulator into independently testable app and shell assets. Budget v2 raises the cap from 130 to 160 while preserving byte-size and per-asset limits; reaching 160 requires an explicit bundling/consolidation review."
   }
 }

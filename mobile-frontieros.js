@@ -7,7 +7,8 @@
     if(qs().get('frontieros')==='0')return false;
     if(qs().get('frontieros')==='1')return true;
     const touch=(navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches;
-    return touch&&Math.min(innerWidth,screen?.width||innerWidth)<=900;
+    const shortSide=Math.min(innerWidth||0,innerHeight||0),longSide=Math.max(innerWidth||0,innerHeight||0);
+    return touch&&shortSide<=430&&longSide<=900;
   }
   function timeText(){return new Intl.DateTimeFormat([], {hour:'numeric',minute:'2-digit'}).format(new Date())}
   function shell(){return document.querySelector('.frontieros-phone-shell')}
@@ -57,15 +58,16 @@
     if(!state.active)return false;state.view='home';state.currentApp=null;refreshHome();applyView();scrollTo(0,0);
     window.frontierEmitEvent?.('os.mobile.home.opened',{appCount:(window.frontierApps?.({surface:'phone'})||[]).length},{source:'mobile-frontieros'});return true;
   }
-  async function openApp(id){
+  async function openApp(id,options={}){
     const app=window.frontierApp?.(id);
     if(!app){showToast('Unknown application.');return {ok:false,status:'unknown'};}
     if(app.launchState!=='ready'){
       const msg=app.launchState==='planned'?`${app.label} is coming in a later FrontierOS phase.`:`${app.label} is locked${app.lockReason?`: ${app.lockReason}`:'.'}`;
       showToast(msg);window.frontierEmitEvent?.('os.mobile.app.blocked',{appId:app.id,status:app.launchState,reason:app.lockReason},{source:'mobile-frontieros'});return {ok:false,status:app.launchState};
     }
-    const result=await window.frontierLaunchApp?.(app.id,{surface:'phone',source:'mobile-frontieros'});
-    if(result?.ok){state.view='app';state.currentApp=app.id;applyView();scrollTo(0,0);window.frontierEmitEvent?.('os.mobile.app.opened',{appId:app.id,via:result.via},{source:'mobile-frontieros'});}else showToast(`${app.label} could not be opened.`);
+    const payload=options.payload||((options.detail!=null)?{detail:options.detail}:{});
+    const result=await window.frontierLaunchApp?.(app.id,{surface:'phone',source:options.source||'mobile-frontieros',payload,correlationId:options.correlationId});
+    if(result?.ok){state.view='app';state.currentApp=app.id;applyView();scrollTo(0,0);window.frontierEmitEvent?.('os.mobile.app.opened',{appId:app.id,via:result.via,detail:payload.detail??null},{source:'mobile-frontieros'});}else showToast(`${app.label} could not be opened.`);
     return result;
   }
   function activate(force=false){
