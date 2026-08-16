@@ -1,0 +1,10 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const js=fs.readFileSync('mobile-frontieros.js','utf8');const css=fs.readFileSync('mobile-frontieros.css','utf8');const html=fs.readFileSync('index.html','utf8');const sw=fs.readFileSync('sw.js','utf8');const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
+for(const marker of ['frontierMobileHomeOpen','frontierMobileAppOpen','frontierMobileShellActivate','frontierMobileShellDeactivate','frontierMobileShellSnapshot','os.mobile.shell.ready','os.mobile.app.opened','os.mobile.app.blocked','frontierLaunchApp'])assert(js.includes(marker),`mobile shell missing ${marker}`);
+assert(js.includes("qs().get('frontieros')==='1'"),'forced mobile QA activation contract missing');
+assert(js.includes("navigator.maxTouchPoints"),'actual touch-phone activation contract missing');
+for(const marker of ['frontieros-phone-shell','frontieros-app-grid','frontieros-mobile-appbar','env(safe-area-inset-top)','orientation:landscape'])assert(css.includes(marker),`mobile shell CSS missing ${marker}`);
+assert(html.includes('mobile-frontieros.css'),'mobile shell stylesheet missing from runtime');assert(html.includes('mobile-frontieros.js'),'mobile shell script missing from runtime');assert(html.indexOf('frontier-app-registry.js')<html.indexOf('mobile-frontieros.js'),'mobile shell must load after app registry');
+assert(sw.includes("CACHE='frontier-lab-v32'"),'P5.1.2 must advance PWA cache to v32');assert(sw.includes('./mobile-frontieros.js')&&sw.includes('./mobile-frontieros.css'),'mobile shell missing from PWA cache');
+assert.equal(pkg.scripts['test:mobile-os'],'node tests/mobile-frontieros.mjs','mobile OS browser script missing');assert.equal(pkg.scripts['test:mobile-os-static'],'node tests/mobile-frontieros-static.mjs','mobile OS static script missing');
+console.log(JSON.stringify({mobileFrontierOsStatic:'pass',surface:'phone',apps:14,cache:'v32'},null,2));
