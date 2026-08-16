@@ -1,0 +1,68 @@
+name: FrontierOS Model Lab evidence
+
+on:
+  pull_request:
+    paths:
+      - 'model-lab-frontieros.js'
+      - 'model-lab-frontieros.css'
+      - 'model-lab-command.js'
+      - 'model-lab.js'
+      - 'frontier-app-registry.js'
+      - 'index.html'
+      - 'sw.js'
+      - 'tests/model-lab-frontieros.mjs'
+      - 'tests/model-lab-frontieros-static.mjs'
+      - '.github/workflows/model-lab-frontieros.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - name: Resolve Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p \"require('./node_modules/playwright/package.json').version\")" >> "$GITHUB_OUTPUT"
+      - name: Restore Playwright browser cache
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium system dependencies
+        run: npx playwright install-deps chromium
+      - name: Download Chromium on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+      - name: Report Playwright cache
+        run: echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Static Model Lab contract
+        run: node tests/model-lab-frontieros-static.mjs
+      - name: Build production site
+        run: npm run build:site
+      - name: Start production server
+        run: python3 -m http.server 4173 --directory _site > /tmp/model-lab-server.log 2>&1 &
+      - name: Run native Model Lab evidence
+        run: node tests/model-lab-frontieros.mjs
+        env:
+          TEST_URL: http://127.0.0.1:4173/
+      - name: Publish summary
+        if: always()
+        run: |
+          if [ -f artifacts/model-lab-frontieros/REPORT.md ]; then cat artifacts/model-lab-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Upload P5.2.4 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-lab-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/model-lab-frontieros
+          if-no-files-found: error
+          retention-days: 30
