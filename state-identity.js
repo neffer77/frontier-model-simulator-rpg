@@ -6,6 +6,7 @@
   const IDENTITY_SCHEMA=1;
   const nativeSetItem=Storage.prototype.setItem;
   const nativeGetItem=Storage.prototype.getItem;
+  let bootstrapNormalization=true;
   const session={
     schemaVersion:IDENTITY_SCHEMA,
     sessionId:createSessionId(),
@@ -40,18 +41,23 @@
     const previousMeta=previous?._frontier||null;
     const candidateRevision=Number(candidate._frontier?.stateRevision)||0;
     const priorRevision=Number(previousMeta?.stateRevision)||0;
-    const changed=!previous||domainSnapshot(candidate)!==domainSnapshot(previous);
-    const stateRevision=changed?Math.max(candidateRevision,priorRevision)+1:Math.max(candidateRevision,priorRevision);
+    const domainChanged=!previous||domainSnapshot(candidate)!==domainSnapshot(previous);
+    // Existing saves are allowed to gain/migrate default fields while application
+    // modules initialize. Those persistence writes are structural normalization,
+    // not gameplay/user mutations, so they must not fabricate semantic revisions.
+    const normalizedDuringBootstrap=Boolean(previous)&&bootstrapNormalization&&domainChanged;
+    const semanticChanged=domainChanged&&!normalizedDuringBootstrap;
+    const stateRevision=semanticChanged?Math.max(candidateRevision,priorRevision)+1:Math.max(candidateRevision,priorRevision);
     const now=new Date().toISOString();
     candidate._frontier={
       schemaVersion:IDENTITY_SCHEMA,
       stateRevision,
       saveFormatVersion:candidate.version??null,
-      lastMutationAt:changed?now:(previousMeta?.lastMutationAt||null),
-      lastMutation:changed?inferMutation():(previousMeta?.lastMutation||null)
+      lastMutationAt:semanticChanged?now:(previousMeta?.lastMutationAt||null),
+      lastMutation:semanticChanged?inferMutation():(previousMeta?.lastMutation||null)
     };
     queueMicrotask(()=>{
-      try{window.dispatchEvent(new CustomEvent('frontier:state-saved',{detail:{...candidate._frontier,changed}}))}catch(e){}
+      try{window.dispatchEvent(new CustomEvent('frontier:state-saved',{detail:{...candidate._frontier,changed:semanticChanged,domainChanged,bootstrapNormalization:normalizedDuringBootstrap}}))}catch(e){}
     });
     return JSON.stringify(candidate);
   }
@@ -147,4 +153,6 @@
   window.frontierStateEnvelope=stateEnvelope;
   window.frontierSessionIdentity=()=>({...session});
   window.frontierDeviceMode=deviceMode;
+  const closeBootstrap=()=>{bootstrapNormalization=false};
+  if(document.readyState==='complete')queueMicrotask(closeBootstrap);else addEventListener('load',()=>setTimeout(closeBootstrap,0),{once:true});
 })();
