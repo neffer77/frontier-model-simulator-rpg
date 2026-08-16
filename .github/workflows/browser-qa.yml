@@ -59,6 +59,14 @@ jobs:
             cat artifacts/state-identity/REPORT.md >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Publish P5.0.2 Command + Event Bus evidence
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/command-event-bus/REPORT.md ]; then
+            cat artifacts/command-event-bus/REPORT.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Publish Item 13.17 release sign-off
         if: always()
         shell: bash
@@ -79,6 +87,15 @@ jobs:
         with:
           name: state-identity-${{ github.event.pull_request.number || github.run_number }}
           path: artifacts/state-identity
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload P5.0.2 Command + Event Bus evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: command-event-bus-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/command-event-bus
           if-no-files-found: warn
           retention-days: 30
 
