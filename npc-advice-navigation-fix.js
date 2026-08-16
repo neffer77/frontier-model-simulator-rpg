@@ -1,22 +1,14 @@
 // Mobile-safe NPC second-opinion return path.
 (function(){
-  function closeAdvice(){
-    if(typeof state==='undefined')return;
-    const incidentId=state.npcTeam?.advice?.incidentId||state.selectedIncident||state.workstation?.incidentId||null;
-    if(state.npcTeam)state.npcTeam.advice=null;
-    document.querySelectorAll('.npc-advice-back').forEach(el=>el.remove());
-    if(typeof save==='function')save();
+  let returning=false;
+  let lastActivation=0;
 
-    // Return through the canonical incident navigation path instead of relying on
-    // whatever DOM happened to be underneath the body-level advice overlay. This
-    // is deterministic across iOS standalone/PWA, browser, and the wrapped Item 13
-    // render stack because openIncident() reconstructs the workstation from state.
-    if(incidentId&&typeof openIncident==='function'){
-      openIncident(incidentId);
-    }else if(typeof render==='function'){
-      render();
-    }
+  function activeIncidentId(){
+    if(typeof state==='undefined')return null;
+    return state.npcTeam?.advice?.incidentId||state.selectedIncident||state.workstation?.incidentId||null;
+  }
 
+  function focusInvestigation(){
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       const investigation=document.querySelector('.workstation,[data-fl-overlay-panel="incident"]');
       if(investigation){
@@ -28,15 +20,68 @@
     }));
   }
 
+  function closeAdvice(){
+    if(returning||typeof state==='undefined')return false;
+    returning=true;
+    const incidentId=activeIncidentId();
+
+    if(state.npcTeam)state.npcTeam.advice=null;
+    document.querySelectorAll('.npc-advice-back').forEach(el=>el.remove());
+    if(typeof save==='function')save();
+
+    // Re-enter through the canonical incident path. Do not depend on stale DOM.
+    if(incidentId&&typeof openIncident==='function'){
+      openIncident(incidentId);
+    }else if(typeof render==='function'){
+      render();
+    }
+
+    // Defensive post-render verification: no wrapper is allowed to resurrect the
+    // advice state or leave the player without an investigation surface.
+    setTimeout(()=>{
+      if(typeof state!=='undefined'&&state.npcTeam)state.npcTeam.advice=null;
+      document.querySelectorAll('.npc-advice-back').forEach(el=>el.remove());
+      const investigation=document.querySelector('.workstation,[data-fl-overlay-panel="incident"]');
+      if(!investigation&&incidentId&&typeof openIncident==='function')openIncident(incidentId);
+      if(typeof save==='function')save();
+      focusInvestigation();
+      returning=false;
+    },50);
+
+    return false;
+  }
+
   window.closeNpcAdvice=closeAdvice;
 
-  // Delegated capture handler is the source of truth for both newly rendered and
-  // cached markup. Suppress the legacy inline onclick so closeAdvice runs once.
-  document.addEventListener('click',event=>{
-    const button=event.target.closest?.('.npc-advice-back button');
+  function adviceButtonFromEvent(event){
+    const target=event.target;
+    return target?.closest?.('.npc-advice-back button')||null;
+  }
+
+  function activate(event){
+    const button=adviceButtonFromEvent(event);
     if(!button)return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
+    const now=Date.now();
+    if(now-lastActivation<400){
+      event.preventDefault?.();
+      event.stopImmediatePropagation?.();
+      return;
+    }
+    lastActivation=now;
+    event.preventDefault?.();
+    event.stopImmediatePropagation?.();
     closeAdvice();
+  }
+
+  // iOS standalone WebKit can visibly press a button while suppressing the final
+  // synthetic click after touch scrolling/gesture arbitration. Handle the physical
+  // release directly, with click retained for mouse/keyboard and older browsers.
+  document.addEventListener('pointerup',activate,true);
+  document.addEventListener('touchend',activate,{capture:true,passive:false});
+  document.addEventListener('click',activate,true);
+  document.addEventListener('keydown',event=>{
+    const button=adviceButtonFromEvent(event);
+    if(!button||!(event.key==='Enter'||event.key===' '))return;
+    activate(event);
   },true);
 })();
