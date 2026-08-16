@@ -8,131 +8,25 @@
   const activeProjects=s=>(s.portfolio?.projects||[]).filter(p=>p.status==='active');
 
   const RULES=[
-    {
-      key:'model-lab.no-models',page:'model-lab',tone:'learning',icon:'◇',kicker:'MODEL LINEAGE',title:'No models have been trained yet',
-      body:'The Model Lab becomes useful after a completed training run creates a persistent model artifact with evals, checkpoints and lineage.',
-      next:'Complete your first model run. Its engineering history will appear here automatically.',
-      empty:s=>(s.models||[]).length===0,
-      mount:root=>root.querySelector('.lab-content')||root,
-      native:root=>root.querySelector('.lab-content > .lab-panel.lab-empty'),
-      actions:[{label:'Open training',call:'gameplayGoTrain',primary:true}]
-    },
-    {
-      key:'portfolio.no-projects',page:'portfolio',tone:'planning',icon:'PJ',kicker:'PROJECT PORTFOLIO',title:'No projects are competing for capacity',
-      body:'An empty portfolio means engineering capacity has not been committed to a project yet. That is a valid starting state, not missing data.',
-      next:'Start one project, then staff it. Delivery forecasts and capacity risk will become meaningful.',
-      empty:s=>(s.portfolio?.projects||[]).length===0,
-      mount:root=>byHeading(root,'.pf-card','Portfolio')||root,
-      native:root=>firstText(root,'.pf-card p',/^No projects yet\.?$/i),
-      actions:[{label:'Choose a project template',focus:'.pf-grid button',primary:true}]
-    },
-    {
-      key:'critical-path.no-active-projects',page:'critical-path',tone:'planning',icon:'CP',kicker:'DEPENDENCY GRAPH',title:'No active work is on the critical path',
-      body:'Critical-path analysis needs active portfolio projects. With no active projects there are no dependencies, blockers or milestone gates to sequence.',
-      next:'Create a project in Project Portfolio. Active projects automatically receive design, integration and release milestones.',
-      empty:s=>activeProjects(s).length===0,
-      mount:root=>root.querySelector('.cp-card')||root,
-      native:root=>firstText(root,'.cp-card p',/^No active projects\.?$/i),
-      actions:[{label:'Open project portfolio',call:'portfolioOpen',primary:true}]
-    },
-    {
-      key:'operations.no-incidents',page:'operations',tone:'quiet',icon:'OK',kicker:'INCIDENT QUEUE',title:'No operational incidents are open or recorded',
-      body:'A quiet queue is a healthy state. On-call coverage still matters because weak rotations increase the probability and recovery cost of future incidents.',
-      next:'Review primary, secondary and incident-commander coverage—or run a drill when you want to practice response.',
-      empty:s=>(s.operations?.incidents||[]).length===0,
-      mount:root=>root.querySelector('.ops-incidents')||root,
-      native:root=>firstText(root,'.ops-incidents p',/^No operational incidents yet\.?$/i),
-      actions:[{label:'Review on-call rotations',focus:'.ops-grid select',primary:true},{label:'Focus incident drills',focus:'.ops-controls button:nth-child(2)'}]
-    },
-    {
-      key:'hiring.no-employees',page:'hiring',tone:'planning',icon:'HC',kicker:'ORG CHART',title:'No employees are assigned to the lab',
-      body:'The organization can exist with zero employees, but ownership, management coverage and team capacity remain unstaffed until someone is hired.',
-      next:'Interview a candidate for the bottleneck you want to own first. Team assignments will populate after an accepted offer.',
-      empty:s=>(s.npcEmployees||[]).length===0,
-      mount:root=>{const s=[...root.querySelectorAll('.hiring-layout > section')].find(x=>x.querySelector('h2')?.textContent.includes('Teams'));return s?.querySelector('.org-chart')||s||root},
-      natives:root=>[...root.querySelectorAll('.org-team > p')].filter(p=>/^Empty team$/i.test((p.textContent||'').trim())),
-      actions:[{label:'Focus first candidate',focus:'.candidate-grid button',primary:true}]
-    },
-    {
-      key:'governance.no-votes',page:'governance',tone:'planning',icon:'BV',kicker:'BOARD HISTORY',title:'No board votes have been called yet',
-      body:'Governance history begins when a motion is formally put to the board. Until then, founder-control risk reflects the cap table and board composition only.',
-      next:'Choose a motion when the company needs an explicit decision or you want to test board alignment.',
-      empty:s=>(s.governance?.motions||[]).length===0,
-      mount:root=>byHeading(root,'.gv-card','Recent votes')||root,
-      native:root=>firstText(root,'.gv-card p',/^No board votes yet\.?$/i),
-      actions:[{label:'Focus board motions',focus:'.gv-grid button',primary:true}]
-    },
-    {
-      key:'programs.no-trains',page:'programs',tone:'planning',icon:'LT',kicker:'PROGRAM PORTFOLIO',title:'No launch train exists yet',
-      body:'Program management starts when multiple pieces of work need one launch date. With no launch train, there is no program-level readiness or recovery tradeoff to manage.',
-      next:'Create a launch train, then attach portfolio projects so schedule, quality, people and reliability readiness can be evaluated together.',
-      empty:s=>(s.program?.trains||[]).length===0,
-      mount:root=>root,
-      insertBefore:root=>root.querySelector('.pm-card'),
-      actions:[{label:'Focus create launch train',focus:'.pm-card button',primary:true}]
-    },
-    {
-      key:'postmortems.none',page:'postmortems',tone:'learning',icon:'PM',kicker:'ORGANIZATIONAL MEMORY',title:'No postmortems have been written yet',
-      body:'Postmortems are created from resolved incidents. No history here means the lab has not yet completed an incident investigation that produced an organizational record.',
-      next:'Run the model, diagnose failures when they occur, and resolve an incident. The technical timeline and corrective actions will be preserved here.',
-      empty:s=>(s.organization?.postmortems||[]).length===0,
-      mount:root=>root.querySelector('.pm-main')||root,
-      native:root=>root.querySelector('.pm-main > .pm-card.empty'),
-      actions:[{label:'Open training',call:'gameplayGoTrain',primary:true}]
-    }
+    {key:'model-lab.no-models',page:'model-lab',tone:'learning',icon:'◇',kicker:'MODEL LINEAGE',title:'No models have been trained yet',body:'The Model Lab becomes useful after a completed training run creates a persistent model artifact with evals, checkpoints and lineage.',next:'Complete your first model run. Its engineering history will appear here automatically.',empty:s=>(s.models||[]).length===0,mount:root=>root.querySelector('.lab-content')||root,native:root=>root.querySelector('.lab-content > .lab-panel.lab-empty'),actions:[{label:'Open training',call:'gameplayGoTrain',primary:true}]},
+    {key:'portfolio.no-projects',page:'portfolio',tone:'planning',icon:'PJ',kicker:'PROJECT PORTFOLIO',title:'No projects are competing for capacity',body:'An empty portfolio means engineering capacity has not been committed to a project yet. That is a valid starting state, not missing data.',next:'Start one project, then staff it. Delivery forecasts and capacity risk will become meaningful.',empty:s=>(s.portfolio?.projects||[]).length===0,mount:root=>byHeading(root,'.pf-card','Portfolio')||root,native:root=>firstText(root,'.pf-card p',/^No projects yet\.?$/i),actions:[{label:'Choose a project template',focus:'.pf-grid button',primary:true}]},
+    {key:'critical-path.no-active-projects',page:'critical-path',tone:'planning',icon:'CP',kicker:'DEPENDENCY GRAPH',title:'No active work is on the critical path',body:'Critical-path analysis needs active portfolio projects. With no active projects there are no dependencies, blockers or milestone gates to sequence.',next:'Create a project in Project Portfolio. Active projects automatically receive design, integration and release milestones.',empty:s=>activeProjects(s).length===0,mount:root=>root.querySelector('.cp-card')||root,native:root=>firstText(root,'.cp-card p',/^No active projects\.?$/i),actions:[{label:'Open project portfolio',call:'portfolioOpen',primary:true}]},
+    {key:'operations.no-incidents',page:'operations',tone:'quiet',icon:'OK',kicker:'INCIDENT QUEUE',title:'No operational incidents are open or recorded',body:'A quiet queue is a healthy state. On-call coverage still matters because weak rotations increase the probability and recovery cost of future incidents.',next:'Review primary, secondary and incident-commander coverage—or run a drill when you want to practice response.',empty:s=>(s.operations?.incidents||[]).length===0,mount:root=>root.querySelector('.ops-incidents')||root,native:root=>firstText(root,'.ops-incidents p',/^No operational incidents yet\.?$/i),actions:[{label:'Review on-call rotations',focus:'.ops-grid select',primary:true},{label:'Focus incident drills',focus:'.ops-controls button:nth-child(2)'}]},
+    {key:'hiring.no-employees',page:'hiring',tone:'planning',icon:'HC',kicker:'ORG CHART',title:'No employees are assigned to the lab',body:'The organization can exist with zero employees, but ownership, management coverage and team capacity remain unstaffed until someone is hired.',next:'Interview a candidate for the bottleneck you want to own first. Team assignments will populate after an accepted offer.',empty:s=>(s.npcEmployees||[]).length===0,mount:root=>{const sec=[...root.querySelectorAll('.hiring-layout > section')].find(x=>x.querySelector('h2')?.textContent.includes('Teams'));return sec?.querySelector('.org-chart')||sec||root},natives:root=>[...root.querySelectorAll('.org-team > p')].filter(p=>/^Empty team$/i.test((p.textContent||'').trim())),actions:[{label:'Focus first candidate',focus:'.candidate-grid button',primary:true}]},
+    {key:'governance.no-votes',page:'governance',tone:'planning',icon:'BV',kicker:'BOARD HISTORY',title:'No board votes have been called yet',body:'Governance history begins when a motion is formally put to the board. Until then, founder-control risk reflects the cap table and board composition only.',next:'Choose a motion when the company needs an explicit decision or you want to test board alignment.',empty:s=>(s.governance?.motions||[]).length===0,mount:root=>byHeading(root,'.gv-card','Recent votes')||root,native:root=>firstText(root,'.gv-card p',/^No board votes yet\.?$/i),actions:[{label:'Focus board motions',focus:'.gv-grid button',primary:true}]},
+    {key:'programs.no-trains',page:'programs',tone:'planning',icon:'LT',kicker:'PROGRAM PORTFOLIO',title:'No launch train exists yet',body:'Program management starts when multiple pieces of work need one launch date. With no launch train, there is no program-level readiness or recovery tradeoff to manage.',next:'Create a launch train, then attach portfolio projects so schedule, quality, people and reliability readiness can be evaluated together.',empty:s=>(s.program?.trains||[]).length===0,mount:root=>root,insertBefore:root=>root.querySelector('.pm-card'),actions:[{label:'Focus create launch train',focus:'.pm-card button',primary:true}]},
+    {key:'postmortems.none',page:'postmortems',tone:'learning',icon:'PM',kicker:'ORGANIZATIONAL MEMORY',title:'No postmortems have been written yet',body:'Postmortems are created from resolved incidents. No history here means the lab has not yet completed an incident investigation that produced an organizational record.',next:'Run the model, diagnose failures when they occur, and resolve an incident. The technical timeline and corrective actions will be preserved here.',empty:s=>(s.organization?.postmortems||[]).length===0,mount:root=>root.querySelector('.pm-main')||root,native:root=>root.querySelector('.pm-main > .pm-card.empty'),actions:[{label:'Open training',call:'gameplayGoTrain',primary:true}]}
   ];
 
-  function pageId(app,s){return app.dataset.flPageId||viewToPage[s?.view]||null}
-  function restoreNative(rule,root){
-    for(const el of root.querySelectorAll(`[data-fl-zero-hidden-for="${rule.key}"]`)){el.hidden=false;el.removeAttribute('data-fl-zero-hidden-for')}
-  }
-  function nativeNodes(rule,root){
-    const out=[];
-    const one=rule.native?.(root);if(one)out.push(one);
-    const many=rule.natives?.(root)||[];for(const el of many)if(el&&!out.includes(el))out.push(el);
-    return out;
-  }
-  function hideNative(rule,root){
-    for(const el of nativeNodes(rule,root)){el.dataset.flZeroNative='true';el.dataset.flZeroHiddenFor=rule.key;el.hidden=true}
-  }
-  function act(action,card){
-    if(action.call&&typeof window[action.call]==='function'){window[action.call]();return}
-    if(action.focus){
-      const target=document.querySelector(action.focus);if(!target)return;
-      target.scrollIntoView({block:'center',behavior:'smooth'});target.focus({preventScroll:true});
-      if(typeof window.gameFeelToast==='function')window.gameFeelToast('NEXT STEP',`Focused ${String(target.textContent||target.getAttribute('aria-label')||'the relevant control').trim().replace(/\s+/g,' ').slice(0,70)}.`)
-    }
-  }
-  function makeCard(rule){
-    const card=document.createElement('section');card.className='fl-zero-state';card.dataset.flZeroKey=rule.key;card.dataset.flZeroTone=rule.tone||'quiet';card.setAttribute('role','status');card.setAttribute('aria-live','polite');
-    card.innerHTML=`<div class="fl-zero-icon" aria-hidden="true">${rule.icon||'·'}</div><div class="fl-zero-copy"><span class="fl-zero-kicker">${rule.kicker}</span><h3>${rule.title}</h3><p>${rule.body}</p><div class="fl-zero-next"><b>Next signal</b><span>${rule.next}</span></div><div class="fl-zero-actions"></div></div>`;
-    const actions=card.querySelector('.fl-zero-actions');
-    for(const a of rule.actions||[]){const b=document.createElement('button');b.type='button';b.textContent=a.label;b.className=a.primary?'fl-zero-primary':'';b.addEventListener('click',()=>act(a,card));actions.appendChild(b)}
-    return card;
-  }
-  function applyRule(rule,root,isEmpty){
-    const existing=root.querySelector(`[data-fl-zero-key="${rule.key}"]`);
-    if(!isEmpty){existing?.remove();restoreNative(rule,root);return false}
-    hideNative(rule,root);if(existing)return true;
-    const mount=rule.mount?.(root)||root,card=makeCard(rule),before=rule.insertBefore?.(root)||null;
-    if(before&&before.parentElement===mount)mount.insertBefore(card,before);else mount.appendChild(card);
-    return true;
-  }
-  function decorateNative(root){
-    for(const el of root.querySelectorAll('.fl-page-empty,[class$="-empty"],.empty-state')){if(!el.classList.contains('fl-zero-state'))el.dataset.flZeroNative='true'}
-  }
-  function sync(){
-    queued=false;const app=document.getElementById('app'),s=safeState();if(!app||!s)return;
-    const root=app.querySelector('.fl-page-shell')||[...app.children].find(x=>x.nodeType===1);if(!root)return;
-    const id=pageId(app,s);let active=0;
-    for(const rule of RULES){const relevant=rule.page===id;let empty=false;if(relevant){try{empty=!!rule.empty(s)}catch{empty=false}}if(app.querySelector(`[data-fl-zero-key="${rule.key}"]`)||relevant)active+=applyRule(rule,root,empty)?1:0}
-    decorateNative(root);app.dataset.flZeroStates=String(active);document.documentElement.dataset.flEmptyStateSystem='1';
-  }
+  function pageId(app,s){return viewToPage[s?.view]||app.dataset.flPageId||null}
+  function restoreNative(rule,root){for(const el of root.querySelectorAll(`[data-fl-zero-hidden-for="${rule.key}"]`)){el.hidden=false;el.removeAttribute('data-fl-zero-hidden-for')}}
+  function nativeNodes(rule,root){const out=[];const one=rule.native?.(root);if(one)out.push(one);const many=rule.natives?.(root)||[];for(const el of many)if(el&&!out.includes(el))out.push(el);return out}
+  function hideNative(rule,root){for(const el of nativeNodes(rule,root)){el.dataset.flZeroNative='true';el.dataset.flZeroHiddenFor=rule.key;el.hidden=true}}
+  function act(action,card){if(action.call&&typeof window[action.call]==='function'){window[action.call]();return}if(action.focus){const target=document.querySelector(action.focus);if(!target)return;target.scrollIntoView({block:'center',behavior:'smooth'});target.focus({preventScroll:true});if(typeof window.gameFeelToast==='function')window.gameFeelToast('NEXT STEP',`Focused ${String(target.textContent||target.getAttribute('aria-label')||'the relevant control').trim().replace(/\s+/g,' ').slice(0,70)}.`)}}
+  function makeCard(rule){const card=document.createElement('section');card.className='fl-zero-state';card.dataset.flZeroKey=rule.key;card.dataset.flZeroTone=rule.tone||'quiet';card.setAttribute('role','status');card.setAttribute('aria-live','polite');card.innerHTML=`<div class="fl-zero-icon" aria-hidden="true">${rule.icon||'·'}</div><div class="fl-zero-copy"><span class="fl-zero-kicker">${rule.kicker}</span><h3>${rule.title}</h3><p>${rule.body}</p><div class="fl-zero-next"><b>Next signal</b><span>${rule.next}</span></div><div class="fl-zero-actions"></div></div>`;const actions=card.querySelector('.fl-zero-actions');for(const a of rule.actions||[]){const b=document.createElement('button');b.type='button';b.textContent=a.label;b.className=a.primary?'fl-zero-primary':'';b.addEventListener('click',()=>act(a,card));actions.appendChild(b)}return card}
+  function applyRule(rule,root,isEmpty){const existing=root.querySelector(`[data-fl-zero-key="${rule.key}"]`);if(!isEmpty){existing?.remove();restoreNative(rule,root);return false}hideNative(rule,root);if(existing)return true;const mount=rule.mount?.(root)||root,card=makeCard(rule),before=rule.insertBefore?.(root)||null;if(before&&before.parentElement===mount)mount.insertBefore(card,before);else mount.appendChild(card);return true}
+  function decorateNative(root){for(const el of root.querySelectorAll('.fl-page-empty,[class$="-empty"],.empty-state')){if(!el.classList.contains('fl-zero-state'))el.dataset.flZeroNative='true'}}
+  function sync(){queued=false;const app=document.getElementById('app'),s=safeState();if(!app||!s)return;const root=app.querySelector('.fl-page-shell')||[...app.children].find(x=>x.nodeType===1);if(!root)return;const id=pageId(app,s);let active=0;for(const rule of RULES){const relevant=rule.page===id;let empty=false;if(relevant){try{empty=!!rule.empty(s)}catch{empty=false}}if(app.querySelector(`[data-fl-zero-key="${rule.key}"]`)||relevant)active+=applyRule(rule,root,empty)?1:0}decorateNative(root);app.dataset.flZeroStates=String(active);document.documentElement.dataset.flEmptyStateSystem='1'}
   function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>requestAnimationFrame(sync))}
-
-  window.frontierEmptyStateSync=sync;
-  window.frontierEmptyStateRegistry=()=>RULES.map(r=>({key:r.key,page:r.page,title:r.title,actions:(r.actions||[]).map(a=>a.label)}));
-  document.documentElement.dataset.flEmptyStateSystem='1';
-  const app=document.getElementById('app');if(app)new MutationObserver(records=>{if(records.some(r=>[...r.addedNodes,...r.removedNodes].some(n=>n.nodeType===1)))schedule()}).observe(app,{childList:true,subtree:true});
-  addEventListener('resize',schedule);schedule();
+  window.frontierEmptyStateSync=sync;window.frontierEmptyStateRegistry=()=>RULES.map(r=>({key:r.key,page:r.page,title:r.title,actions:(r.actions||[]).map(a=>a.label)}));document.documentElement.dataset.flEmptyStateSystem='1';const app=document.getElementById('app');if(app)new MutationObserver(records=>{if(records.some(r=>[...r.addedNodes,...r.removedNodes].some(n=>n.nodeType===1)))schedule()}).observe(app,{childList:true,subtree:true});addEventListener('resize',schedule);schedule();
 })();

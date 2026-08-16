@@ -17,7 +17,7 @@ async function assertOverlay(page,d,type){
   const host=page.locator(`[data-fl-overlay-type="${type}"]:visible`);
   assert.equal(await host.count(),1,`${d.name}/${type}: expected one visible overlay`);
   const panel=host.locator(`[data-fl-overlay-panel="${type}"]`);assert.equal(await panel.count(),1,`${d.name}/${type}: panel missing`);
-  assert.equal(await panel.getAttribute('role'),'dialog',`${d.name}/${type}: dialog role missing`);
+  assert.equal(await panel.getAttribute('role'),type==='incident'?'alertdialog':'dialog',`${d.name}/${type}: dialog role missing`);
   assert.equal(await panel.getAttribute('aria-modal'),'true',`${d.name}/${type}: aria-modal missing`);
   assert.equal(await page.evaluate(()=>document.body.classList.contains('fl-overlay-open')),true,`${d.name}/${type}: body scroll lock missing`);
   const visual=await panel.evaluate(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el),m=cs.backgroundColor.match(/rgba?\(([^)]+)\)/),v=m?m[1].split(',').map(Number):[0,0,0];return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,bg:cs.backgroundColor,lum:(.2126*(v[0]||0)+.7152*(v[1]||0)+.0722*(v[2]||0))/255}});
@@ -57,17 +57,20 @@ for(const d of devices){
   await page.evaluate(()=>showExplain('FSDP'));await settle(page,60);await sync(page);await assertOverlay(page,d,'modal');
   await page.keyboard.press('Escape');await settle(page,60);await sync(page);assert.equal(await page.locator('.modal-back').count(),0,`${d.name}: technical explainer did not dismiss`);
 
-  // Incident is intentionally non-dismissible; Escape cannot bypass a live engineering decision.
-  await page.evaluate(()=>{state.story.seen=[...(state.story?.seen||[]).filter(x=>x!=='firstIncident'),'firstIncident'];state.story.active=null;state.selectedIncident='nan';save();render()});await settle(page,100);await sync(page);await assertOverlay(page,d,'incident');
+  // Incident is intentionally non-dismissible. Use the canonical opener so the modern
+  // engineering workstation and its state are created exactly as they are for players.
+  await page.evaluate(()=>{state.story.seen=[...(state.story?.seen||[]).filter(x=>x!=='firstIncident'),'firstIncident'];state.story.active=null;openIncident('nan')});await settle(page,120);await sync(page);const incidentOverlay=await assertOverlay(page,d,'incident');
+  assert(await incidentOverlay.panel.locator('.ws-tools').count(),`${d.name}: canonical incident did not render engineering workstation`);
   await page.keyboard.press('Escape');await settle(page,40);await sync(page);assert.equal(await page.locator('.incident-back').count(),1,`${d.name}: Escape incorrectly dismissed incident`);
   assert.equal((await page.evaluate(()=>window.frontierOverlayTop?.()))?.dismissible,false,`${d.name}: incident should report non-dismissible`);
-  await page.evaluate(()=>{state.selectedIncident=null;save();render()});await settle(page,80);await sync(page);
+  await page.evaluate(()=>{state.selectedIncident=null;state.workstation=null;save();render()});await settle(page,80);await sync(page);
 
   // Collision regression: modal > story > milestone > incident, with lower layers suspended rather than destroyed.
   await page.evaluate(()=>{
     state.story.seen=(state.story?.seen||[]).filter(x=>x!=='firstIncident');
+    openIncident('nan');
     state.story.active='firstIncident';state.story.index=0;state.story.objective={kicker:'FIRST INCIDENT',title:'Red on the Dashboard',body:'Diagnose before reacting.',cta:'Open training',action:'gameplayGoTrain',tone:'danger'};
-    state.selectedIncident='nan';save();render();
+    save();render();
   });
   await settle(page,100);await page.evaluate(()=>gameFeelMilestone('Something broke','Read the evidence before reacting.'));await settle(page,50);await page.evaluate(()=>showExplain('GRAD'));await settle(page,50);await sync(page);
   assert.equal((await page.evaluate(()=>window.frontierOverlayTop?.()))?.type,'modal',`${d.name}: technical explainer must top collision stack`);
@@ -79,7 +82,7 @@ for(const d of devices){
   await page.keyboard.press('Escape');await settle(page,110);await sync(page);assert.equal((await page.evaluate(()=>window.frontierOverlayTop?.()))?.type,'milestone',`${d.name}: milestone should resume after story closes`);
   await page.keyboard.press('Escape');await settle(page,70);await sync(page);assert.equal((await page.evaluate(()=>window.frontierOverlayTop?.()))?.type,'incident',`${d.name}: incident should resume after milestone closes`);
   await page.keyboard.press('Escape');await settle(page,40);await sync(page);assert.equal((await page.evaluate(()=>window.frontierOverlayTop?.()))?.type,'incident',`${d.name}: incident escaped at end of stack`);
-  await page.evaluate(()=>{state.selectedIncident=null;save();render()});await settle(page,80);await sync(page);
+  await page.evaluate(()=>{state.selectedIncident=null;state.workstation=null;save();render()});await settle(page,80);await sync(page);
   assert.equal(await page.evaluate(()=>document.body.classList.contains('fl-overlay-open')),false,`${d.name}: scroll lock remained after stack cleared`);
 
   const registry=await page.evaluate(()=>window.frontierOverlayRegistry?.()||[]);assert.deepEqual(registry.map(x=>x.id),['more','priority','incident','milestone','story','modal'],`${d.name}: overlay registry order drifted`);

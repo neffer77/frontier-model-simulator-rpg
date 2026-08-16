@@ -15,11 +15,7 @@ function ensureArtifactV2(){
   a.selectedCheckpoint ||= 'ckpt-441190';
   a.sharedArtifacts ||= {};
   a.rankFocus ??= 0;
-  if(state.selectedIncident && state.selectedIncident!==a.challengeId){
-    a.challengeId=state.selectedIncident;
-    a.challengeStatus='open';
-    a.lastGrade=null;
-  }
+  if(state.selectedIncident && state.selectedIncident!==a.challengeId){a.challengeId=state.selectedIncident;a.challengeStatus='open';a.lastGrade=null}
 }
 function artifactIncidentSync(){ensureArtifactV2();if(state.selectedIncident)state.artifactLab.challengeId=state.selectedIncident}
 const artifactV2Open=artifactOpen;
@@ -45,4 +41,15 @@ const artifactV2Workspace=artifactWorkspace;
 artifactWorkspace=function(){ensureArtifactV2();return `${artifactV2Workspace()}<div class="artifact-grid artifact-extra">${artifactCheckpointPanel()}</div>`};
 const artifactV2Render=renderArtifactLab;
 renderArtifactLab=function(){ensureArtifactV2();return artifactV2Render()};
+
+// Old saves and older callers may set selectedIncident directly. The workstation UI now
+// requires a workstation state object, so lazily materialize it at render time instead of
+// allowing a selected incident to render as an empty surface.
+if(typeof incidentOverlay==='function'&&typeof newWorkstation==='function'){
+  const artifactIncidentOverlay=incidentOverlay;
+  incidentOverlay=function(){
+    if(state.selectedIncident&&(!state.workstation||state.workstation.incidentId!==state.selectedIncident))state.workstation=newWorkstation(state.selectedIncident);
+    return artifactIncidentOverlay();
+  };
+}
 render();

@@ -57,11 +57,11 @@
   function bindTabs(tablist){
     if(tablist.dataset.flA11yTabs==='1')return;tablist.dataset.flA11yTabs='1';
     tablist.addEventListener('keydown',event=>{
-      if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+      if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key))return;
       const tabs=[...tablist.querySelectorAll('[role="tab"]')];if(!tabs.length)return;
       let index=Math.max(0,tabs.indexOf(document.activeElement));
-      if(event.key==='ArrowRight')index=(index+1)%tabs.length;
-      if(event.key==='ArrowLeft')index=(index-1+tabs.length)%tabs.length;
+      if(event.key==='ArrowRight'||event.key==='ArrowDown')index=(index+1)%tabs.length;
+      if(event.key==='ArrowLeft'||event.key==='ArrowUp')index=(index-1+tabs.length)%tabs.length;
       if(event.key==='Home')index=0;if(event.key==='End')index=tabs.length-1;
       event.preventDefault();tabs[index].focus();tabs[index].click();
     });
@@ -74,6 +74,20 @@
         const selected=button.classList.contains('active');button.setAttribute('role','tab');button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;
         if(!button.id)button.id=`fl-incident-tab-${index}-${String(button.textContent||'tab').trim().toLowerCase()}`;
       });bindTabs(tablist);
+    }
+    // The modern incident surface is the engineering workstation. Its diagnostic tools
+    // are mutually-exclusive views, so expose them as a real tablist instead of relying
+    // on the legacy three-tab incident quiz semantics.
+    for(const tablist of root.querySelectorAll('.ws-tools')){
+      tablist.setAttribute('role','tablist');tablist.setAttribute('aria-label','Incident diagnostic tools');
+      const buttons=[...tablist.querySelectorAll(':scope > button:not(.hint-btn)')];
+      buttons.forEach((button,index)=>{
+        const selected=button.classList.contains('active');button.setAttribute('role','tab');button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;
+        if(!button.id)button.id=`fl-workstation-tab-${index}`;
+      });
+      const panel=tablist.closest('.workstation')?.querySelector('.ws-main');
+      if(panel){panel.setAttribute('role','tabpanel');const active=buttons.find(x=>x.classList.contains('active'));if(active)panel.setAttribute('aria-labelledby',active.id)}
+      bindTabs(tablist);
     }
   }
   function decorateRoles(root=document){

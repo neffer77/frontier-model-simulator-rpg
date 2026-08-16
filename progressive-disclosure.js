@@ -21,7 +21,11 @@
     if(section.matches('.fl-empty,[class*="empty"]')||section.querySelector('.fl-empty,[class*="empty"]')||EMPTY_COPY.test(section.textContent||''))return 'empty';
     return 'ready';
   }
-  function rootFor(app){return [...app.children].find(x=>!x.classList.contains('gameplay-guidance'))||app}
+  function rootFor(app){
+    const preferred=app.querySelector(':scope > .fl-page-shell,:scope > .game-shell,:scope > .cp-shell,:scope > .hiring-shell');
+    if(preferred)return preferred;
+    return [...app.children].find(x=>x.nodeType===1&&!x.matches('.gameplay-guidance,.campaign-progress,lab-install-prompt,.fl-sr-page-title'))||app;
+  }
   function candidatesFor(root){
     return [...root.querySelectorAll(':scope > section, :scope > main > section, :scope > div > section')]
       .filter(s=>!s.closest('.gameplay-guidance,.story-overlay,.modal-back,.incident-back,.gameplay-more-sheet')&&!s.matches('[data-pd-ignore]'));
@@ -72,16 +76,18 @@
     const view=viewName();
     if(!media.matches||!state?.started||!denseViews.has(view)){cleanup(app);return}
     const candidates=candidatesFor(rootFor(app));
-    if(candidates.length<2){cleanup(app);return}
+    if(!candidates.length){cleanup(app);return}
     const memory=saved(view),entries=stableKeys(candidates);
     entries.forEach(({section,title,key},i)=>{
-      // The first major section stays fully visible as page context; disclosure begins with secondary work.
-      if(i===0){
+      // Keep the first major section fully visible only when there are multiple sections.
+      // A single dense/empty section (for example Critical Path with no active projects)
+      // still needs disclosure chrome so its state and affordance remain explicit on mobile.
+      if(i===0&&entries.length>1){
         if(section.classList.contains('pd-enhanced'))cleanup(section.parentElement||app);
         return;
       }
       const status=disclosureState(section);
-      const defaultOpen=status==='ready'&&i===1;
+      const defaultOpen=status==='ready'&&(entries.length===1||i===1);
       enhance(section,title,key,status,defaultOpen,memory,view);
     });
   }

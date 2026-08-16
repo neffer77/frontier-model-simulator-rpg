@@ -6,7 +6,7 @@
   const CONFIGS=[
     {id:'more',selector:'.gameplay-more-sheet',panel:':scope > section',backdrop:'.gameplay-sheet-backdrop',priority:10,dismissible:true,label:'Lab systems',initial:'header button',close:()=>g.gameplayCloseMenu?.()},
     {id:'priority',selector:'.campaign-priority',panel:':scope > section',backdrop:'.campaign-priority-backdrop',priority:20,dismissible:true,label:'Company priority',initial:'.campaign-choice-grid button',close:()=>g.campaignClosePriority?.()},
-    {id:'incident',selector:'.incident-back',panel:':scope > .incident',priority:30,dismissible:false,label:'Live engineering incident',initial:'.inspect-tabs button.active,.decision button'},
+    {id:'incident',selector:'.incident-back',panel:':scope > .workstation,:scope > .ws-debrief,:scope > .incident',priority:30,dismissible:false,label:'Live engineering incident',initial:'.ws-tools button.active,.ws-tools button,.inspect-tabs button.active,.decision button'},
     {id:'milestone',selector:'.feel-milestone',panel:':scope > .feel-milestone-card',priority:40,dismissible:true,label:'Milestone',initial:'button',close:record=>record.panel.querySelector('button')?.click()},
     {id:'story',selector:'.story-overlay',panel:':scope > .story-scene-card',priority:50,dismissible:true,label:'Story scene',initial:'.story-actions .primary,.story-actions button:last-child',close:()=>g.storySceneClose?.()},
     {id:'modal',selector:'.modal-back',panel:':scope > .modal',priority:60,dismissible:true,label:'Technical explainer',initial:'.x,a[href],button',close:()=>{const root=document.getElementById('modalRoot');if(root)root.innerHTML=''}}
@@ -22,7 +22,7 @@
   function panelFor(host,cfg){return host.querySelector(cfg.panel)||host}
   function focusables(panel){return [...panel.querySelectorAll(FOCUSABLE)].filter(el=>{const cs=getComputedStyle(el);return cs.display!=='none'&&cs.visibility!=='hidden'&&!el.closest('[aria-hidden="true"]')})}
   function labelPanel(panel,cfg){
-    panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
+    panel.setAttribute('role',cfg.id==='incident'?'alertdialog':'dialog');panel.setAttribute('aria-modal','true');
     let heading=panel.querySelector('h1,h2,h3');
     if(heading){if(!heading.id)heading.id=`fl-overlay-title-${++labelCounter}`;panel.setAttribute('aria-labelledby',heading.id);panel.removeAttribute('aria-label')}
     else if(!panel.hasAttribute('aria-label'))panel.setAttribute('aria-label',cfg.label);
