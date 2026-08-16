@@ -75,18 +75,15 @@
     if(!candidates.length){cleanup(app);return}
     const memory=saved(view),entries=stableKeys(candidates);
     entries.forEach(({section,title,key},i)=>{
-      const status=disclosureState(section);
-      // Keep the first major section fully visible when there are multiple sections.
-      // A lone empty/locked section is itself the dense secondary surface, so compact it.
+      // Keep the first major section fully visible only when there are multiple sections.
+      // A single dense/empty section (for example Critical Path with no active projects)
+      // still needs disclosure chrome so its state and affordance remain explicit on mobile.
       if(i===0&&entries.length>1){
-        if(section.classList.contains('pd-enhanced')){
-          section.querySelector(':scope > .pd-toggle')?.remove();
-          section.classList.remove('pd-enhanced','pd-collapsed');
-          delete section.dataset.pdState;delete section.dataset.pdKey;delete section.dataset.pdOpen;
-        }
+        if(section.classList.contains('pd-enhanced'))cleanup(section.parentElement||app);
         return;
       }
-      const defaultOpen=status==='ready'&&i===1;
+      const status=disclosureState(section);
+      const defaultOpen=status==='ready'&&(entries.length===1||i===1);
       enhance(section,title,key,status,defaultOpen,memory,view);
     });
   }
