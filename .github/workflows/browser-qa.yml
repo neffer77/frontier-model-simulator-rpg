@@ -75,6 +75,14 @@ jobs:
             cat artifacts/debug-bundle/REPORT.md >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Publish P5.1.1 FrontierOS App Registry evidence
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/app-registry/REPORT.md ]; then
+            cat artifacts/app-registry/REPORT.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Publish Item 13.17 release sign-off
         if: always()
         shell: bash
@@ -113,6 +121,15 @@ jobs:
         with:
           name: debug-bundle-${{ github.event.pull_request.number || github.run_number }}
           path: artifacts/debug-bundle
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload P5.1.1 FrontierOS App Registry evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-registry-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/app-registry
           if-no-files-found: warn
           retention-days: 30
 
