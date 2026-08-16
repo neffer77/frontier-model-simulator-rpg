@@ -58,9 +58,11 @@ const browser=await chromium.launch({headless:true});
   const sessionBefore=mutated.session.sessionId;
   await page.reload({waitUntil:'networkidle'});
   const afterReload=await page.evaluate(()=>frontierDiagnostics());
-  evidence.push({case:'desktop-reload',diagnostics:afterReload});
+  const reloadTimeline=await page.evaluate(()=>frontierStateWriteTimeline?.()||[]);
+  evidence.push({case:'desktop-reload',diagnostics:afterReload,writeTimeline:reloadTimeline});
+  fs.writeFileSync(path.join(outDir,'reload-write-timeline.json'),JSON.stringify({beforeRevision:mutated.state.stateRevision,afterRevision:afterReload.state.stateRevision,writes:reloadTimeline},null,2)+'\n');
   assert.notEqual(afterReload.session.sessionId,sessionBefore,'reload must create a new runtime session');
-  assert.equal(afterReload.state.stateRevision,mutated.state.stateRevision,'state revision must survive reload');
+  assert.equal(afterReload.state.stateRevision,mutated.state.stateRevision,`state revision must survive reload; writes=${JSON.stringify(reloadTimeline)}`);
 
   const text=await page.evaluate(()=>frontierDiagnosticsText());
   for(const marker of ['FrontierOS Diagnostics','Build','Session','State rev','Device','Viewport','Route'])assert(text.includes(marker),`diagnostics text missing ${marker}`);
