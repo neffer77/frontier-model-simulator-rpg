@@ -2,11 +2,12 @@
   "version": 1,
   "item": "13.16",
   "name": "Frontier Lab release gate policy",
-  "description": "Canonical blocker/advisory policy for the final Item 13 release decision.",
+  "description": "Canonical blocker/advisory policy for the final Item 13 release decision and FrontierOS foundation invariants.",
   "decisionRule": "Release passes only when every blocker gate executes successfully, required blocker evidence exists, and semantic evidence checks produce zero blockers. Advisories are reported but do not change the release decision.",
   "gates": [
     {"id":"static-contracts","label":"Static contracts and release integrity","script":"test:static","severity":"blocker","phase":"preflight"},
     {"id":"production-build","label":"Production artifact build","script":"build:site","severity":"blocker","phase":"build"},
+    {"id":"runtime-identity","label":"FrontierOS state/build/session identity","script":"test:identity","severity":"blocker","phase":"browser"},
     {"id":"browser-smoke","label":"Browser smoke","script":"test:browser","severity":"blocker","phase":"browser"},
     {"id":"balance-pacing","label":"Balance and pacing","script":"test:balance","severity":"blocker","phase":"browser"},
     {"id":"technical-realism","label":"Technical realism","script":"test:realism","severity":"blocker","phase":"browser"},

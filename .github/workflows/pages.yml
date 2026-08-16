@@ -71,11 +71,15 @@ jobs:
           enablement: true
       - name: Assemble minimal runtime site
         run: npm run build:site
-      - name: Verify release artifact contains no repo-only tooling
+      - name: Verify release artifact contains runtime identity and no repo-only tooling
         run: |
           test -f _site/index.html
           test -f _site/sw.js
           test -f _site/build-info.json
+          test -f _site/frontier-build.js
+          test -f _site/state-identity.js
+          EXPECTED="${GITHUB_SHA:0:12}"
+          grep -Fq "\"buildId\":\"$EXPECTED\"" _site/frontier-build.js
           test ! -e _site/tests
           test ! -e _site/docs
           test ! -e _site/package.json
@@ -102,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - name: Verify live site serves this release commit
+      - name: Verify live site serves this release commit and runtime identity
         env:
           PAGE_URL: ${{ needs.deploy.outputs.page_url }}
         run: |
@@ -110,13 +114,15 @@ jobs:
           BASE="${PAGE_URL%/}"
           for i in {1..30}; do
             INFO=$(curl -fsS "$BASE/build-info.json?release=$GITHUB_SHA" 2>/dev/null || true)
-            if printf '%s' "$INFO" | grep -Fq "\"version\": \"$EXPECTED\""; then
+            RUNTIME=$(curl -fsS "$BASE/frontier-build.js?release=$GITHUB_SHA" 2>/dev/null || true)
+            if printf '%s' "$INFO" | grep -Fq "\"version\": \"$EXPECTED\"" && printf '%s' "$RUNTIME" | grep -Fq "\"buildId\":\"$EXPECTED\""; then
               curl -fsS "$BASE/?release=$GITHUB_SHA" >/dev/null
-              echo "Live Pages release verified: $EXPECTED"
+              echo "Live Pages release + runtime identity verified: $EXPECTED"
               exit 0
             fi
             sleep 2
           done
-          echo "::error::GitHub Pages did not serve build $EXPECTED within the verification window"
+          echo "::error::GitHub Pages did not serve build identity $EXPECTED within the verification window"
           curl -fsS "$BASE/build-info.json?release=$GITHUB_SHA" || true
+          curl -fsS "$BASE/frontier-build.js?release=$GITHUB_SHA" || true
           exit 1
