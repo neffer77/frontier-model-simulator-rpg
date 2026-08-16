@@ -16,7 +16,6 @@ const NPC_TEMPLATES=[
 function ensureNpcTeam(){
   state.npcTeam ||= {version:NPC_TEAM_VERSION,selectedId:"maya",advice:null,idea:null};
   state.npcEmployees ||= NPC_TEMPLATES.map((t,i)=>({...t,trust:55+(i%3)*4,respect:58+(i%4)*3,alignment:55,workload:20+(i%4)*8,memories:[],ideasGenerated:0,incidentsHelped:0,discoveries:[]}));
-  // Add any newly shipped core NPCs without replacing existing progression.
   NPC_TEMPLATES.forEach(t=>{if(!state.npcEmployees.some(e=>e.id===t.id))state.npcEmployees.push({...t,trust:55,respect:55,alignment:55,workload:25,memories:[],ideasGenerated:0,incidentsHelped:0,discoveries:[]})});
 }
 
@@ -44,7 +43,6 @@ function npcConfidence(e,inc){
 }
 
 function npcAdviceText(e,inc){
-  const correct=WORKSTATION_CASES?.[inc.id]?.correctHypothesis;
   const domain=incidentDomain(inc);
   const expert=(e.skills[domain]||0)>=8;
   const lines={
@@ -58,21 +56,29 @@ function npcAdviceText(e,inc){
   if(key==="research")key="research";if(key==="infra")key="infra";if(key==="safety")key="safety";
   const best=lines[inc.id]?.[key]||lines[inc.id]?.[domain]||Object.values(lines[inc.id]||{})[0]||"I need more evidence before I would make a production change.";
   if(expert)return best;
-  // Non-experts are intentionally useful but less decisive.
   return `${best} I am outside my strongest specialty here, so I would treat this as a hypothesis rather than a call.`;
 }
 
 function askNpcDuringIncident(id){
   ensureNpcTeam();const e=npcById(id),inc=INCIDENTS.find(x=>x.id===state.selectedIncident);if(!e||!inc)return;
-  const confidence=npcConfidence(e,inc);const advice=npcAdviceText(e,inc);
+  const confidence=npcConfidence(e,inc),advice=npcAdviceText(e,inc);
   e.incidentsHelped++;e.workload=Math.min(100,e.workload+4);e.trust=Math.min(100,e.trust+1);
   npcRemember(e,`You asked for help on ${inc.title}. I advised: ${advice}`,inc.id);
-  state.npcTeam.advice={employeeId:id,incidentId:inc.id,confidence,advice};save();render();
+  state.npcTeam.advice={employeeId:id,incidentId:inc.id,confidence,advice};
+  if(state.workstation&&state.workstation.incidentId===inc.id)state.workstation.npcSubview="advice";
+  save();render();
 }
-function closeNpcAdvice(){state.npcTeam.advice=null;save();render()}
+
+function closeNpcAdvice(){
+  ensureNpcTeam();
+  state.npcTeam.advice=null;
+  if(state.workstation)state.workstation.npcSubview="investigation";
+  save();render();
+}
+function npcReturnToInvestigation(){return closeNpcAdvice()}
 
 function npcIdeaFor(e){
-  const m=state.models?.at(-1);const domain=e.bias;
+  const m=state.models?.at(-1),domain=e.bias;
   const ideas={systems:["Parallelism sweep","Test a lower PP degree with more in-flight microbatches before scaling the next run.","throughput"],data:["Data mixture ablation","Run a controlled mixture change and watch coding/reasoning tradeoffs instead of aggregate score.","data"],post:["Post-training slice ablation","Rebalance structured tool trajectories and compare slice-level regressions.","data"],inference:["Serving pressure test","Stress long-context prefill separately from interactive decode traffic.","throughput"],research:["Architecture efficiency probe","Challenge the current architecture with a controlled efficiency experiment before the next scale jump.","precision"],infra:["Recovery drill","Verify checkpoint and restart assumptions before the next expensive run.","precision"],evals:["Clean holdout study","Create a stricter evaluation slice and compare it with the current suite.","data"],safety:["Behavior regression slice","Add a targeted behavior slice before the next post-training decision.","data"]};
   const x=ideas[domain]||ideas.systems;return {employeeId:e.id,modelId:m?.id||null,title:x[0],pitch:x[1],kind:x[2]};
 }
@@ -89,11 +95,17 @@ function renderAskTeamPanel(){
   if(!state.selectedIncident)return"";const inc=INCIDENTS.find(x=>x.id===state.selectedIncident);if(!inc)return"";
   return `<div class="ask-team-panel"><div class="eyebrow">ASK TEAM · ${esc(inc.role)}</div><h3>Get a second opinion</h3><p>Advice depends on specialty and available evidence. Confidence is not correctness.</p><div>${state.npcEmployees.map(e=>`<button onclick="askNpcDuringIncident('${e.id}')"><span class="npc-avatar mini ${e.color}">${esc(e.avatar)}</span><b>${esc(e.name.split(" ")[0])}</b><small>${esc(e.specialty)}</small></button>`).join("")}</div></div>`;
 }
-function renderNpcAdvice(){const a=state.npcTeam.advice;if(!a)return"";const e=npcById(a.employeeId);return `<div class="npc-advice-back"><div class="npc-advice-card"><div class="npc-avatar giant ${e.color}">${esc(e.avatar)}</div><div class="eyebrow">SECOND OPINION · ${esc(e.role)}</div><h2>${esc(e.name)}</h2><p>“${esc(a.advice)}”</p><div class="confidence"><span>Confidence</span><b>${a.confidence}%</b><i><em style="width:${a.confidence}%"></em></i></div><small>Confidence reflects this character's specialty and experience, not hidden access to the correct answer.</small><button class="npc-primary" onclick="closeNpcAdvice()">Back to investigation</button></div></div>`}
+
+function renderNpcAdvice(){
+  ensureNpcTeam();const a=state.npcTeam.advice;if(!a)return"";const e=npcById(a.employeeId);if(!e)return"";
+  return `<section class="npc-advice-inline" data-npc-workstation-subview="advice"><div class="npc-advice-card"><div class="npc-avatar giant ${e.color}">${esc(e.avatar)}</div><div class="eyebrow">SECOND OPINION · ${esc(e.role)}</div><h2>${esc(e.name)}</h2><p>“${esc(a.advice)}”</p><div class="confidence"><span>Confidence</span><b>${a.confidence}%</b><i><em style="width:${a.confidence}%"></em></i></div><small>Confidence reflects this character's specialty and experience, not hidden access to the correct answer.</small><button type="button" class="npc-primary npc-return-investigation" onclick="closeNpcAdvice()">Back to investigation</button></div></section>`;
+}
 
 function injectNpcIncidentUI(){
-  if(!state.selectedIncident)return;const host=document.querySelector(".workstation .ws-board")||document.querySelector(".ws-right");if(host&&!host.querySelector(".ask-team-panel"))host.insertAdjacentHTML("beforeend",renderAskTeamPanel());
-  if(state.npcTeam.advice&&!document.querySelector(".npc-advice-back"))document.body.insertAdjacentHTML("beforeend",renderNpcAdvice());
+  document.querySelectorAll('.npc-advice-back').forEach(node=>node.remove());
+  if(!state.selectedIncident||state.workstation?.npcSubview==="advice")return;
+  const host=document.querySelector(".workstation .ws-board")||document.querySelector(".ws-right");
+  if(host&&!host.querySelector(".ask-team-panel"))host.insertAdjacentHTML("beforeend",renderAskTeamPanel());
 }
 
 const npcBaseRender=render;
