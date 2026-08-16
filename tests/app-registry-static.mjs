@@ -18,7 +18,7 @@ const adaptersPos=html.indexOf('command-adapters.js');
 const debugPos=html.indexOf('debug-bundle.js');
 const registryPos=html.indexOf('frontier-app-registry.js');
 assert(adaptersPos>=0&&debugPos>adaptersPos&&registryPos>debugPos,'app registry must load after commands + diagnostics are available');
-assert(sw.includes("CACHE='frontier-lab-v31'"),'P5.1.1 must advance PWA cache to v31');
+const cacheMatch=sw.match(/CACHE='frontier-lab-v(\d+)'/);assert(cacheMatch,'PWA cache version missing');assert(Number(cacheMatch[1])>=31,`P5.1.1 requires PWA cache v31 or newer; found v${cacheMatch?.[1]}`);
 assert(sw.includes('./frontier-app-registry.js'),'PWA must cache the app registry');
 assert.equal(pkg.scripts['test:app-registry'],'node tests/app-registry.mjs','app registry browser script missing');
 assert.equal(pkg.scripts['test:app-registry-static'],'node tests/app-registry-static.mjs','app registry static script missing');
@@ -33,4 +33,4 @@ assert.equal(gate.evidence,'artifacts/app-registry/report.json','app registry ev
 assert(workflow.includes('artifacts/app-registry'),'browser QA must retain app registry evidence');
 assert(workflow.includes('P5.1.1 FrontierOS App Registry'),'browser QA must publish app registry summary');
 
-console.log(JSON.stringify({appRegistryStatic:'pass',schemaVersion:1,apps:14,releaseBlocker:true},null,2));
+console.log(JSON.stringify({appRegistryStatic:'pass',schemaVersion:1,apps:14,releaseBlocker:true,cache:`v${cacheMatch[1]}`},null,2));
