@@ -36,6 +36,8 @@
     "test:identity-static":"node tests/state-identity-static.mjs",
     "test:command-bus":"node tests/command-event-bus.mjs",
     "test:command-bus-static":"node tests/command-event-bus-static.mjs",
+    "test:debug-bundle":"node tests/debug-bundle.mjs",
+    "test:debug-bundle-static":"node tests/debug-bundle-static.mjs",
     "test:screenshots":"node tests/screenshot-regression.mjs",
     "test:screenshots-static":"node tests/screenshot-regression-static.mjs",
     "visual:screenshot-baseline":"node tests/screenshot-regression.mjs --update",
@@ -46,10 +48,10 @@
     "test:release-gate-static":"node tests/release-gate-static.mjs",
     "test:signoff":"node tests/release-signoff.mjs",
     "test:signoff-static":"node tests/release-signoff-static.mjs",
-    "test:static":"node tests/release-static.mjs && node tests/theme-tokens.mjs && node tests/firewall-static.mjs && node tests/shared-surface-static.mjs && node tests/progressive-disclosure-static.mjs && node tests/shared-control-static.mjs && node tests/company-dashboard-static.mjs && node tests/page-visual-sweep-static.mjs && node tests/empty-state-static.mjs && node tests/locked-state-static.mjs && node tests/overlay-system-static.mjs && node tests/accessibility-static.mjs && node tests/responsive-visual-static.mjs && node tests/state-identity-static.mjs && node tests/command-event-bus-static.mjs && node tests/screenshot-regression-static.mjs && node tests/route-crawler-static.mjs && node tests/release-gate-static.mjs && node tests/release-signoff-static.mjs",
+    "test:static":"node tests/release-static.mjs && node tests/theme-tokens.mjs && node tests/firewall-static.mjs && node tests/shared-surface-static.mjs && node tests/progressive-disclosure-static.mjs && node tests/shared-control-static.mjs && node tests/company-dashboard-static.mjs && node tests/page-visual-sweep-static.mjs && node tests/empty-state-static.mjs && node tests/locked-state-static.mjs && node tests/overlay-system-static.mjs && node tests/accessibility-static.mjs && node tests/responsive-visual-static.mjs && node tests/state-identity-static.mjs && node tests/command-event-bus-static.mjs && node tests/debug-bundle-static.mjs && node tests/screenshot-regression-static.mjs && node tests/route-crawler-static.mjs && node tests/release-gate-static.mjs && node tests/release-signoff-static.mjs",
     "test:release":"node tests/release-candidate.mjs",
     "visual:inventory":"node tests/visual-inventory.mjs",
-    "test:qa":"node tests/browser-smoke.mjs && node tests/balance-pacing.mjs && node tests/technical-realism.mjs && node tests/replayability.mjs && node tests/browser-default-firewall.mjs && node tests/shared-surface-system.mjs && node tests/progressive-disclosure.mjs && node tests/shared-control-system.mjs && node tests/company-dashboard.mjs && node tests/page-visual-sweep.mjs && node tests/empty-state-system.mjs && node tests/locked-state-system.mjs && node tests/overlay-system.mjs && node tests/accessibility-system.mjs && node tests/responsive-visual-sweep.mjs && node tests/npc-advice-workstation-flow.mjs && node tests/state-identity.mjs && node tests/command-event-bus.mjs && node tests/route-crawler.mjs && node tests/release-candidate.mjs",
+    "test:qa":"node tests/browser-smoke.mjs && node tests/balance-pacing.mjs && node tests/technical-realism.mjs && node tests/replayability.mjs && node tests/browser-default-firewall.mjs && node tests/shared-surface-system.mjs && node tests/progressive-disclosure.mjs && node tests/shared-control-system.mjs && node tests/company-dashboard.mjs && node tests/page-visual-sweep.mjs && node tests/empty-state-system.mjs && node tests/locked-state-system.mjs && node tests/overlay-system.mjs && node tests/accessibility-system.mjs && node tests/responsive-visual-sweep.mjs && node tests/npc-advice-workstation-flow.mjs && node tests/state-identity.mjs && node tests/command-event-bus.mjs && node tests/debug-bundle.mjs && node tests/route-crawler.mjs && node tests/release-candidate.mjs",
     "test:rc":"node tests/release-gate.mjs"
   },
   "devDependencies":{"playwright":"1.54.2"}
