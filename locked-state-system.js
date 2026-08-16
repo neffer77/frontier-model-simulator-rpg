@@ -67,6 +67,29 @@
     if(!el.hasAttribute('title')){el.title=`${plan.label} unlocks at ${plan.unlockKicker}: ${plan.unlockTitle}.`;el.dataset.flLockTitleOwned='1'}
     ensureLockMeta(el,plan);bindLockHandler(el);return true;
   }
+  function ensureCompanyPlaceholders(){
+    const s=safeState(),app=document.getElementById('app');if(!s?.started||s.view!=='company'||!app)return;
+    const registry=typeof window.campaignUnlockRegistry==='function'?window.campaignUnlockRegistry().filter(x=>x.kind==='system'):[];
+    if(!registry.length)return;
+    const existingTargets=new Set([...document.querySelectorAll('button')].map(targetFor).filter(Boolean));
+    let hub=app.querySelector('.company-system-hub');
+    if(!hub){
+      const shell=app.querySelector('.game-shell');if(!shell)return;
+      hub=document.createElement('section');hub.className='company-system-hub';hub.setAttribute('aria-label','Company systems');
+      shell.appendChild(hub);
+    }
+    let group=hub.querySelector('[data-fl-placeholder-group]');
+    if(!group){group=document.createElement('div');group.className='fl-launch-group';group.dataset.flPlaceholderGroup='1';group.innerHTML='<div class="fl-launch-group-head"><span>COMPANY SYSTEMS</span><small>Future simulation surfaces remain visible while guided progression unlocks them.</small></div><div class="fl-launch-grid"></div>';hub.appendChild(group)}
+    const grid=group.querySelector('.fl-launch-grid')||group;
+    for(const plan of registry){
+      if(existingTargets.has(plan.target)||grid.querySelector(`[data-campaign-target="${plan.target}"]`))continue;
+      const button=document.createElement('button');button.type='button';button.className='fl-launch fl-launch-placeholder';button.dataset.campaignTarget=plan.target;button.dataset.lockLabel=plan.label;
+      button.innerHTML=`<span>${plan.label.toUpperCase()}</span><b>${plan.label}</b><small>${plan.unlocked?'Open system →':`Unlocks ${plan.unlockKicker}`}</small>`;
+      button.addEventListener('click',()=>{const current=planFor(plan.target);if(current?.unlocked&&typeof window.gameplayOpen==='function')window.gameplayOpen(plan.target);else if(typeof window.campaignLockedSystem==='function')window.campaignLockedSystem(plan.target)});
+      grid.appendChild(button);
+    }
+    if(!grid.children.length)group.remove();
+  }
   function decorateCampaign(root=document){
     let count=0;
     const selectors='button[data-campaign-target],.company-system-hub button.fl-launch,.game-shell > button[class$="-launch"],.hiring-launch';
@@ -119,6 +142,7 @@
 
   function sync(){
     queued=false;const s=safeState();if(!s?.started)return;
+    ensureCompanyPlaceholders();
     const campaignLocks=decorateCampaign(document),unavailable=decorateUnavailable(document);
     const app=document.getElementById('app');if(app){app.dataset.flCampaignLocks=String(campaignLocks);app.dataset.flUnavailableControls=String(unavailable)}
     const panel=document.querySelector('.fl-lock-explainer');if(panel){const p=planFor(panel.dataset.flLockPanel);if(!p||p.unlocked)removePanel()}
