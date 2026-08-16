@@ -1,7 +1,13 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const url=process.env.TEST_URL||'http://127.0.0.1:4173/';
+const outDir=path.resolve('artifacts/state-identity');
+fs.rmSync(outDir,{recursive:true,force:true});
+fs.mkdirSync(outDir,{recursive:true});
+const evidence=[];
 const browser=await chromium.launch({headless:true});
 
 // Desktop: identity exists before gameplay, revisions monotonically increase,
@@ -14,6 +20,7 @@ const browser=await chromium.launch({headless:true});
   await page.reload({waitUntil:'networkidle'});
 
   const initial=await page.evaluate(()=>frontierDiagnostics());
+  evidence.push({case:'desktop-initial',diagnostics:initial});
   assert.equal(initial.schemaVersion,1,'identity schema must be 1');
   assert(initial.build.buildId,'build identity missing');
   if(initial.build.buildId!=='local'){
@@ -30,6 +37,7 @@ const browser=await chromium.launch({headless:true});
   const first=await page.evaluate(()=>frontierDiagnostics());
   await page.evaluate(()=>save());
   const second=await page.evaluate(()=>frontierDiagnostics());
+  evidence.push({case:'desktop-second-save',diagnostics:second});
   assert.equal(first.state.stateRevision,1,'first save must create revision 1');
   assert.equal(second.state.stateRevision,2,'second save must create revision 2');
   assert(second.state.lastMutationAt,'last mutation timestamp missing');
@@ -37,6 +45,7 @@ const browser=await chromium.launch({headless:true});
   const sessionBefore=second.session.sessionId;
   await page.reload({waitUntil:'networkidle'});
   const afterReload=await page.evaluate(()=>frontierDiagnostics());
+  evidence.push({case:'desktop-reload',diagnostics:afterReload});
   assert.notEqual(afterReload.session.sessionId,sessionBefore,'reload must create a new runtime session');
   assert.equal(afterReload.state.stateRevision,2,'state revision must survive reload');
 
@@ -59,6 +68,7 @@ const browser=await chromium.launch({headless:true});
   assert.equal((await page.evaluate(()=>frontierDiagnostics())).state.stateRevision,0,'legacy save should begin without fabricated history');
   await page.evaluate(()=>save());
   const migrated=await page.evaluate(()=>frontierDiagnostics());
+  evidence.push({case:'legacy-save-migrated',diagnostics:migrated});
   assert.equal(migrated.state.stateRevision,1,'legacy save must acquire revision metadata on first ordinary save');
   assert.equal(migrated.state.saveFormatVersion,3,'legacy save format identity drifted');
   await context.close();
@@ -74,6 +84,7 @@ for(const device of [
   const page=await context.newPage();
   await page.goto(url,{waitUntil:'networkidle'});
   const diag=await page.evaluate(()=>frontierDiagnostics());
+  evidence.push({case:device.mode,diagnostics:diag});
   assert.equal(diag.device.mode,device.mode,`${device.name} classification drifted`);
   assert.equal(diag.device.viewport.width,device.viewport.width,`${device.name} viewport width missing`);
   assert.equal(diag.device.viewport.height,device.viewport.height,`${device.name} viewport height missing`);
@@ -81,4 +92,7 @@ for(const device of [
 }
 
 await browser.close();
+const report={version:1,item:'P5.0.1',status:'pass',generatedAt:new Date().toISOString(),cases:evidence.length,evidence};
+fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify(report,null,2)+'\n');
+fs.writeFileSync(path.join(outDir,'REPORT.md'),`# P5.0.1 runtime identity\n\n- Status: **PASS**\n- Evidence cases: **${evidence.length}**\n- Build: \`${evidence[0]?.diagnostics?.build?.buildId||'unknown'}\`\n- Revision after two saves: **${evidence.find(x=>x.case==='desktop-second-save')?.diagnostics?.state?.stateRevision??'unknown'}**\n- Canonical modes: phone portrait, phone landscape, tablet, desktop, wide desktop\n`);
 console.log('P5.0.1 state/build/session identity regression passed');
