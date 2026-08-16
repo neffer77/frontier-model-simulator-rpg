@@ -1,0 +1,51 @@
+name: FrontierOS navigation session evidence
+
+on:
+  pull_request:
+    paths:
+      - 'frontieros-session.js'
+      - 'frontieros-session.css'
+      - 'mobile-frontieros.js'
+      - 'desktop-frontieros.js'
+      - 'frontier-app-registry.js'
+      - 'tests/frontieros-session.mjs'
+      - 'tests/frontieros-session-static.mjs'
+      - '.github/workflows/frontieros-session.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Build production site
+        run: npm run build:site
+      - name: Start production server
+        run: python3 -m http.server 4173 --directory _site > /tmp/frontieros-session-server.log 2>&1 &
+      - name: Run static contract
+        run: npm run test:os-session-static
+      - name: Run browser evidence
+        run: npm run test:os-session
+        env:
+          TEST_URL: http://127.0.0.1:4173/
+      - name: Publish summary
+        if: always()
+        run: |
+          if [ -f artifacts/frontieros-session/REPORT.md ]; then cat artifacts/frontieros-session/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Upload P5.1.4 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontieros-session-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/frontieros-session
+          if-no-files-found: error
+          retention-days: 30
