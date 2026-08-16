@@ -30,13 +30,14 @@ for(const gate of gates){
 assert.equal(gates.filter(g=>g.phase==='build').length,1,'release gate must have exactly one production build gate');
 
 const gateById=new Map(gates.map(g=>[g.id,g]));
-const blockerIds=['static-contracts','production-build','browser-smoke','balance-pacing','technical-realism','replayability','browser-firewall','shared-surfaces','progressive-disclosure','shared-controls','company-dashboard','page-visual-sweep','empty-states','locked-states','overlay-system','accessibility','responsive','npc-advice-workstation','route-crawl','release-candidate','screenshot-regression'];
+const blockerIds=['static-contracts','production-build','runtime-identity','browser-smoke','balance-pacing','technical-realism','replayability','browser-firewall','shared-surfaces','progressive-disclosure','shared-controls','company-dashboard','page-visual-sweep','empty-states','locked-states','overlay-system','accessibility','responsive','npc-advice-workstation','route-crawl','release-candidate','screenshot-regression'];
 for(const id of blockerIds){const gate=gateById.get(id);assert(gate,`missing release blocker gate ${id}`);assert.equal(gate.severity,'blocker',`${id} must remain a blocker`);}
 const visual=gateById.get('visual-inventory');assert(visual,'visual inventory advisory gate missing');assert.equal(visual.severity,'advisory','visual inventory must remain advisory evidence');
 assert.equal(visual.evidence,'artifacts/visual-inventory/report.json','visual inventory evidence path drifted');
 assert.equal(gateById.get('route-crawl').evidence,'artifacts/route-crawl/report.json','route crawl evidence path drifted');
 assert.equal(gateById.get('screenshot-regression').evidence,'artifacts/screenshot-regression/report.json','screenshot regression evidence path drifted');
 assert.equal(gateById.get('npc-advice-workstation').script,'test:npc-advice','NPC advice gate must run the exact workstation-return flow');
+assert.equal(gateById.get('runtime-identity').script,'test:identity','FrontierOS runtime identity must remain release blocking');
 
 for(const marker of ['releaseDecision','gate-command-failed','required-evidence-missing','screenshot-baseline-inactive','screenshot-report-invalid','route-report-invalid','visual-inventory-report-invalid','route-crawl-failures','route-crawl-warnings','manual-check','spawnSync','python3','_site','githubSha'])assert(runner.includes(marker),`release gate runner missing ${marker}`);
 assert(runner.includes("phase==='preflight'")&&runner.includes("phase==='build'")&&runner.includes("phase==='browser'"),'release gate must preserve preflight/build/browser phases');
