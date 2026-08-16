@@ -135,6 +135,12 @@ jobs:
         run: |
           if [ -f artifacts/model-lab-frontieros/REPORT.md ]; then cat artifacts/model-lab-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
 
+      - name: Publish P5.2.5 Data Explorer evidence
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/data-explorer-frontieros/REPORT.md ]; then cat artifacts/data-explorer-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+
       - name: Publish Item 13.17 release sign-off
         if: always()
         shell: bash
@@ -245,6 +251,15 @@ jobs:
         with:
           name: model-lab-frontieros-${{ github.event.pull_request.number || github.run_number }}
           path: artifacts/model-lab-frontieros
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload P5.2.5 Data Explorer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-explorer-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/data-explorer-frontieros
           if-no-files-found: warn
           retention-days: 30
 

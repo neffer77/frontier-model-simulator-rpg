@@ -1,0 +1,2 @@
+// P5.2.5 — read-only bridge from the Phase 4C.4 lexical catalog into FrontierOS.
+(function(){'use strict';try{window.DATA_SOURCES=Object.freeze(DATA_SOURCES.map(x=>Object.freeze({...x})))}catch(error){window.frontierEmitEvent?.('data-explorer.catalog.failed',{error:String(error?.message||error)},{source:'data-explorer-frontieros',severity:'error'})}})();
