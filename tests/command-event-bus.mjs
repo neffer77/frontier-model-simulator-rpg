@@ -21,6 +21,10 @@ const initial=await page.evaluate(()=>frontierCommandEventSnapshot());
 assert.equal(initial.schemaVersion,1,'command bus schema drifted');
 assert.match(initial.sessionId,/^sess_/,'command bus must inherit P5.0.1 session identity');
 assert(initial.events.some(event=>event.type==='runtime.command-bus.ready'),'bus-ready event missing');
+assert(initial.events.some(event=>event.type==='runtime.command-adapters.ready'),'starter command catalog readiness missing');
+for(const name of ['navigation.home.open','navigation.training.open','training.incident.open','training.diagnostic.run','training.hypothesis.commit','training.production.execute','npc.advice.request','npc.advice.close','team.open','model.lab.open','data.evals.open']){
+  assert(initial.commands.some(command=>command.name===name),`starter command missing ${name}`);
+}
 
 // Subscription + explicit event emission.
 const subscribed=await page.evaluate(()=>{
@@ -32,30 +36,35 @@ const subscribed=await page.evaluate(()=>{
 });
 assert.deepEqual(subscribed,['qa.one'],'prefix subscription failed');
 
-// Successful command: correlate command lifecycle, state save and revision change.
+// Successful command: correlate lifecycle, state save and revision change. The
+// handler must receive the original sensitive payload while evidence is redacted.
 const success=await page.evaluate(async()=>{
   frontierRegisterCommand('qa.incrementResearch',(payload,ctx)=>{
     state.research+=(payload.amount||1);
-    ctx.emit('qa.research.changed',{amount:payload.amount});
+    ctx.emit('qa.research.changed',{amount:payload.amount,password:payload.password});
     save();
-    return {research:state.research};
+    return {research:state.research,receivedPassword:payload.password};
   },{source:'qa',description:'Mutation fixture'});
   const before=frontierDiagnostics().state.stateRevision;
   const result=await frontierDispatchCommand('qa.incrementResearch',{amount:3,password:'must-redact'},{source:'qa-test'});
   const events=frontierEventJournal({type:'command.*',limit:20});
   const completed=[...events].reverse().find(event=>event.type==='command.completed'&&event.data.name==='qa.incrementResearch');
-  return {before,after:frontierDiagnostics().state.stateRevision,result,completed,all:frontierEventJournal({limit:50})};
+  return {before,after:frontierDiagnostics().state.stateRevision,result,completed,all:frontierEventJournal({limit:80})};
 });
 assert.equal(success.result.research,3,'command handler did not execute');
+assert.equal(success.result.receivedPassword,'must-redact','observability mutated the handler payload');
 assert(success.after>success.before,'state revision did not advance through command');
 assert(success.completed,'command completion event missing');
 assert.equal(success.completed.data.stateChanged,true,'command completion did not record state mutation');
+assert.equal(success.completed.data.result.receivedPassword,'[REDACTED]','sensitive command result was not redacted');
 const started=success.all.find(event=>event.type==='command.started'&&event.commandId===success.completed.commandId);
 assert(started,'matching command.started event missing');
 assert.equal(started.correlationId,success.completed.correlationId,'command correlation id drifted');
 assert.equal(started.data.payload.password,'[REDACTED]','sensitive command payload was not redacted');
 assert(success.all.some(event=>event.type==='state.saved'&&event.stateRevision===success.after),'P5.0.1 state-save bridge missing');
-assert(success.all.some(event=>event.type==='qa.research.changed'&&event.correlationId===success.completed.correlationId),'handler-emitted event lost command correlation');
+const domainEvent=success.all.find(event=>event.type==='qa.research.changed'&&event.correlationId===success.completed.correlationId);
+assert(domainEvent,'handler-emitted event lost command correlation');
+assert.equal(domainEvent.data.password,'[REDACTED]','handler-emitted sensitive event data was not redacted');
 
 // Failure path must be visible and rethrow to the caller without destabilizing bus.
 const failure=await page.evaluate(async()=>{
@@ -98,7 +107,7 @@ assert.equal(fixture.source,'qa','command source metadata drifted');
 assert(!('handler' in fixture),'command registry must not export executable handlers');
 
 const snapshot=await page.evaluate(()=>frontierCommandEventSnapshot());
-assert(snapshot.eventCount>=10,'journal unexpectedly sparse');
+assert(snapshot.eventCount>=20,'journal unexpectedly sparse');
 assert.equal(snapshot.stateRevision,await page.evaluate(()=>frontierDiagnostics().state.stateRevision),'snapshot revision disagrees with identity layer');
 assert.equal(pageErrors.length,0,`runtime errors: ${pageErrors.join(' | ')}`);
 
@@ -117,8 +126,8 @@ const report={
   commandCount:snapshot.commandCount,
   eventTypes:[...new Set(snapshot.events.map(event=>event.type))].sort(),
   commands:snapshot.commands,
-  tail:snapshot.events.slice(-30)
+  tail:snapshot.events.slice(-40)
 };
 fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify(report,null,2)+'\n');
-fs.writeFileSync(path.join(outDir,'REPORT.md'),`# P5.0.2 Command + Event Bus\n\n- Status: **PASS**\n- Build: \`${report.buildId}\`\n- Session: \`${report.sessionId}\`\n- State revision: **${report.stateRevision}**\n- Journal events: **${report.eventCount}**\n- Registered commands: **${report.commandCount}**\n- Runtime errors: **0**\n- Sensitive payload redaction: **PASS**\n- Command correlation: **PASS**\n- Legacy click observation: **PASS**\n`);
+fs.writeFileSync(path.join(outDir,'REPORT.md'),`# P5.0.2 Command + Event Bus\n\n- Status: **PASS**\n- Build: \`${report.buildId}\`\n- Session: \`${report.sessionId}\`\n- State revision: **${report.stateRevision}**\n- Journal events: **${report.eventCount}**\n- Registered commands: **${report.commandCount}**\n- Runtime errors: **0**\n- Starter command catalog: **PASS**\n- Sensitive payload redaction without semantic mutation: **PASS**\n- Command correlation: **PASS**\n- Legacy click observation: **PASS**\n`);
 console.log('P5.0.2 command + event bus regression passed');
