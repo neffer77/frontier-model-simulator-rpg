@@ -93,6 +93,18 @@ jobs:
         run: |
           if [ -f artifacts/frontieros-session/REPORT.md ]; then cat artifacts/frontieros-session/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
 
+      - name: Publish P5.2.1 Pager evidence
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/pager-frontieros/REPORT.md ]; then cat artifacts/pager-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Publish P5.2.2 Run Monitor evidence
+        if: always()
+        shell: bash
+        run: |
+          if [ -f artifacts/run-monitor-frontieros/REPORT.md ]; then cat artifacts/run-monitor-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+
       - name: Publish Item 13.17 release sign-off
         if: always()
         shell: bash
@@ -167,6 +179,24 @@ jobs:
         with:
           name: frontieros-session-${{ github.event.pull_request.number || github.run_number }}
           path: artifacts/frontieros-session
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload P5.2.1 Pager evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pager-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/pager-frontieros
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload P5.2.2 Run Monitor evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-monitor-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/run-monitor-frontieros
           if-no-files-found: warn
           retention-days: 30
 
