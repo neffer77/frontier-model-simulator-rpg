@@ -30,7 +30,7 @@ await page.locator('.frontieros-mobile-appbar').waitFor({state:'visible'});
 let snap=await page.evaluate(()=>frontierMobileShellSnapshot());
 assert.equal(snap.view,'app','ready app did not enter app view');
 assert.equal(snap.currentApp,'training','Run Monitor did not become current app');
-assert(await page.locator('#app').isVisible(),'legacy application surface is not visible beneath FrontierOS app bar');
+assert(await page.locator('#app').isVisible(),'application surface is not visible beneath FrontierOS app bar');
 await page.screenshot({path:path.join(out,'run-monitor-app.png'),fullPage:true});
 
 await page.getByRole('button',{name:/Home/}).first().click();
@@ -41,8 +41,9 @@ assert.equal(snap.currentApp,null,'current app was not cleared on Home');
 
 await page.getByRole('button',{name:/Frontier Mail/i}).click();
 assert.equal((await page.evaluate(()=>frontierMobileShellSnapshot())).view,'home','planned app must not leave Home');
-assert(await page.getByRole('status').isVisible(),'planned-app explanation toast missing');
-assert.match(await page.getByRole('status').textContent(),/coming/i,'planned-app explanation is unclear');
+const toast=page.locator('.frontieros-phone-toast');
+await toast.waitFor({state:'visible'});
+assert.match(await toast.textContent(),/coming/i,'planned-app explanation is unclear');
 
 await page.setViewportSize({width:844,height:390});
 await page.evaluate(()=>dispatchEvent(new Event('resize')));
