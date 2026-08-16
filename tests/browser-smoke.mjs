@@ -6,6 +6,16 @@ const devices=[
   {name:'mobile',viewport:{width:390,height:844},isMobile:true,hasTouch:true},
   {name:'desktop',viewport:{width:1440,height:1000},isMobile:false,hasTouch:false}
 ];
+async function dismissStory(page){
+  for(let i=0;i<12&&await page.locator('.story-overlay').count();i++){
+    await page.keyboard.press('Escape');await page.waitForTimeout(80);
+    if(await page.locator('.story-overlay').count()){
+      const next=page.locator('.story-overlay button.primary').last();
+      if(await next.count())await next.click();else break;
+      await page.waitForTimeout(50);
+    }
+  }
+}
 const browser=await chromium.launch({headless:true});
 for(const d of devices){
   const ctx=await browser.newContext({viewport:d.viewport,isMobile:d.isMobile,hasTouch:d.hasTouch});
@@ -15,10 +25,7 @@ for(const d of devices){
   assert(await page.locator('#app').isVisible(),`${d.name}: app not visible`);
   const found=page.getByRole('button',{name:/found the lab/i});
   if(await found.count()){await found.click();await page.waitForTimeout(150);}
-  for(let i=0;i<8&&await page.locator('.story-overlay').count();i++){
-    const next=page.locator('.story-overlay button.primary');if(await next.count())await next.click();else break;
-    await page.waitForTimeout(50);
-  }
+  await dismissStory(page);
   assert(await page.locator('.gameplay-bottom-nav').isVisible(),`${d.name}: gameplay nav missing`);
   assert(await page.locator('.campaign-progress').isVisible(),`${d.name}: campaign progress missing`);
   assert(await page.locator('.balance-tempo').isVisible(),`${d.name}: balance tempo strip missing`);
@@ -37,6 +44,8 @@ for(const d of devices){
   assert(Math.abs(trainPosition.scrollY-staleY)>40,`${d.name}: Train preserved stale scroll position`);
   assert(trainPosition.bottom>0&&trainPosition.top<trainPosition.height,`${d.name}: Train did not navigate training section into viewport`);
 
+  // Train can legitimately surface a guided story. Clear it before asserting the underlying Home control.
+  await dismissStory(page);
   await page.getByRole('button',{name:/home/i}).last().click();await page.waitForTimeout(180);
   assert((await page.evaluate(()=>scrollY))<80,`${d.name}: Home did not return to top on same-view navigation`);
   assert.equal(errors.length,0,`${d.name}: runtime errors: ${errors.join(' | ')}`);
