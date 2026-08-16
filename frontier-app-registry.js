@@ -6,7 +6,7 @@
 
   const APPS=[
     {id:'mail',label:'Frontier Mail',shortLabel:'Mail',icon:'✉',category:'communication',route:'os/mail',aliases:['email','messages','inbox'],status:'planned',surfaces:['phone','desktop'],window:{width:760,height:620,minWidth:420,minHeight:360},description:'NPC, executive, research and company communication.'},
-    {id:'pager',label:'Pager',shortLabel:'Pager',icon:'!',category:'operations',route:'os/pager',aliases:['incidents','alerts'],status:'ready',command:'navigation.training.open',surfaces:['phone','desktop'],window:{width:920,height:680,minWidth:520,minHeight:420},badge:'incidents',description:'Incident alerts and active production investigations.'},
+    {id:'pager',label:'Pager',shortLabel:'Pager',icon:'!',category:'operations',route:'os/pager',aliases:['incidents','alerts'],status:'ready',command:'pager.open',surfaces:['phone','desktop'],window:{width:920,height:680,minWidth:520,minHeight:420},badge:'incidents',description:'Incident alerts and active production investigations.'},
     {id:'training',label:'Run Monitor',shortLabel:'Training',icon:'▣',category:'engineering',route:'os/training',aliases:['train','runs','run-monitor'],status:'ready',command:'navigation.training.open',surfaces:['phone','desktop'],window:{width:1120,height:760,minWidth:600,minHeight:480},badge:'activeRun',description:'Training runs, metrics, diagnostics, checkpoints and production actions.'},
     {id:'evals',label:'EvalBench',shortLabel:'Evals',icon:'▥',category:'engineering',route:'os/evals',aliases:['evaluation','bench'],status:'ready',command:'data.evals.open',surfaces:['phone','desktop'],window:{width:1040,height:720,minWidth:560,minHeight:440},description:'Model evaluation, datasets, scorecards and capability measurement.'},
     {id:'model-lab',label:'Model Lab',shortLabel:'Lab',icon:'⚗',category:'research',route:'os/model-lab',aliases:['lab','research'],status:'ready',command:'model.lab.open',surfaces:['phone','desktop'],window:{width:1100,height:760,minWidth:600,minHeight:460},description:'Architecture experiments, ablations and research progression.'},
@@ -55,7 +55,7 @@
   function badgeValue(app){
     const s=liveState();
     if(!app?.badge)return 0;
-    if(app.badge==='incidents')return s.selectedIncident?1:0;
+    if(app.badge==='incidents')return s.activeRun?.incident||s.selectedIncident?1:0;
     if(app.badge==='activeRun')return s.activeRun?1:0;
     if(app.badge==='team')return Number(s.npcTeam?.advice?1:0);
     return 0;
