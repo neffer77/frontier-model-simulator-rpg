@@ -1,0 +1,7 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const js=fs.readFileSync('pager-frontieros.js','utf8'),css=fs.readFileSync('pager-frontieros.css','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),registry=fs.readFileSync('frontier-app-registry.js','utf8');
+for(const marker of ['frontierPagerOpen','frontierPagerSnapshot','frontierPagerIncidentOpen','pager.open','pager.investigation.opened','frontierOsNavigate'])assert(js.includes(marker),`Pager runtime missing ${marker}`);
+for(const marker of ['pager-app','pager-ticket','pager-primary','@media(max-width:600px)'])assert(css.includes(marker),`Pager CSS missing ${marker}`);
+assert(html.includes('pager-frontieros.css')&&html.includes('pager-frontieros.js'),'Pager assets missing from browser runtime');assert(html.indexOf('frontier-app-registry.js')<html.indexOf('pager-frontieros.js'),'Pager must load after app registry');assert(html.indexOf('pager-frontieros.js')<html.indexOf('mobile-frontieros.js'),'Pager command must register before phone shell');
+assert(registry.includes("id:'pager'")&&registry.includes("command:'pager.open'"),'Pager registry does not use native command');assert(sw.includes("CACHE='frontier-lab-v35'")&&sw.includes('./pager-frontieros.js')&&sw.includes('./pager-frontieros.css'),'Pager assets missing from v35 PWA cache');
+console.log(JSON.stringify({pagerStatic:'pass',item:'P5.2.1',cache:'v35'},null,2));
