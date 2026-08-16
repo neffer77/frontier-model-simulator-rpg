@@ -1,0 +1,73 @@
+name: FrontierOS EvalBench evidence
+
+on:
+  pull_request:
+    paths:
+      - 'evalbench-frontieros.js'
+      - 'evalbench-frontieros.css'
+      - 'evalbench-command.js'
+      - 'frontier-app-registry.js'
+      - 'data-evals.js'
+      - 'index.html'
+      - 'sw.js'
+      - 'Frontier Model Simulator.js'
+      - 'tests/evalbench-frontieros.mjs'
+      - 'tests/evalbench-frontieros-static.mjs'
+      - '.github/workflows/evalbench-frontieros.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evalbench-frontieros-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - name: Resolve Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p \"require('./node_modules/playwright/package.json').version\")" >> "$GITHUB_OUTPUT"
+      - name: Restore Playwright browser cache
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium system dependencies
+        run: npx playwright install-deps chromium
+      - name: Download Chromium on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+      - name: Report Playwright cache
+        run: echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Build production site
+        run: npm run build:site
+      - name: Start production server
+        run: python3 -m http.server 4173 --directory _site > /tmp/evalbench-server.log 2>&1 &
+      - name: Run static contract
+        run: npm run test:evalbench-static
+      - name: Run native EvalBench evidence
+        run: npm run test:evalbench
+        env:
+          TEST_URL: http://127.0.0.1:4173/
+      - name: Publish summary
+        if: always()
+        run: |
+          if [ -f artifacts/evalbench-frontieros/REPORT.md ]; then cat artifacts/evalbench-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Upload P5.2.3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evalbench-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/evalbench-frontieros
+          if-no-files-found: error
+          retention-days: 30
