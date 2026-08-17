@@ -14,17 +14,23 @@ const STRATEGIC_DEALS={
 
 function ensureFinanceStrategyState(){
   ensureQuarterlyBoardState?.();
-  state.financeStrategy ||= {
-    version:FINANCE_STRATEGY_VERSION,
-    ownership:{founders:.68,employees:.14,investors:.18},
-    debtM:0,
-    monthlyDebtServiceM:0,
-    boardSeats:{founders:3,investors:1,strategic:0},
-    transactions:[],
-    partnerships:[],
-    history:[],
-    crisis:null
-  };
+  const finance=state.financeStrategy ||= {};
+  finance.version=FINANCE_STRATEGY_VERSION;
+  finance.ownership ||= {founders:.68,employees:.14,investors:.18};
+  finance.ownership.founders=Number.isFinite(Number(finance.ownership.founders))?Number(finance.ownership.founders):.68;
+  finance.ownership.employees=Number.isFinite(Number(finance.ownership.employees))?Number(finance.ownership.employees):.14;
+  finance.ownership.investors=Number.isFinite(Number(finance.ownership.investors))?Number(finance.ownership.investors):.18;
+  finance.debtM=Number.isFinite(Number(finance.debtM))?Number(finance.debtM):0;
+  finance.monthlyDebtServiceM=Number.isFinite(Number(finance.monthlyDebtServiceM))?Number(finance.monthlyDebtServiceM):0;
+  finance.boardSeats ||= {founders:3,investors:1,strategic:0};
+  finance.boardSeats.founders=Number.isFinite(Number(finance.boardSeats.founders))?Number(finance.boardSeats.founders):3;
+  finance.boardSeats.investors=Number.isFinite(Number(finance.boardSeats.investors))?Number(finance.boardSeats.investors):1;
+  finance.boardSeats.strategic=Number.isFinite(Number(finance.boardSeats.strategic))?Number(finance.boardSeats.strategic):0;
+  if(!Array.isArray(finance.transactions))finance.transactions=[];
+  if(!Array.isArray(finance.partnerships))finance.partnerships=[];
+  if(!Array.isArray(finance.history))finance.history=[];
+  if(!Object.prototype.hasOwnProperty.call(finance,'crisis'))finance.crisis=null;
+  return finance;
 }
 function capTableTotal(){
   ensureFinanceStrategyState();
@@ -48,33 +54,33 @@ function financingTerms(type){
   };
 }
 function executeFinancing(type){
-  ensureFinanceStrategyState();
+  const finance=ensureFinanceStrategyState();
   const deal=financingTerms(type);
   if(!deal)return false;
   state.cashM=(state.cashM||0)+deal.cashM;
   if(deal.dilution){
-    state.financeStrategy.ownership.founders*=1-deal.dilution;
-    state.financeStrategy.ownership.employees*=1-deal.dilution;
-    state.financeStrategy.ownership.investors=1-state.financeStrategy.ownership.founders-state.financeStrategy.ownership.employees;
+    finance.ownership.founders*=1-deal.dilution;
+    finance.ownership.employees*=1-deal.dilution;
+    finance.ownership.investors=1-finance.ownership.founders-finance.ownership.employees;
     normalizeCapTable();
   }
   if(deal.debtM){
-    state.financeStrategy.debtM+=deal.debtM;
-    state.financeStrategy.monthlyDebtServiceM+=deal.monthlyServiceM||0;
+    finance.debtM+=deal.debtM;
+    finance.monthlyDebtServiceM+=deal.monthlyServiceM||0;
   }
-  if(deal.boardSeats)state.financeStrategy.boardSeats.investors+=deal.boardSeats;
-  if(deal.valuationFactor&&state.quarterlyBoard)state.quarterlyBoard.valuationM*=deal.valuationFactor;
+  if(deal.boardSeats)finance.boardSeats.investors+=deal.boardSeats;
+  if(deal.valuationFactor&&state.quarterlyBoard?.board)state.quarterlyBoard.board.valuationM*=deal.valuationFactor;
   const executive=state.roadmapPressure?.executive;
   if(executive)executive.pressure=Math.max(0,Math.min(1,Number(executive.pressure||0)+(deal.pressure||0)));
-  state.financeStrategy.transactions.push({day:state.day||1,type,name:deal.name,cashM:deal.cashM,dilution:deal.dilution||0,debtM:deal.debtM||0});
-  state.financeStrategy.history.push({day:state.day||1,type:'financing.executed',financing:type});
+  finance.transactions.push({day:state.day||1,type,name:deal.name,cashM:deal.cashM,dilution:deal.dilution||0,debtM:deal.debtM||0});
+  finance.history.push({day:state.day||1,type:'financing.executed',financing:type});
   log?.(`💰 ${deal.name} closed for $${deal.cashM.toFixed(1)}M.`);
   save();
   render();
   return true;
 }
 function executeStrategicDeal(type){
-  ensureFinanceStrategyState();
+  const finance=ensureFinanceStrategyState();
   const deal=STRATEGIC_DEALS[type];
   if(!deal||state.cashM<deal.costM){
     log?.('Insufficient cash for strategic deal.');
@@ -93,42 +99,43 @@ function executeStrategicDeal(type){
   const executive=state.roadmapPressure?.executive;
   if(deal.credibility&&executive)executive.credibility=Math.min(1,Number(executive.credibility||0)+deal.credibility);
   if(deal.lockin&&state.architecturePortfolio)state.architecturePortfolio.platformLockIn=(state.architecturePortfolio.platformLockIn||0)+deal.lockin;
-  state.financeStrategy.partnerships.push({day:state.day||1,type,name:deal.name,costM:deal.costM});
-  state.financeStrategy.history.push({day:state.day||1,type:'strategic.deal',deal:type});
+  finance.partnerships.push({day:state.day||1,type,name:deal.name,costM:deal.costM});
+  finance.history.push({day:state.day||1,type:'strategic.deal',deal:type});
   log?.(`🤝 ${deal.name} signed.`);
   save();
   render();
   return true;
 }
 function financeRunwayMonths(){
-  ensureFinanceStrategyState();
+  const finance=ensureFinanceStrategyState();
   const base=typeof quarterlyRunway==='function'?quarterlyRunway():12;
-  const service=state.financeStrategy.monthlyDebtServiceM||0;
+  const service=finance.monthlyDebtServiceM||0;
   return Math.max(0,Number((base-service*1.8).toFixed(1)));
 }
 function evaluateRunwayCrisis(){
-  ensureFinanceStrategyState();
+  const finance=ensureFinanceStrategyState();
   const runway=financeRunwayMonths();
-  if(runway<3&&!state.financeStrategy.crisis){
-    state.financeStrategy.crisis={openedDay:state.day||1,severity:'critical',runway};
-    if(state.quarterlyBoard)state.quarterlyBoard.investorPatience=Math.max(0,(state.quarterlyBoard.investorPatience||.7)-.12);
+  if(runway<3&&!finance.crisis){
+    finance.crisis={openedDay:state.day||1,severity:'critical',runway};
+    if(state.quarterlyBoard?.board)state.quarterlyBoard.board.investorPatience=Math.max(0,(state.quarterlyBoard.board.investorPatience||.7)-.12);
     const executive=state.roadmapPressure?.executive;
     if(executive)executive.boardConfidence=Math.max(0,Number(executive.boardConfidence||0)-.08);
     log?.(`🚨 Runway crisis: ${runway} months remaining.`);
-  }else if(runway>=6&&state.financeStrategy.crisis){
-    state.financeStrategy.crisis.resolvedDay=state.day||1;
-    state.financeStrategy.crisis=null;
+  }else if(runway>=6&&finance.crisis){
+    finance.crisis.resolvedDay=state.day||1;
+    finance.crisis=null;
   }
 }
 function negotiateBoardSeat(){
-  ensureFinanceStrategyState();
-  if((state.quarterlyBoard?.investorPatience??.7)<.45){
-    state.financeStrategy.boardSeats.investors+=1;
-    if(state.quarterlyBoard)state.quarterlyBoard.investorPatience=Math.min(1,(state.quarterlyBoard.investorPatience||0)+.08);
-    state.financeStrategy.history.push({day:state.day||1,type:'board.seat.granted'});
+  const finance=ensureFinanceStrategyState();
+  const board=state.quarterlyBoard?.board;
+  if((board?.investorPatience??.7)<.45){
+    finance.boardSeats.investors+=1;
+    if(board)board.investorPatience=Math.min(1,(board.investorPatience||0)+.08);
+    finance.history.push({day:state.day||1,type:'board.seat.granted'});
     log?.('🏛 Granted an investor board seat to stabilize financing support.');
   }else{
-    state.financeStrategy.boardSeats.strategic+=1;
+    finance.boardSeats.strategic+=1;
     const executive=state.roadmapPressure?.executive;
     if(executive)executive.boardConfidence=Math.min(1,Number(executive.boardConfidence||0)+.03);
     log?.('🏛 Added an independent strategic board seat.');
@@ -140,11 +147,10 @@ function negotiateBoardSeat(){
 function financeStrategyOpen(){ensureFinanceStrategyState();state.view='financeStrategy';save();render();}
 function financeStrategyClose(){state.view='company';save();render();}
 function renderFinanceStrategy(){
-  ensureFinanceStrategyState();
+  const finance=ensureFinanceStrategyState();
   evaluateRunwayCrisis();
-  const finance=state.financeStrategy;
   const runway=financeRunwayMonths();
-  const valuation=state.quarterlyBoard?.valuationM||0;
+  const valuation=state.quarterlyBoard?.board?.valuationM||0;
   const financingCards=Object.keys(FINANCING_OPTIONS).map(key=>{
     const terms=financingTerms(key);
     const dilution=terms.dilution?`${Math.round(terms.dilution*100)}% dilution`:'';
@@ -167,7 +173,7 @@ function renderFinanceStrategy(){
 }
 const financeStrategyBaseRender=render;
 render=function(){
-  ensureFinanceStrategyState();
+  const finance=ensureFinanceStrategyState();
   evaluateRunwayCrisis();
   if(state.view==='financeStrategy'){
     document.getElementById('app').innerHTML=renderFinanceStrategy();
@@ -181,7 +187,7 @@ render=function(){
   const button=document.createElement('button');
   button.className='fs-launch';
   button.onclick=financeStrategyOpen;
-  button.innerHTML=`<span>CAPITAL STRATEGY</span><b>${runway} mo runway · $${state.financeStrategy.debtM.toFixed(1)}M debt · ${Math.round(state.financeStrategy.ownership.founders*100)}% founder ownership</b><small>Financing · GPU deals · partnerships · board control →</small>`;
+  button.innerHTML=`<span>CAPITAL STRATEGY</span><b>${runway} mo runway · $${finance.debtM.toFixed(1)}M debt · ${Math.round(finance.ownership.founders*100)}% founder ownership</b><small>Financing · GPU deals · partnerships · board control →</small>`;
   shell.insertBefore(button,shell.children[1]||null);
 };
 render();
