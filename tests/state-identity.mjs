@@ -12,8 +12,6 @@ const outDir=path.resolve('artifacts/state-identity');fs.rmSync(outDir,{recursiv
   await page.evaluate(()=>save());const noop=await page.evaluate(()=>frontierDiagnostics());assert.equal(noop.state.stateRevision,baselineRevision,'no-op save must not create a state revision');
   await page.evaluate(()=>{state.day+=1;save()});const mutated=await page.evaluate(()=>frontierDiagnostics());evidence.push({case:'desktop-state-mutation',diagnostics:mutated});assert.equal(mutated.state.stateRevision,baselineRevision+1,'one direct state change must advance exactly one revision');assert(mutated.state.lastMutationAt);
   await page.evaluate(()=>save());const secondNoop=await page.evaluate(()=>frontierDiagnostics());assert.equal(secondNoop.state.stateRevision,mutated.state.stateRevision,'second no-op save fabricated a revision');
-  // Maintenance listeners may legitimately persist derived state after the initiating save.
-  // Capture the exact persisted revision at beforeunload, then prove reload itself preserves it.
   const sessionBefore=mutated.session.sessionId;
   await page.evaluate(()=>{
     addEventListener('beforeunload',()=>{
@@ -22,7 +20,7 @@ const outDir=path.resolve('artifacts/state-identity');fs.rmSync(outDir,{recursiv
     location.reload();
   }).catch(()=>{});
   await page.waitForLoadState('networkidle');
-  const boundaryRevision=Number(await page.evaluate(()=>sessionStorage.getItem('frontier-qa-before-reload-revision')||'0');
+  const boundaryRevision=Number(await page.evaluate(()=>sessionStorage.getItem('frontier-qa-before-reload-revision')||'0'));
   const afterReload=await page.evaluate(()=>frontierDiagnostics());const reloadTimeline=await page.evaluate(()=>frontierStateWriteTimeline?.()||[]);evidence.push({case:'desktop-reload',diagnostics:afterReload,reloadBoundaryRevision:boundaryRevision,writeTimeline:reloadTimeline});fs.writeFileSync(path.join(outDir,'reload-write-timeline.json'),JSON.stringify({beforeRevision:boundaryRevision,afterRevision:afterReload.state.stateRevision,writes:reloadTimeline},null,2)+'\n');assert.notEqual(afterReload.session.sessionId,sessionBefore);assert.equal(afterReload.state.stateRevision,boundaryRevision,`reload fabricated a revision; writes=${JSON.stringify(reloadTimeline)}`);
   const text=await page.evaluate(()=>frontierDiagnosticsText());for(const marker of ['FrontierOS Diagnostics','Build','Session','State rev','Device','Viewport','Route'])assert(text.includes(marker),`diagnostics text missing ${marker}`);await context.close();
 }
