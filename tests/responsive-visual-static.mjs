@@ -33,15 +33,10 @@ assert(css.includes('@media(max-width:600px) and (orientation:portrait)'),'portr
 
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
-// Item 13.13 must remain above the 13.12 accessibility layer. Later P5.x
-// FrontierOS-native assets may intentionally load after the Item 13 stack.
 assert(styles.indexOf('responsive-visual-sweep.css')>styles.indexOf('accessibility-system.css'),'13.13 CSS must layer after 13.12');
 assert(scripts.indexOf('responsive-visual-sweep.js')>scripts.indexOf('accessibility-system.js'),'13.13 runtime must layer after 13.12');
-for(const file of ['responsive-visual-sweep.css','responsive-visual-sweep.js']){
-  assert(scriptable.includes(`"${file}"`),`Scriptable must include ${file}`);
-  assert(sw.includes(`'./${file}'`),`service worker must cache ${file}`);
-}
-assert(sw.includes("frontier-lab-v22"),'Item 13.13 should advance offline cache to v22');
+for(const file of ['responsive-visual-sweep.css','responsive-visual-sweep.js']){assert(scriptable.includes(`"${file}"`),`Scriptable must include ${file}`);assert(sw.includes(`'./${file}'`),`service worker must cache ${file}`)}
+const cache=sw.match(/CACHE='frontier-lab-v(\d+)'/);assert(cache&&Number(cache[1])>=22,`Item 13.13 requires offline cache v22+; got ${cache?.[1]||'missing'}`);
 assert.equal(pkg.scripts['test:responsive'],'node tests/responsive-visual-sweep.mjs','responsive browser script missing');
 assert.equal(pkg.scripts['test:responsive-static'],'node tests/responsive-visual-static.mjs','responsive static script missing');
 assert(pkg.scripts['test:static'].includes('responsive-visual-static.mjs'),'responsive static regression missing from RC gate');
@@ -49,5 +44,4 @@ assert(pkg.scripts['test:qa'].includes('responsive-visual-sweep.mjs'),'responsiv
 assert(inventory.screens.length>=30,`expected broad page inventory, found ${inventory.screens.length}`);
 assert(matrix.contracts.some(x=>/horizontal document overflow/i.test(x)),'responsive matrix must document page-overflow contract');
 assert(matrix.contracts.some(x=>/tables scroll locally/i.test(x)),'responsive matrix must document table-local-scroll contract');
-
-console.log(JSON.stringify({responsiveStatic:'pass',modes,inventoryScreens:inventory.screens.length,viewports:matrix.viewports.length,cache:'frontier-lab-v22'},null,2));
+console.log(JSON.stringify({responsiveStatic:'pass',modes,inventoryScreens:inventory.screens.length,viewports:matrix.viewports.length,cache:`frontier-lab-v${cache[1]}`},null,2));
