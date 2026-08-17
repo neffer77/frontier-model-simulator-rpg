@@ -24,7 +24,10 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Resolve Playwright version
         id: playwright-version
-        run: echo "version=$(node -p \"require('./node_modules/playwright/package.json').version\")" >> "$GITHUB_OUTPUT"
+        shell: bash
+        run: |
+          version="$(node -p "require('./node_modules/playwright/package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Restore Playwright browser cache
         id: playwright-cache
         uses: actions/cache@v4
