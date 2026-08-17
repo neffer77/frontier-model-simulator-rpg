@@ -33,8 +33,8 @@ assert(css.includes('@media(max-width:600px) and (orientation:portrait)'),'portr
 
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
-assert.equal(styles.at(-1),'responsive-visual-sweep.css','13.13 stylesheet should load last');
-assert.equal(scripts.at(-1),'responsive-visual-sweep.js','13.13 runtime should run last');
+// Item 13.13 must remain above the 13.12 accessibility layer. Later P5.x
+// FrontierOS-native assets may intentionally load after the Item 13 stack.
 assert(styles.indexOf('responsive-visual-sweep.css')>styles.indexOf('accessibility-system.css'),'13.13 CSS must layer after 13.12');
 assert(scripts.indexOf('responsive-visual-sweep.js')>scripts.indexOf('accessibility-system.js'),'13.13 runtime must layer after 13.12');
 for(const file of ['responsive-visual-sweep.css','responsive-visual-sweep.js']){
