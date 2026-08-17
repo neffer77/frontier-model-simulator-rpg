@@ -1,0 +1,98 @@
+name: P5.2.11 targeted release regressions
+
+on:
+  push:
+    branches:
+      - feature/p5-2-11-native-company
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: p5-2-11-targeted-release-regressions
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/p5-2-11-native-company
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned dependencies
+        run: npm install --no-audit --no-fund
+      - name: Resolve Playwright version
+        id: playwright-version
+        run: |
+          VERSION=$(node -p "require('./node_modules/playwright/package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Restore Playwright browser cache
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium system dependencies
+        run: npx playwright install-deps chromium
+      - name: Download Chromium on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+      - name: Static contracts
+        run: npm run test:static
+      - name: Build production site
+        run: npm run build:site
+      - name: Start production site
+        run: python3 -m http.server 4173 --directory _site >/tmp/p5-2-11-targeted.log 2>&1 &
+      - name: Runtime identity
+        env:
+          TEST_URL: http://127.0.0.1:4173/
+        run: npm run test:identity
+      - name: Progressive disclosure
+        env:
+          TEST_URL: http://127.0.0.1:4173/?frontieros=0
+        run: npm run test:disclosure
+      - name: Empty states
+        env:
+          TEST_URL: http://127.0.0.1:4173/?frontieros=0
+        run: npm run test:empty
+      - name: Locked states
+        env:
+          TEST_URL: http://127.0.0.1:4173/?frontieros=0
+        run: npm run test:locked
+      - name: Generate deterministic screenshot baseline
+        env:
+          TEST_URL: http://127.0.0.1:4173/?frontieros=0
+        run: npm run visual:screenshot-baseline
+      - name: Re-run screenshot regression against generated baseline
+        env:
+          TEST_URL: http://127.0.0.1:4173/?frontieros=0
+        run: npm run test:screenshots
+      - name: Validate complete active baseline
+        run: |
+          node - <<'NODE'
+          const b=require('./visual-qa/screenshot-baseline.json');
+          const count=Object.keys(b.captures||{}).length;
+          if(b.status!=='active'||b.expectedCaptureCount!==255||count!==255){
+            console.error({status:b.status,expected:b.expectedCaptureCount,count});
+            process.exit(1);
+          }
+          console.log(`Validated ${count}/255 active screenshot baselines`);
+          NODE
+      - name: Commit regenerated baseline
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add visual-qa/screenshot-baseline.json
+          if git diff --cached --quiet; then
+            echo 'Baseline unchanged.'
+          else
+            git commit -m 'Regenerate deterministic screenshot baseline'
+            git push origin HEAD:feature/p5-2-11-native-company
+          fi
