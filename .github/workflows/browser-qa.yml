@@ -115,6 +115,9 @@ jobs:
       - name: Publish P5.2.9 Projects evidence
         if: always()
         run: if [ -f artifacts/projects-frontieros/REPORT.md ]; then cat artifacts/projects-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Publish P5.2.10 Finance evidence
+        if: always()
+        run: if [ -f artifacts/finance-frontieros/REPORT.md ]; then cat artifacts/finance-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish Item 13.17 release sign-off
         if: always()
         run: if [ -f artifacts/release-signoff/REPORT.md ]; then cat artifacts/release-signoff/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
@@ -245,6 +248,14 @@ jobs:
         with:
           name: projects-frontieros-${{ github.event.pull_request.number || github.run_number }}
           path: artifacts/projects-frontieros
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Upload P5.2.10 Finance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: finance-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/finance-frontieros
           if-no-files-found: warn
           retention-days: 30
       - name: Upload Item 13.17 release sign-off
