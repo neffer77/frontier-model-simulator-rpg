@@ -10,7 +10,7 @@ const workflow=fs.readFileSync('.github/workflows/browser-qa.yml','utf8');
 
 for(const marker of ['frontierAppRegistry','frontierApps','frontierApp','frontierResolveApp','frontierLaunchApp','frontierParseDeepLink','frontierOpenDeepLink','os.app-registry.ready','os.app.launch.started','os.app.launch.completed','os.app.launch.blocked','os.app.launch.failed'])assert(registry.includes(marker),`app registry missing ${marker}`);
 for(const id of ['mail','pager','training','evals','model-lab','terminal','data','team','projects','company','finance','knowledge','artifacts','settings'])assert(registry.includes(`id:'${id}'`),`canonical app missing: ${id}`);
-assert(registry.includes("status:'planned'"),'registry must support planned apps');
+assert(registry.includes("app.status==='planned'"),'registry must preserve planned-app semantics even when no current app is planned');
 assert(registry.includes("launchState:app.status==='planned'?'planned':unlock.unlocked?'ready':'locked'"),'registry must expose ready/locked/planned launch states');
 assert(registry.includes("frontieros://" )||registry.includes("frontieros:\\/\\/"),'FrontierOS URI contract missing');
 
@@ -33,4 +33,4 @@ assert.equal(gate.evidence,'artifacts/app-registry/report.json','app registry ev
 assert(workflow.includes('artifacts/app-registry'),'browser QA must retain app registry evidence');
 assert(workflow.includes('P5.1.1 FrontierOS App Registry'),'browser QA must publish app registry summary');
 
-console.log(JSON.stringify({appRegistryStatic:'pass',schemaVersion:1,apps:14,releaseBlocker:true,cache:`v${cacheMatch[1]}`},null,2));
+console.log(JSON.stringify({appRegistryStatic:'pass',schemaVersion:1,apps:14,plannedSemantics:true,releaseBlocker:true,cache:`v${cacheMatch[1]}`},null,2));
