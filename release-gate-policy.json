@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 11,
   "item": "13.16",
   "name": "Frontier Lab release gate policy",
   "description": "Canonical blocker/advisory policy for the final Item 13 release decision and FrontierOS foundation/app invariants, including explicit per-gate timeout budgets and UI-mode ownership.",
@@ -22,6 +22,7 @@
     {"id":"frontieros-terminal","label":"P5.2.6 Native FrontierOS Terminal","script":"test:terminal-os","severity":"blocker","phase":"browser","evidence":"artifacts/terminal-frontieros/report.json","timeoutMs":90000},
     {"id":"frontieros-mail","label":"P5.2.7 Native FrontierOS Mail","script":"test:mail-os","severity":"blocker","phase":"browser","evidence":"artifacts/frontier-mail/report.json","timeoutMs":90000},
     {"id":"frontieros-people","label":"P5.2.8 Native FrontierOS People","script":"test:people-os","severity":"blocker","phase":"browser","evidence":"artifacts/people-frontieros/report.json","timeoutMs":90000},
+    {"id":"frontieros-projects","label":"P5.2.9 Native FrontierOS Projects","script":"test:projects-os","severity":"blocker","phase":"browser","evidence":"artifacts/projects-frontieros/report.json","timeoutMs":90000},
     {"id":"browser-smoke","label":"Browser smoke","script":"test:browser","severity":"blocker","phase":"browser","uiMode":"legacy","timeoutMs":120000},
     {"id":"balance-pacing","label":"Balance and pacing","script":"test:balance","severity":"blocker","phase":"browser","timeoutMs":120000},
     {"id":"technical-realism","label":"Technical realism","script":"test:realism","severity":"blocker","phase":"browser","timeoutMs":120000},
