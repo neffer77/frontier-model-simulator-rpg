@@ -48,6 +48,8 @@ jobs:
       - name: Start production site
         run: python3 -m http.server 4173 --directory _site >/tmp/frontier-baseline-server.log 2>&1 &
       - name: Generate active deterministic baseline
+        env:
+          TEST_URL: http://127.0.0.1:4173/?frontieros=0
         run: npm run visual:screenshot-baseline
       - name: Validate complete baseline
         run: |
