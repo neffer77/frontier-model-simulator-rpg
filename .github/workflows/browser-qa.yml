@@ -62,98 +62,51 @@ jobs:
           if [ -f artifacts/release-gate/REPORT.md ]; then
             cat artifacts/release-gate/REPORT.md >> "$GITHUB_STEP_SUMMARY"
           else
-            {
-              echo '# Item 13.16 release gate'
-              echo
-              echo '**Decision unavailable:** the release-gate runner did not produce `artifacts/release-gate/REPORT.md`.'
-            } >> "$GITHUB_STEP_SUMMARY"
+            echo '**Item 13.16 decision unavailable**' >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Publish P5.0.1 runtime identity evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/state-identity/REPORT.md ]; then cat artifacts/state-identity/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/state-identity/REPORT.md ]; then cat artifacts/state-identity/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.0.2 Command + Event Bus evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/command-event-bus/REPORT.md ]; then cat artifacts/command-event-bus/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/command-event-bus/REPORT.md ]; then cat artifacts/command-event-bus/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.0.3 Debug Bundle + Diagnostics evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/debug-bundle/REPORT.md ]; then cat artifacts/debug-bundle/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/debug-bundle/REPORT.md ]; then cat artifacts/debug-bundle/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.1.1 FrontierOS App Registry evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/app-registry/REPORT.md ]; then cat artifacts/app-registry/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/app-registry/REPORT.md ]; then cat artifacts/app-registry/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.1.2 Mobile FrontierOS evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/mobile-frontieros/REPORT.md ]; then cat artifacts/mobile-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/mobile-frontieros/REPORT.md ]; then cat artifacts/mobile-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.1.3 Desktop FrontierOS evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/desktop-frontieros/REPORT.md ]; then cat artifacts/desktop-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/desktop-frontieros/REPORT.md ]; then cat artifacts/desktop-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.1.4 Navigation + Session evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/frontieros-session/REPORT.md ]; then cat artifacts/frontieros-session/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/frontieros-session/REPORT.md ]; then cat artifacts/frontieros-session/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.2.1 Pager evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/pager-frontieros/REPORT.md ]; then cat artifacts/pager-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/pager-frontieros/REPORT.md ]; then cat artifacts/pager-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.2.2 Run Monitor evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/run-monitor-frontieros/REPORT.md ]; then cat artifacts/run-monitor-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/run-monitor-frontieros/REPORT.md ]; then cat artifacts/run-monitor-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.2.3 EvalBench evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/evalbench-frontieros/REPORT.md ]; then cat artifacts/evalbench-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/evalbench-frontieros/REPORT.md ]; then cat artifacts/evalbench-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.2.4 Model Lab evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/model-lab-frontieros/REPORT.md ]; then cat artifacts/model-lab-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/model-lab-frontieros/REPORT.md ]; then cat artifacts/model-lab-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish P5.2.5 Data Explorer evidence
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/data-explorer-frontieros/REPORT.md ]; then cat artifacts/data-explorer-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-
+        run: if [ -f artifacts/data-explorer-frontieros/REPORT.md ]; then cat artifacts/data-explorer-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Publish P5.2.6 Terminal evidence
+        if: always()
+        run: if [ -f artifacts/terminal-frontieros/REPORT.md ]; then cat artifacts/terminal-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish Item 13.17 release sign-off
         if: always()
-        shell: bash
-        run: |
-          if [ -f artifacts/release-signoff/REPORT.md ]; then
-            cat artifacts/release-signoff/REPORT.md >> "$GITHUB_STEP_SUMMARY"
-          else
-            {
-              echo '# Item 13.17 release sign-off'
-              echo
-              echo '**Sign-off unavailable:** the sign-off runner did not produce `artifacts/release-signoff/REPORT.md`.'
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
+        run: if [ -f artifacts/release-signoff/REPORT.md ]; then cat artifacts/release-signoff/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Upload P5.0.1 runtime identity evidence
         if: always()
@@ -163,7 +116,6 @@ jobs:
           path: artifacts/state-identity
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.0.2 Command + Event Bus evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -172,7 +124,6 @@ jobs:
           path: artifacts/command-event-bus
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.0.3 Debug Bundle + Diagnostics evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -181,7 +132,6 @@ jobs:
           path: artifacts/debug-bundle
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.1.1 FrontierOS App Registry evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -190,7 +140,6 @@ jobs:
           path: artifacts/app-registry
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.1.2 Mobile FrontierOS evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -199,7 +148,6 @@ jobs:
           path: artifacts/mobile-frontieros
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.1.3 Desktop FrontierOS evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -208,7 +156,6 @@ jobs:
           path: artifacts/desktop-frontieros
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.1.4 Navigation + Session evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -217,7 +164,6 @@ jobs:
           path: artifacts/frontieros-session
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.2.1 Pager evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -226,7 +172,6 @@ jobs:
           path: artifacts/pager-frontieros
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.2.2 Run Monitor evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -235,7 +180,6 @@ jobs:
           path: artifacts/run-monitor-frontieros
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.2.3 EvalBench evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -244,7 +188,6 @@ jobs:
           path: artifacts/evalbench-frontieros
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.2.4 Model Lab evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -253,7 +196,6 @@ jobs:
           path: artifacts/model-lab-frontieros
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload P5.2.5 Data Explorer evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -262,7 +204,14 @@ jobs:
           path: artifacts/data-explorer-frontieros
           if-no-files-found: warn
           retention-days: 30
-
+      - name: Upload P5.2.6 Terminal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terminal-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/terminal-frontieros
+          if-no-files-found: warn
+          retention-days: 30
       - name: Upload Item 13.17 release sign-off
         if: always()
         uses: actions/upload-artifact@v4
@@ -271,7 +220,6 @@ jobs:
           path: artifacts/release-signoff
           if-no-files-found: warn
           retention-days: 30
-
       - name: Upload Item 13.16 release decision
         if: always()
         uses: actions/upload-artifact@v4
@@ -280,7 +228,6 @@ jobs:
           path: artifacts/release-gate
           if-no-files-found: warn
           retention-days: 14
-
       - name: Upload Item 13.1 visual inventory
         if: always()
         uses: actions/upload-artifact@v4
@@ -289,7 +236,6 @@ jobs:
           path: artifacts/visual-inventory
           if-no-files-found: warn
           retention-days: 14
-
       - name: Upload Item 13.14 screenshot regression evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -298,7 +244,6 @@ jobs:
           path: artifacts/screenshot-regression
           if-no-files-found: warn
           retention-days: 14
-
       - name: Upload Item 13.15 route crawl evidence
         if: always()
         uses: actions/upload-artifact@v4

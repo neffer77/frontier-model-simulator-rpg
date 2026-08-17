@@ -1,0 +1,34 @@
+// P5.2.6 — Native FrontierOS Terminal
+(function(){
+  'use strict';
+  const ui={history:[],cursor:0,lines:[],detail:null};
+  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const write=(kind,text,data)=>{ui.lines.push({kind,text:String(text??''),data:data??null,at:new Date().toISOString()});if(ui.lines.length>120)ui.lines.splice(0,ui.lines.length-120)};
+  function commands(){return window.frontierCommandRegistry?.()||[]}
+  function apps(){return window.frontierApps?.({includePlanned:true})||[]}
+  function events(type='*',limit=20){return window.frontierEventJournal?.({type,limit})||[]}
+  function diagnostics(){try{return window.frontierDiagnostics?.()||{}}catch{return{}}}
+  function tokenize(input){const m=String(input||'').trim().match(/(?:[^\s"]+|"[^"]*")+/g)||[];return m.map(x=>x.startsWith('"')&&x.endsWith('"')?x.slice(1,-1):x)}
+  function parseJson(text){if(!text)return{};try{return JSON.parse(text)}catch{throw new Error('Payload must be valid JSON')}}
+  async function execute(input){const raw=String(input||'').trim();if(!raw)return{ok:true,empty:true};ui.history.push(raw);ui.cursor=ui.history.length;write('prompt',`frontier$ ${raw}`);const parts=tokenize(raw),verb=(parts.shift()||'').toLowerCase();try{
+    if(verb==='help'){write('info','Commands: help, apps, open <app> [detail], commands, run <command> [json], events [type] [limit], status, state, session, clear, history');}
+    else if(verb==='apps'){write('table',apps().map(a=>`${a.id.padEnd(12)} ${a.launchState.padEnd(8)} ${a.label}`).join('\n'));}
+    else if(verb==='open'){const app=parts.shift();if(!app)throw new Error('Usage: open <app> [detail]');const detail=parts.join('/');const result=await window.frontierLaunchApp?.(app,{source:'terminal',payload:detail?{detail}: {}});write(result?.ok?'success':'error',JSON.stringify(result,null,2));}
+    else if(verb==='commands'){write('table',commands().map(c=>`${c.name}${c.description?` — ${c.description}`:''}`).join('\n'));}
+    else if(verb==='run'){const name=parts.shift();if(!name)throw new Error('Usage: run <registered-command> [json]');const payload=parseJson(parts.join(' '));const result=await window.frontierDispatchCommand?.(name,payload,{source:'terminal'});write('success',JSON.stringify(result??null,null,2));}
+    else if(verb==='events'){const type=parts.shift()||'*',limit=Math.max(1,Math.min(50,Number(parts.shift())||20));const rows=events(type,limit);write('table',rows.map(e=>`${String(e.sequence).padStart(4,'0')} ${e.type} ${e.source||''}`).join('\n')||'No matching events.');}
+    else if(verb==='status'){const d=diagnostics();write('json',JSON.stringify({build:d.build||null,session:d.session||null,state:d.state||null,route:d.route||null,online:navigator.onLine},null,2));}
+    else if(verb==='state'){const d=diagnostics();write('json',JSON.stringify(d.state||{},null,2));}
+    else if(verb==='session'){const d=diagnostics();write('json',JSON.stringify(d.session||{},null,2));}
+    else if(verb==='history'){write('table',ui.history.map((x,i)=>`${String(i+1).padStart(3,' ')}  ${x}`).join('\n'));}
+    else if(verb==='clear'){ui.lines=[];}
+    else throw new Error(`Unknown terminal command: ${verb}. Try 'help'.`);
+    window.frontierEmitEvent?.('terminal.command.completed',{verb,raw},{source:'terminal-frontieros'});render();return{ok:true,verb};
+  }catch(error){write('error',String(error?.message||error));window.frontierEmitEvent?.('terminal.command.failed',{verb,raw,error:String(error?.message||error)},{source:'terminal-frontieros',severity:'warn'});render();return{ok:false,verb,error:String(error?.message||error)}}}
+  function render(){const app=document.getElementById('app');if(!app)return false;app.innerHTML=`<main class="terminal-os" data-frontieros-native-app="terminal"><header><div><span>FRONTIER TERMINAL · AUDITABLE COMMAND CONSOLE</span><h1>Operate the lab through the same command spine as the UI.</h1><p>Inspect registered commands, launch FrontierOS apps, query events and session state, and dispatch explicit simulator commands. This terminal never executes arbitrary JavaScript or host shell commands.</p></div><aside><b>${commands().length}</b><small>registered commands</small><em>${events('*',1).at(-1)?.sequence||0} events</em></aside></header><section class="term-shortcuts"><button data-term-run="status">status</button><button data-term-run="apps">apps</button><button data-term-run="commands">commands</button><button data-term-run="events * 12">events</button><button data-term-run="help">help</button></section><section class="term-screen" aria-live="polite">${ui.lines.length?ui.lines.map(l=>`<pre class="term-${esc(l.kind)}">${esc(l.text)}</pre>`).join(''):'<pre class="term-info">FrontierOS Terminal ready. Type help for commands.</pre>'}</section><form class="term-input"><label for="frontier-terminal-input">frontier$</label><input id="frontier-terminal-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="help"><button type="submit">Run</button></form><footer>Safe console · command bus only · no eval · no host process execution</footer></main>`;const root=app.querySelector('.terminal-os');root.querySelector('form')?.addEventListener('submit',e=>{e.preventDefault();const input=root.querySelector('input');const value=input.value;input.value='';execute(value)});root.addEventListener('click',e=>{const b=e.target.closest('[data-term-run]');if(b)execute(b.dataset.termRun)});root.querySelector('input')?.addEventListener('keydown',e=>{if(e.key!=='ArrowUp'&&e.key!=='ArrowDown')return;e.preventDefault();if(e.key==='ArrowUp')ui.cursor=Math.max(0,ui.cursor-1);else ui.cursor=Math.min(ui.history.length,ui.cursor+1);e.currentTarget.value=ui.cursor<ui.history.length?ui.history[ui.cursor]:''});window.frontierEmitEvent?.('terminal.rendered',{lines:ui.lines.length,history:ui.history.length},{source:'terminal-frontieros'});return true}
+  function parseDetail(detail){const raw=decodeURIComponent(String(detail||''));if(raw.startsWith('command/'))return raw.slice(8);if(raw.startsWith('run/'))return `run ${raw.slice(4)}`;return raw||null}
+  function open(options={}){const detail=parseDetail(typeof options==='string'?options:options.detail);ui.detail=detail;render();window.frontierEmitEvent?.('terminal.opened',{detail},{source:'terminal-frontieros'});if(detail)setTimeout(()=>execute(detail),0);return{ok:true,status:'opened',appId:'terminal',detail}}
+  function snapshot(){return{schemaVersion:1,history:[...ui.history],lines:ui.lines.map(x=>({...x})),commandCount:commands().length,eventCount:events('*',50).length,detail:ui.detail}}
+  window.frontierTerminalOpen=open;window.frontierTerminalExecute=execute;window.frontierTerminalSnapshot=snapshot;
+  window.frontierEmitEvent?.('terminal.ready',{schemaVersion:1,safeConsole:true},{source:'terminal-frontieros'});
+})();
