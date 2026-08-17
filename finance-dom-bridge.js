@@ -4,7 +4,7 @@
   if(window.__frontierFinanceDomBridge)return;
   window.__frontierFinanceDomBridge=true;
   const inFinance=target=>!!target?.closest?.('[data-frontieros-native-app="finance"]');
-  const reopen=view,initiativeId)=>{
+  const reopen=(view,initiativeId)=>{
     if(initiativeId&&window.frontierFinanceSelectInitiative)return window.frontierFinanceSelectInitiative(initiativeId);
     if(view&&window.frontierFinanceSetView)return window.frontierFinanceSetView(view);
     return window.frontierFinanceOpen?.({view:view||'runway'});
