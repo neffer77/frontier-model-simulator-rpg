@@ -62,6 +62,9 @@ jobs:
         if: always()
         shell: bash
         run: |
+          # Item 13.1 visual inventory
+          # Item 13.14 screenshot regression evidence
+          # Item 13.15 route crawl evidence
           # Item 13.16 release decision
           # Item 13.17 release sign-off
           # P5.0.1 runtime identity evidence
@@ -83,6 +86,9 @@ jobs:
           # P5.2.10 Finance evidence
           # P5.2.11 Company evidence
           for report in \
+            artifacts/visual-inventory/REPORT.md \
+            artifacts/screenshot-regression/REPORT.md \
+            artifacts/route-crawl/REPORT.md \
             artifacts/release-gate/REPORT.md \
             artifacts/release-signoff/REPORT.md \
             artifacts/state-identity/REPORT.md \
