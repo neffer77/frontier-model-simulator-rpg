@@ -19,6 +19,21 @@ async function assertLastAction(page,label,action,field,before){
   return result;
 }
 
+async function controlWiring(locator){
+  return locator.evaluate(el=>({
+    onclick:el.getAttribute('onclick'),
+    connected:el.isConnected,
+    inLiveApp:document.getElementById('app')?.contains(el)||false,
+    inDesktopWindow:!!el.closest('.frontieros-window'),
+    inMobileShell:!!el.closest('.frontieros-mobile'),
+    rootIsDocument:el.getRootNode()===document,
+    uiAction:typeof window.frontierFinanceUiAction,
+    dispatcher:typeof window.frontierFinanceDispatch,
+    binder:typeof window.frontierFinanceBindControls,
+    bridgeReady:(window.frontierEventJournal?.({type:'finance.dom-bridge.ready',limit:5})||[]).length
+  }));
+}
+
 async function run(viewport,label){
   const phone=viewport.width<600;
   const context=await browser.newContext({viewport,isMobile:phone,hasTouch:phone});
@@ -56,8 +71,16 @@ async function run(viewport,label){
 
   const txBefore=snap.transactions.length;
   assert.equal(await page.evaluate(()=>frontierFinanceSetView('financing')),true,`${label}: financing view switch failed`);
-  await page.locator('[data-fin-financing="equity"]').waitFor({state:'visible',timeout:5000});
-  await page.locator('[data-fin-financing="equity"]').click();
+  const equity=page.locator('[data-fin-financing="equity"]');
+  await equity.waitFor({state:'visible',timeout:5000});
+  const wiring=await controlWiring(equity);
+  assert.equal(wiring.connected,true,`${label}: Equity control disconnected: ${JSON.stringify(wiring)}`);
+  assert.equal(wiring.inLiveApp,true,`${label}: visible Equity control is not inside live #app: ${JSON.stringify(wiring)}`);
+  assert.equal(wiring.rootIsDocument,true,`${label}: Equity control is hosted outside the main document: ${JSON.stringify(wiring)}`);
+  assert.equal(wiring.uiAction,'function',`${label}: Finance UI action unavailable: ${JSON.stringify(wiring)}`);
+  assert.equal(wiring.dispatcher,'function',`${label}: Finance dispatcher unavailable: ${JSON.stringify(wiring)}`);
+  assert(wiring.onclick,`${label}: Equity control missing clone-safe action attribute: ${JSON.stringify(wiring)}`);
+  await equity.click();
   await assertLastAction(page,label,'financing','transactions',txBefore);
   snap=await page.evaluate(()=>frontierFinanceSnapshot());
   assert.equal(snap.transactions.length,txBefore+1,`${label}: financing transaction missing`);
@@ -108,6 +131,7 @@ async function run(viewport,label){
   await context.close();
   return {
     label,
+    wiring,
     runway:snap.runway,
     debtM:snap.debtM,
     transactions:snap.transactions.length,
