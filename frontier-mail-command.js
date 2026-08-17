@@ -1,0 +1,2 @@
+// P5.2.7 — Frontier Mail command adapter
+(function(){'use strict';window.frontierRegisterCommand?.('mail.open',(payload={})=>window.frontierMailOpen?.(payload),{description:'Open native FrontierOS Mail',owner:'P5.2.7'});})();
