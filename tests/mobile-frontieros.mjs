@@ -39,11 +39,12 @@ snap=await page.evaluate(()=>frontierMobileShellSnapshot());
 assert.equal(snap.view,'home','Home control failed to return to launcher');
 assert.equal(snap.currentApp,null,'current app was not cleared on Home');
 
-await page.getByRole('button',{name:/Frontier Mail/i}).click();
-assert.equal((await page.evaluate(()=>frontierMobileShellSnapshot())).view,'home','planned app must not leave Home');
+// P5.2 migrations made Mail native/ready. Projects remains the canonical pre-company lock.
+await page.getByRole('button',{name:/Projects/i}).click();
+assert.equal((await page.evaluate(()=>frontierMobileShellSnapshot())).view,'home','locked app must not leave Home');
 const toast=page.locator('.frontieros-phone-toast');
 await toast.waitFor({state:'visible'});
-assert.match(await toast.textContent(),/coming/i,'planned-app explanation is unclear');
+assert.match(await toast.textContent(),/locked|start-company/i,'locked-app explanation is unclear');
 
 await page.setViewportSize({width:844,height:390});
 await page.evaluate(()=>dispatchEvent(new Event('resize')));
@@ -56,11 +57,11 @@ await page.screenshot({path:path.join(out,'home-landscape.png'),fullPage:true});
 const events=await page.evaluate(()=>frontierEventJournal({type:'os.mobile.*',limit:100}));
 assert(events.some(e=>e.type==='os.mobile.shell.ready'),'mobile shell ready event missing');
 assert(events.some(e=>e.type==='os.mobile.app.opened'&&e.data.appId==='training'),'mobile app-open event missing');
-assert(events.some(e=>e.type==='os.mobile.app.blocked'&&e.data.appId==='mail'),'planned app block event missing');
+assert(events.some(e=>e.type==='os.mobile.app.blocked'&&e.data.appId==='projects'),'locked app block event missing');
 assert.equal(errors.length,0,`runtime page errors: ${errors.join(' | ')}`);
 
 await context.tracing.stop({path:path.join(out,'trace.zip')});await context.close();await browser.close();
 const report={version:1,item:'P5.1.2',status:'pass',generatedAt:new Date().toISOString(),apps:initial.apps.length,portrait:'390x844',landscape:'844x390',events:events.length,pageErrors:errors.length,evidence:['home-portrait.png','run-monitor-app.png','home-landscape.png','trace.zip']};
 fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
-fs.writeFileSync(path.join(out,'REPORT.md'),`# P5.1.2 Mobile FrontierOS Home\n\n- Status: **PASS**\n- Canonical app tiles: **${report.apps}**\n- Phone portrait: **PASS**\n- Phone landscape: **PASS**\n- Run Monitor launch → Home return: **PASS**\n- Planned-app explanation: **PASS**\n- Horizontal overflow: **0**\n- Runtime page errors: **0**\n- Playwright trace: **captured**\n`);
+fs.writeFileSync(path.join(out,'REPORT.md'),`# P5.1.2 Mobile FrontierOS Home\n\n- Status: **PASS**\n- Canonical app tiles: **${report.apps}**\n- Phone portrait: **PASS**\n- Phone landscape: **PASS**\n- Run Monitor launch → Home return: **PASS**\n- Locked-app explanation: **PASS**\n- Horizontal overflow: **0**\n- Runtime page errors: **0**\n- Playwright trace: **captured**\n`);
 console.log('P5.1.2 mobile FrontierOS Home regression passed');
