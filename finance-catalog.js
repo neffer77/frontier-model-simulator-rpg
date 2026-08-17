@@ -49,4 +49,56 @@
   window.frontierRunCommitteeDebate=id=>window.frontierFinanceDispatch('debate',{id}).ok;
   window.frontierGateInitiative=(id,decision)=>window.frontierFinanceDispatch('gate',{id,decision}).ok;
   window.frontierSetScenarioProbability=(id,value)=>window.frontierFinanceDispatch('scenario',{id,value}).ok;
+
+  // The native app may render before the optional DOM bridge initializes. Keep a
+  // canonical UI action available from the catalog layer so visible controls can
+  // never degrade into optional-chaining no-ops. finance-dom-bridge.js replaces
+  // this with its richer shell-aware implementation when it initializes normally.
+  window.frontierFinanceUiAction=(name,value,extra)=>{
+    if(name==='view')return {ok:!!window.frontierFinanceSetView?.(value),action:name};
+    if(name==='financing'){
+      const result=window.frontierFinanceDispatch('financing',{type:value});
+      if(result.ok)window.frontierFinanceSetView?.('financing');
+      return result;
+    }
+    if(name==='deal'){
+      const result=window.frontierFinanceDispatch('deal',{type:value});
+      if(result.ok)window.frontierFinanceSetView?.('deals');
+      return result;
+    }
+    if(name==='board-seat'){
+      const result=window.frontierFinanceDispatch('board-seat');
+      if(result.ok)window.frontierFinanceSetView?.('runway');
+      return result;
+    }
+    if(name==='proposal'){
+      const result=window.frontierFinanceDispatch('propose',{key:value});
+      const snap=window.frontierFinanceSnapshot?.();
+      const id=snap?.initiatives?.at?.(-1)?.id||null;
+      if(result.ok&&id)window.frontierFinanceSelectInitiative?.(id);
+      if(result.ok)window.frontierEmitEvent?.('finance.initiative.proposed',{initiativeId:id,key:value},{source:'finance-catalog'});
+      return result;
+    }
+    if(name==='initiative')return {ok:!!window.frontierFinanceSelectInitiative?.(value),action:name};
+    if(name==='debate'){
+      const result=window.frontierFinanceDispatch('debate',{id:value});
+      if(result.ok)window.frontierFinanceSelectInitiative?.(value);
+      if(result.ok)window.frontierEmitEvent?.('finance.committee.debated',{initiativeId:value},{source:'finance-catalog'});
+      return result;
+    }
+    if(name==='gate'){
+      const [id,decision]=String(value||'').split(':');
+      const result=window.frontierFinanceDispatch('gate',{id,decision});
+      if(result.ok)window.frontierFinanceSelectInitiative?.(id);
+      if(result.ok)window.frontierEmitEvent?.('finance.gate.decided',{initiativeId:id,decision},{source:'finance-catalog'});
+      return result;
+    }
+    if(name==='scenario'){
+      const result=window.frontierFinanceDispatch('scenario',{id:value,value:extra});
+      if(result.ok)window.frontierFinanceSetView?.('committee');
+      if(result.ok)window.frontierEmitEvent?.('finance.scenario.changed',{scenario:value,value:Number(extra)},{source:'finance-catalog'});
+      return result;
+    }
+    return record({ok:false,action:name,payload:{value,extra},before:counts(),after:counts(),error:`Unknown Finance UI action: ${name}`},'error');
+  };
 })();
