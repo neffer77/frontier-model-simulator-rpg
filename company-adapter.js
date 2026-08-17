@@ -40,7 +40,7 @@
       if(Number.isFinite(Number(q.valuationM)))board.valuationM=Number(q.valuationM);
       if(Number.isFinite(Number(q.investorPatience)))board.investorPatience=Math.max(0,Math.min(1,Number(q.investorPatience)));
       if(Number.isFinite(Number(q.boardConfidence)))board.confidence=Math.max(0,Math.min(1,Number(q.boardConfidence)));
-      if(s.roadmapPressure?.executive) s.roadmapPressure.executive.boardConfidence=board.confidence;
+      if(s.roadmapPressure?.executive)s.roadmapPressure.executive.boardConfidence=board.confidence;
     }
     if(finance){
       if(legacy.capTable){
@@ -73,7 +73,7 @@
   }
 
   function counts(){
-    const s=ensure();
+    const s=live();
     return {
       boardHistory:Array.isArray(s.quarterlyBoard?.history)?s.quarterlyBoard.history.length:0,
       motions:Array.isArray(s.governance?.motions)?s.governance.motions.length:0,
@@ -91,15 +91,12 @@
     let control={risk:0,equity:Number(finance.ownership?.founders||0),boardShare:1,authority:Number(g.founderAuthority||0),status:'stable'};
     try{if(typeof founderControlRisk==='function')control=founderControlRisk()}catch{}
     let runway=0;try{runway=Number(window.financeRunwayMonths?.()??window.currentRunwayMonths?.()??0)}catch{}
-    return clone({
-      schemaVersion:1,
-      company:s.company||'Frontier Lab',day:Number(s.day||1),cashM:Number(s.cashM||0),runway,
+    return clone({schemaVersion:1,company:s.company||'Frontier Lab',day:Number(s.day||1),cashM:Number(s.cashM||0),runway,
       board:{quarter:Number(qb.quarter||1),confidence:Number(board.confidence||0),valuationM:Number(board.valuationM||0),investorPatience:Number(board.investorPatience||0),nextReviewDay:qb.nextReviewDay||null,plan:qb.plan||null,forecast:qb.forecast||{},competitors:qb.competitors||[],history:qb.history||[]},
       finance:{debtM:Number(finance.debtM||0),monthlyDebtServiceM:Number(finance.monthlyDebtServiceM||0),ownership:finance.ownership||{},boardSeats:finance.boardSeats||{},liquidationPreference:Number(finance.liquidationPreference||1),covenantPressure:Number(finance.covenantPressure||0)},
       governance:{founderAuthority:Number(g.founderAuthority||0),ceoStatus:g.ceoStatus||'active',vetoes:Number(g.vetoes||0),controlRisk:control,motions:g.motions||[],history:g.history||[]},
       macro:{current:macro.current||null,history:macro.history||[],termSheets:macro.termSheets||[],restructurings:macro.restructurings||[],offers:macro.offers||[],secondaryM:Number(macro.secondaryM||0)},
-      leadership:{culture:ep.culture||{},successor:ep.successor||null,executives:Object.values(ep.executives||{}),history:ep.history||[]}
-    });
+      leadership:{culture:ep.culture||{},successor:ep.successor||null,executives:Object.values(ep.executives||{}),history:ep.history||[]}});
   }
 
   function record(result,severity='info'){
@@ -109,44 +106,35 @@
   }
 
   function dispatch(action,payload={}){
-    const before=counts();
     ensure();
+    const before=counts();
     try{
       let value=true,legacyWrites=false;
       switch(action){
-        case'board-plan': value=window.setQuarterPlan?.(payload.priority||'balanced',payload.budgetM??3);break;
-        case'board-forecast': {
-          const s=live();
-          const revenue=payload.revenueM??s.releaseGov?.customer?.revenueM??0;
-          const cash=payload.cashM??s.cashM??0;
-          const trust=payload.trustPct??Math.round((s.releaseGov?.customer?.trust??.7)*100);
-          value=window.setQuarterForecast?.(revenue,cash,trust);break;
-        }
-        case'competitor-launch': value=window.triggerCompetitorLaunch?.();break;
-        case'competitor-response': value=window.respondToCompetitor?.(payload.id,payload.mode||'differentiate');break;
-        case'board-review': value=window.conductBoardReview?.();break;
-        case'governance-vote': legacyWrites=true;value=window.callBoardVote?.(payload.kind);break;
-        case'fiduciary': legacyWrites=true;value=window.declareFiduciaryPriority?.(payload.priority||'balanced');break;
-        case'macro-shock': legacyWrites=true;value=window.triggerMacroShock?.(payload.key);break;
-        case'term-sheet': legacyWrites=true;value=window.acceptTermSheet?.(payload.key);break;
-        case'restructure': legacyWrites=true;value=window.restructureCompany?.();break;
-        case'secondary': legacyWrites=true;value=window.sellSecondary?.(payload.amountM??1);break;
-        case'acquisition-offer': legacyWrites=true;value=window.generateAcquisitionOffer?.();break;
-        case'acquisition-accept': legacyWrites=true;value=window.acceptAcquisition?.(Number(payload.index));break;
-        case'executive-align': legacyWrites=true;value=window.alignExecutive?.(payload.id,payload.mode);break;
-        case'successor': legacyWrites=true;value=window.nominateSuccessor?.(payload.id);break;
-        case'leadership-transition': legacyWrites=true;value=window.executeLeadershipTransition?.(payload.id);break;
-        case'retention': legacyWrites=true;value=window.retentionEvent?.(payload.id);break;
-        case'alliance': legacyWrites=true;value=window.createExecutiveAlliance?.(payload.a,payload.b);break;
-        case'conflict': legacyWrites=true;value=window.createExecutiveConflict?.(payload.a,payload.b);break;
-        default: throw new Error(`Unknown Company action: ${action}`);
+        case'board-plan':value=window.setQuarterPlan?.(payload.priority||'balanced',payload.budgetM??3);break;
+        case'board-forecast':{const s=live();const revenue=payload.revenueM??s.releaseGov?.customer?.revenueM??0;const cash=payload.cashM??s.cashM??0;const trust=payload.trustPct??Math.round((s.releaseGov?.customer?.trust??.7)*100);value=window.setQuarterForecast?.(revenue,cash,trust);break;}
+        case'competitor-launch':value=window.triggerCompetitorLaunch?.();break;
+        case'competitor-response':value=window.respondToCompetitor?.(payload.id,payload.mode||'differentiate');break;
+        case'board-review':value=window.conductBoardReview?.();break;
+        case'governance-vote':legacyWrites=true;value=window.callBoardVote?.(payload.kind);break;
+        case'fiduciary':legacyWrites=true;value=window.declareFiduciaryPriority?.(payload.priority||'balanced');break;
+        case'macro-shock':legacyWrites=true;value=window.triggerMacroShock?.(payload.key);break;
+        case'term-sheet':legacyWrites=true;value=window.acceptTermSheet?.(payload.key);break;
+        case'restructure':legacyWrites=true;value=window.restructureCompany?.();break;
+        case'secondary':legacyWrites=true;value=window.sellSecondary?.(payload.amountM??1);break;
+        case'acquisition-offer':legacyWrites=true;value=window.generateAcquisitionOffer?.();break;
+        case'acquisition-accept':legacyWrites=true;value=window.acceptAcquisition?.(Number(payload.index));break;
+        case'executive-align':legacyWrites=true;value=window.alignExecutive?.(payload.id,payload.mode);break;
+        case'successor':legacyWrites=true;value=window.nominateSuccessor?.(payload.id);break;
+        case'leadership-transition':legacyWrites=true;value=window.executeLeadershipTransition?.(payload.id);break;
+        case'retention':legacyWrites=true;value=window.retentionEvent?.(payload.id);break;
+        case'alliance':legacyWrites=true;value=window.createExecutiveAlliance?.(payload.a,payload.b);break;
+        case'conflict':legacyWrites=true;value=window.createExecutiveConflict?.(payload.a,payload.b);break;
+        default:throw new Error(`Unknown Company action: ${action}`);
       }
       if(legacyWrites)reconcileLegacyWrites();else hydrateLegacyCompatibility();
-      const after=counts();
-      return record({ok:value!==false,action,payload:clone(payload),before,after,value:value===undefined?null:value});
-    }catch(error){
-      return record({ok:false,action,payload:clone(payload),before,after:counts(),error:String(error?.stack||error)},'error');
-    }
+      return record({ok:value!==false,action,payload:clone(payload),before,after:counts(),value:value===undefined?null:value});
+    }catch(error){return record({ok:false,action,payload:clone(payload),before,after:counts(),error:String(error?.stack||error)},'error');}
   }
 
   window.frontierCompanyEnsure=ensure;
@@ -155,6 +143,5 @@
   window.frontierCompanyDomainSnapshot=domainSnapshot;
   window.frontierCompanyDispatch=dispatch;
   window.frontierCompanyLastAction=()=>lastAction?clone(lastAction):null;
-  ensure();
-  window.frontierEmitEvent?.('company.adapter.ready',{schemaVersion:1,actionBoundary:'frontierCompanyDispatch'},{source:'company-adapter'});
+  window.frontierEmitEvent?.('company.adapter.ready',{schemaVersion:1,actionBoundary:'frontierCompanyDispatch',initialization:'lazy'},{source:'company-adapter'});
 })();
