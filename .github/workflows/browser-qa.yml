@@ -104,6 +104,9 @@ jobs:
       - name: Publish P5.2.6 Terminal evidence
         if: always()
         run: if [ -f artifacts/terminal-frontieros/REPORT.md ]; then cat artifacts/terminal-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Publish P5.2.7 Frontier Mail evidence
+        if: always()
+        run: if [ -f artifacts/frontier-mail/REPORT.md ]; then cat artifacts/frontier-mail/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
       - name: Publish Item 13.17 release sign-off
         if: always()
         run: if [ -f artifacts/release-signoff/REPORT.md ]; then cat artifacts/release-signoff/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
@@ -210,6 +213,14 @@ jobs:
         with:
           name: terminal-frontieros-${{ github.event.pull_request.number || github.run_number }}
           path: artifacts/terminal-frontieros
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Upload P5.2.7 Frontier Mail evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontier-mail-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/frontier-mail
           if-no-files-found: warn
           retention-days: 30
       - name: Upload Item 13.17 release sign-off
