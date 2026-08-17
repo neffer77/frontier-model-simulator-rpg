@@ -1,10 +1,9 @@
-// P5.2.10 — Shell-safe delegated interactions for native FrontierOS Finance
+// P5.2.10 — Shell-safe interactions for native FrontierOS Finance
 (function(){
   'use strict';
   if(window.__frontierFinanceDomBridge)return;
   window.__frontierFinanceDomBridge=true;
 
-  const directlyBound=new WeakSet();
   const inFinance=target=>!!target?.closest?.('[data-frontieros-native-app="finance"]');
   const reopen=(view,initiativeId)=>{
     if(initiativeId&&window.frontierFinanceSelectInitiative)return window.frontierFinanceSelectInitiative(initiativeId);
@@ -50,50 +49,43 @@
     return {ok:false,action:name,error:`Unknown Finance UI action: ${name}`};
   };
 
-  function directClick(element,name,value){
-    if(directlyBound.has(element))return;
-    directlyBound.add(element);
-    element.addEventListener('click',event=>{
-      event.stopPropagation();
-      window.frontierFinanceUiAction(name,typeof value==='function'?value(element):value);
-    });
-  }
-  function bindDirect(root=document){
+  // FrontierOS can re-host application markup. Listener objects do not survive an
+  // HTML copy, but action attributes do. Stamp every native Finance control with
+  // a clone-safe callback to the one canonical action boundary. stopPropagation
+  // prevents the native root's legacy bubble listener from executing the action twice.
+  function bindCloneSafe(root=document){
     const scope=root?.querySelectorAll?root:document;
-    scope.querySelectorAll('[data-fin-view]').forEach(el=>directClick(el,'view',node=>node.dataset.finView));
-    scope.querySelectorAll('[data-fin-financing]').forEach(el=>directClick(el,'financing',node=>node.dataset.finFinancing));
-    scope.querySelectorAll('[data-fin-deal]').forEach(el=>directClick(el,'deal',node=>node.dataset.finDeal));
-    scope.querySelectorAll('[data-fin-board-seat]').forEach(el=>directClick(el,'board-seat'));
-    scope.querySelectorAll('[data-fin-propose]').forEach(el=>directClick(el,'proposal',node=>node.dataset.finPropose));
-    scope.querySelectorAll('[data-fin-initiative]').forEach(el=>directClick(el,'initiative',node=>node.dataset.finInitiative));
-    scope.querySelectorAll('[data-fin-debate]').forEach(el=>directClick(el,'debate',node=>node.dataset.finDebate));
-    scope.querySelectorAll('[data-fin-gate]').forEach(el=>directClick(el,'gate',node=>node.dataset.finGate));
-    scope.querySelectorAll('[data-fin-scenario]').forEach(el=>{
-      if(directlyBound.has(el))return;
-      directlyBound.add(el);
-      el.addEventListener('change',event=>{
-        event.stopPropagation();
-        window.frontierFinanceUiAction('scenario',el.dataset.finScenario,el.value);
-      });
-    });
+    const click=(selector,code)=>scope.querySelectorAll(selector).forEach(el=>el.setAttribute('onclick',`event.stopPropagation();${code}`));
+    click('[data-fin-view]',"return window.frontierFinanceUiAction('view',this.dataset.finView)");
+    click('[data-fin-financing]',"return window.frontierFinanceUiAction('financing',this.dataset.finFinancing)");
+    click('[data-fin-deal]',"return window.frontierFinanceUiAction('deal',this.dataset.finDeal)");
+    click('[data-fin-board-seat]',"return window.frontierFinanceUiAction('board-seat')");
+    click('[data-fin-propose]',"return window.frontierFinanceUiAction('proposal',this.dataset.finPropose)");
+    click('[data-fin-initiative]',"return window.frontierFinanceUiAction('initiative',this.dataset.finInitiative)");
+    click('[data-fin-debate]',"return window.frontierFinanceUiAction('debate',this.dataset.finDebate)");
+    click('[data-fin-gate]',"return window.frontierFinanceUiAction('gate',this.dataset.finGate)");
+    scope.querySelectorAll('[data-fin-scenario]').forEach(el=>el.setAttribute('onchange',"event.stopPropagation();return window.frontierFinanceUiAction('scenario',this.dataset.finScenario,this.value)"));
     return true;
   }
-  window.frontierFinanceBindControls=bindDirect;
+  window.frontierFinanceBindControls=bindCloneSafe;
 
   const observer=new MutationObserver(records=>{
     for(const record of records){
       for(const node of record.addedNodes){
-        if(node.nodeType===1)bindDirect(node);
+        if(node.nodeType===1)bindCloneSafe(node);
       }
     }
   });
   const startObserver=()=>{
-    bindDirect(document);
+    bindCloneSafe(document);
     if(document.documentElement)observer.observe(document.documentElement,{childList:true,subtree:true});
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startObserver,{once:true});
   else startObserver();
 
+  // Delegation remains as a fallback for normal live DOM hosting. If it handles an
+  // action in capture phase, stopImmediatePropagation prevents the clone-safe target
+  // callback from running a second time.
   document.addEventListener('click',event=>{
     if(!inFinance(event.target))return;
     const target=event.target;
@@ -121,5 +113,5 @@
     window.frontierFinanceUiAction('scenario',scenario.dataset.finScenario,scenario.value);
   },true);
 
-  window.frontierEmitEvent?.('finance.dom-bridge.ready',{schemaVersion:3,dispatcher:true,directBinding:true},{source:'finance-dom-bridge'});
+  window.frontierEmitEvent?.('finance.dom-bridge.ready',{schemaVersion:4,dispatcher:true,cloneSafeActions:true},{source:'finance-dom-bridge'});
 })();
