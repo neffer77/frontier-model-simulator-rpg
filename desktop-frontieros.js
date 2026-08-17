@@ -58,8 +58,12 @@
     if(runtime.activeApp!==id){suspendCurrent();runtime.activeApp=id}
     rec.el.style.zIndex=++runtime.z;$$('.frontieros-window',shell()).forEach(x=>x.classList.toggle('is-active',x===rec.el));
     if(relaunch){const result=await window.frontierLaunchApp?.(id,{surface:'desktop',source:'desktop-frontieros'});if(!result?.ok){showToast(`${window.frontierApp?.(id)?.label||id} could not be resumed.`);return false}}
-    const app=liveApp();const body=$('.frontieros-window-body',rec.el);if(app){body.innerHTML='';body.appendChild(app);app.hidden=false}
-    $('[data-os-window-state]',rec.el).textContent='active';renderTasks();window.frontierEmitEvent?.('os.desktop.window.focused',{appId:id},{source:'desktop-frontieros'});return true;
+    const app=liveApp();const body=$('.frontieros-window-body',rec.el);
+    // Focusing an already-active window happens on pointerdown. Replacing/rehosting
+    // the live app between pointerdown and click cancels control clicks in Chromium.
+    // Only move #app when it is not already hosted by this window.
+    if(app){if(!body.contains(app)){body.innerHTML='';body.appendChild(app)}app.hidden=false}
+    $('[data-os-window-state]',rec.el).textContent='active';renderTasks();window.frontierEmitEvent?.('os.desktop.window.focused',{appId:id,rehosted:!!app&&!body.contains(app)},{source:'desktop-frontieros'});return true;
   }
   async function openApp(id){
     const app=window.frontierApp?.(id);if(!app){showToast('Unknown application.');return {ok:false,status:'unknown'}};
