@@ -1,0 +1,57 @@
+name: FrontierOS Mail evidence
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontier-mail-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Resolve Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p \"require('./node_modules/playwright/package.json').version\")" >> "$GITHUB_OUTPUT"
+      - name: Restore Playwright browser cache
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium system dependencies
+        run: npx playwright install-deps chromium
+      - name: Download Chromium on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+      - name: Static contract
+        run: npm run test:mail-os-static
+      - name: Build production site
+        run: npm run build:site
+      - name: Start site
+        run: python3 -m http.server 4173 --directory _site >/tmp/frontier-mail-server.log 2>&1 &
+      - name: Browser evidence
+        run: npm run test:mail-os
+      - name: Publish evidence
+        if: always()
+        run: if [ -f artifacts/frontier-mail/REPORT.md ]; then cat artifacts/frontier-mail/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontier-mail-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/frontier-mail
+          if-no-files-found: warn
+          retention-days: 30
