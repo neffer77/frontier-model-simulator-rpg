@@ -59,6 +59,10 @@
   function decorateCampaignControl(el){
     const target=targetFor(el);if(!target)return false;
     const plan=planFor(target);if(!plan){cleanupCampaign(el);return false}
+    // Keep the canonical campaign target on real launchers even after they unlock.
+    // Company dashboard re-hosting otherwise strips the only stable semantic handle
+    // that QA and accessibility tooling can use to identify a system launcher.
+    if(!el.dataset.campaignTarget)el.dataset.campaignTarget=target;
     el.dataset.flLockTarget=target;
     if(plan.unlocked){cleanupCampaign(el);return false}
     el.classList.add('fl-campaign-locked');
