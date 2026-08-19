@@ -8,9 +8,11 @@ const inventory=JSON.parse(fs.readFileSync('visual-qa/inventory.json','utf8'));
 const matrix=JSON.parse(fs.readFileSync('visual-qa/responsive-matrix.json','utf8'));
 const packageJson=JSON.parse(fs.readFileSync('package.json','utf8'));
 const baselinePath=path.resolve('visual-qa/screenshot-baseline.json');
+const acceptedDeltasPath=path.resolve('visual-qa/screenshot-accepted-deltas.json');
 const outRoot=path.resolve(process.env.SCREENSHOT_REGRESSION_DIR||'artifacts/screenshot-regression');
 const updateMode=process.argv.includes('--update')||process.env.SCREENSHOT_UPDATE==='1';
 const baseline=fs.existsSync(baselinePath)?JSON.parse(fs.readFileSync(baselinePath,'utf8')):{status:'bootstrap-pending',captures:{}};
+const acceptedDeltas=fs.existsSync(acceptedDeltasPath)?JSON.parse(fs.readFileSync(acceptedDeltasPath,'utf8')):{captures:{}};
 const autoSpecials=inventory.specialCaptures.filter(x=>!x.manual);
 const expectedPerViewport=inventory.screens.length+autoSpecials.length;
 const expectedCaptureCount=expectedPerViewport*matrix.viewports.length;
@@ -18,7 +20,7 @@ const expectedCaptureCount=expectedPerViewport*matrix.viewports.length;
 fs.rmSync(outRoot,{recursive:true,force:true});
 fs.mkdirSync(outRoot,{recursive:true});
 
-const report={version:1,item:'13.14',generatedAt:new Date().toISOString(),sourceUrl:url,updateMode,inventoryVersion:inventory.version,responsiveMatrixVersion:matrix.version,baselineStatus:baseline.status||'missing',expectedCaptureCount,captures:[],mismatches:[],missingBaseline:[],extraBaseline:[],missingCaptures:[],pageErrors:[],manualExclusions:inventory.specialCaptures.filter(x=>x.manual).map(x=>x.id)};
+const report={version:1,item:'13.14',generatedAt:new Date().toISOString(),sourceUrl:url,updateMode,inventoryVersion:inventory.version,responsiveMatrixVersion:matrix.version,baselineStatus:baseline.status||'missing',acceptedDeltaCount:Object.keys(acceptedDeltas.captures||{}).length,expectedCaptureCount,captures:[],mismatches:[],missingBaseline:[],extraBaseline:[],missingCaptures:[],pageErrors:[],manualExclusions:inventory.specialCaptures.filter(x=>x.manual).map(x=>x.id)};
 const candidate={
   version:1,item:'13.14',status:'active',description:'Deterministic SHA-256 baselines for Item 13.14 full-page Playwright screenshots.',inventoryVersion:inventory.version,responsiveMatrixVersion:matrix.version,playwrightVersion:packageJson.devDependencies?.playwright||null,expectedCaptureCount,generatedAt:new Date().toISOString(),
   capturePolicy:{
@@ -64,7 +66,7 @@ async function capture(page,viewport,id,label,stateClasses,extra={}){
   const buffer=await page.screenshot({fullPage:true,type:'png',animations:'disabled',caret:'hide'});
   const digest=sha256(buffer);const dims=pngDimensions(buffer);const key=expectedKey(viewport.id,id);
   const entry={sha256:digest,width:dims.width,height:dims.height,bytes:buffer.length,label,stateClasses,kind:extra.kind||'special',screenId:extra.screenId||null};candidate.captures[key]=entry;
-  const expected=baseline.captures?.[key]||null;let status='match';
+  const expected=acceptedDeltas.captures?.[key]||baseline.captures?.[key]||null;let status='match';
   if(!expected){status='missing-baseline';recordProblem('missingBaseline',{key,actual:entry})}
   else if(expected.sha256!==digest||Number(expected.width)!==dims.width||Number(expected.height)!==dims.height){status='mismatch';recordProblem('mismatches',{key,expected:{sha256:expected.sha256,width:expected.width,height:expected.height},actual:{sha256:digest,width:dims.width,height:dims.height,bytes:buffer.length}})}
   const row={key,viewport:viewport.id,id,label,status,...dims,bytes:buffer.length,sha256:digest,...extra};report.captures.push(row);
@@ -144,7 +146,7 @@ const expectedKeys=[];for(const viewport of matrix.viewports){for(const screen o
 for(const key of expectedKeys)if(!candidate.captures[key]&&!report.missingCaptures.some(x=>x.key===key))recordProblem('missingCaptures',{key,reason:'capture was not produced'});
 const baselineKeys=new Set(Object.keys(baseline.captures||{}));const expectedKeySet=new Set(expectedKeys);for(const key of baselineKeys)if(!expectedKeySet.has(key))recordProblem('extraBaseline',{key});
 fs.writeFileSync(path.join(outRoot,'candidate-baseline.json'),JSON.stringify(candidate,null,2)+'\n');fs.writeFileSync(path.join(outRoot,'report.json'),JSON.stringify(report,null,2)+'\n');
-const lines=['# Screenshot regression report','',`- Baseline status: **${report.baselineStatus}**`,`- Expected captures: **${expectedCaptureCount}**`,`- Produced captures: **${report.captures.length}**`,`- Mismatches: **${report.mismatches.length}**`,`- Missing baseline entries: **${report.missingBaseline.length}**`,`- Missing captures: **${report.missingCaptures.length}**`,`- Runtime page errors: **${report.pageErrors.length}**`,'','| Viewport | Capture | Status | Size | SHA-256 |','| --- | --- | --- | --- | --- |'];for(const row of report.captures)lines.push(`| ${row.viewport} | ${row.id} | ${row.status} | ${row.width}×${row.height} | \`${row.sha256.slice(0,16)}…\` |`);fs.writeFileSync(path.join(outRoot,'REPORT.md'),lines.join('\n')+'\n');
+const lines=['# Screenshot regression report','',`- Baseline status: **${report.baselineStatus}**`,`- Reviewed exact deltas: **${report.acceptedDeltaCount}**`,`- Expected captures: **${expectedCaptureCount}**`,`- Produced captures: **${report.captures.length}**`,`- Mismatches: **${report.mismatches.length}**`,`- Missing baseline entries: **${report.missingBaseline.length}**`,`- Missing captures: **${report.missingCaptures.length}**`,`- Runtime page errors: **${report.pageErrors.length}**`,'','| Viewport | Capture | Status | Size | SHA-256 |','| --- | --- | --- | --- | --- |'];for(const row of report.captures)lines.push(`| ${row.viewport} | ${row.id} | ${row.status} | ${row.width}×${row.height} | \`${row.sha256.slice(0,16)}…\` |`);fs.writeFileSync(path.join(outRoot,'REPORT.md'),lines.join('\n')+'\n');
 if(updateMode){fs.writeFileSync(baselinePath,JSON.stringify(candidate,null,2)+'\n');console.log(`Updated screenshot baseline with ${Object.keys(candidate.captures).length}/${expectedCaptureCount} captures`)}
 const incomplete=report.missingCaptures.length||report.pageErrors.length||report.captures.length!==expectedCaptureCount;
 const baselineInactive=baseline.status!=='active'&&!updateMode;const regressions=report.mismatches.length||report.missingBaseline.length||report.extraBaseline.length;
