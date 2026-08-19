@@ -22,9 +22,13 @@
     const lower=text.toLowerCase();
     return /\bno active projects?\b/.test(lower)||/\bno projects? yet\b/.test(lower)||/\bempty team\b/.test(lower);
   }
+  function containsEmptyCopy(section){
+    if(hasEmptyCopy(section.textContent))return true;
+    return [...section.querySelectorAll('p,small,li,dd,span')].some(node=>hasEmptyCopy(node.textContent));
+  }
   function disclosureState(section){
     if(section.matches('.locked,[data-locked="true"],[data-lock-state="locked"]')||section.querySelector('.locked,[data-locked="true"],[data-lock-state="locked"]'))return 'locked';
-    if(section.matches('.fl-empty,[class*="empty"]')||section.querySelector('.fl-empty,[class*="empty"]')||hasEmptyCopy(section.textContent))return 'empty';
+    if(section.matches('.fl-empty,[class*="empty"]')||section.querySelector('.fl-empty,[class*="empty"]')||containsEmptyCopy(section))return 'empty';
     return 'ready';
   }
   function rootFor(app){
