@@ -28,7 +28,7 @@
   }
   function candidatesFor(root){
     return [...root.querySelectorAll(':scope > section, :scope > main > section, :scope > div > section')]
-      .filter(s=>!s.closest('.gameplay-guidance,.story-overlay,.modal-back,.incident-back,.gameplay-more-sheet')&&!s.matches('[data-pd-ignore]'));
+      .filter(s=>!s.closest('.gameplay-guidance,.story-overlay,.modal-back,.incident-back,.gameplay-more-sheet')&&!s.matches('[data-pd-ignore],.fl-zero-state,[data-fl-zero-key]'));
   }
   function stableKeys(candidates){
     const seen=new Map();
@@ -79,9 +79,6 @@
     if(!candidates.length){cleanup(app);return}
     const memory=saved(view),entries=stableKeys(candidates);
     entries.forEach(({section,title,key},i)=>{
-      // Keep the first major section fully visible only when there are multiple sections.
-      // A single dense/empty section (for example Critical Path with no active projects)
-      // still needs disclosure chrome so its state and affordance remain explicit on mobile.
       if(i===0&&entries.length>1){
         if(section.classList.contains('pd-enhanced'))cleanup(section.parentElement||app);
         return;
