@@ -36,8 +36,11 @@
     const label=(button.querySelector('span')?.textContent||button.querySelector('b')?.textContent||button.textContent||'system').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,72);
     return label||'system';
   }
+  function launcherKey(button){
+    return button.getAttribute('data-campaign-target')||button.getAttribute('data-dashboard-id')||launcherId(button);
+  }
   function signature(buttons){
-    return buttons.map(b=>`${groupFor(b).id}:${orderFor(b)}:${launcherId(b)}`).sort().join('|');
+    return buttons.map(b=>`${groupFor(b).id}:${orderFor(b)}:${launcherKey(b)}`).sort().join('|');
   }
   function createHub(){
     const hub=document.createElement('section');hub.className='company-system-hub fl-panel';hub.setAttribute('aria-labelledby','company-system-hub-title');
@@ -52,10 +55,13 @@
     return section;
   }
   function allLaunchers(shell,hub){
-    const found=[];
-    for(const child of shell.children)if(isLauncher(child))found.push(child);
-    if(hub)for(const button of hub.querySelectorAll('button'))if(isLauncher(button)&&!found.includes(button))found.push(button);
-    return found;
+    // A render can create a fresh launcher set while the previous semantic set is still
+    // hosted in the dashboard hub. Prefer the fresh shell child and keep exactly one
+    // button for each logical campaign/dashboard target; DOM identity is not sufficient.
+    const byKey=new Map();
+    for(const child of shell.children)if(isLauncher(child))byKey.set(launcherKey(child),child);
+    if(hub)for(const button of hub.querySelectorAll('button'))if(isLauncher(button)&&!byKey.has(launcherKey(button)))byKey.set(launcherKey(button),button);
+    return [...byKey.values()];
   }
   function organize(){
     queued=false;
