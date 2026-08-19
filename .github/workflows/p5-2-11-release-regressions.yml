@@ -1,9 +1,9 @@
 name: P5.2.11 targeted release regressions
 
+# Baseline regeneration is intentionally manual-only. Running this workflow on
+# every branch push duplicated PR release coverage, wrote back to the same
+# branch, and repeatedly restarted/cancelled otherwise healthy checks.
 on:
-  push:
-    branches:
-      - feature/p5-2-11-native-company
   workflow_dispatch:
 
 permissions:
@@ -15,7 +15,6 @@ concurrency:
 
 jobs:
   verify:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 14
     steps:
