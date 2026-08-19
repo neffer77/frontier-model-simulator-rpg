@@ -18,30 +18,21 @@
   let queued=false;
 
   const classes=el=>el?.classList?[...el.classList]:[];
-  const isLauncher=el=>el instanceof HTMLButtonElement&&(el.classList.contains('fl-launch')||classes(el).some(c=>c.endsWith('-launch')));
-  function signal(button){
-    return [button.className,button.getAttribute('onclick')||'',String(button.onclick||''),button.textContent||''].join(' ').toLowerCase().replace(/\s+/g,' ');
-  }
-  function groupFor(button){
-    const s=signal(button);
-    return GROUPS.find(g=>g.id!=='other'&&g.tokens.some(t=>s.includes(t)))||GROUPS.at(-1);
-  }
-  function orderFor(button){
-    const s=signal(button),i=ORDER.findIndex(t=>s.includes(t));
-    return i<0?999:i;
-  }
-  function launcherId(button){
-    const semantic=classes(button).find(c=>c.endsWith('-launch'))||button.getAttribute('data-dashboard-id');
-    if(semantic)return semantic;
-    const label=(button.querySelector('span')?.textContent||button.querySelector('b')?.textContent||button.textContent||'system').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,72);
-    return label||'system';
-  }
+  const isLauncher=el=>el instanceof HTMLButtonElement&&(el.classList.contains('fl-launch')||classes(el).some(c=>c!=='fl-launch'&&c.endsWith('-launch')));
+  function signal(button){return [button.className,button.getAttribute('onclick')||'',String(button.onclick||''),button.textContent||''].join(' ').toLowerCase().replace(/\s+/g,' ')}
+  function groupFor(button){const s=signal(button);return GROUPS.find(g=>g.id!=='other'&&g.tokens.some(t=>s.includes(t)))||GROUPS.at(-1)}
+  function orderFor(button){const s=signal(button),i=ORDER.findIndex(t=>s.includes(t));return i<0?999:i}
+  function labelId(button){return (button.querySelector('span')?.textContent||button.querySelector('b')?.textContent||button.textContent||'system').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,72)||'system'}
+  function specificLaunchClass(button){return classes(button).find(c=>c!=='fl-launch'&&c.endsWith('-launch'))||null}
+  function launcherId(button){return specificLaunchClass(button)||button.getAttribute('data-dashboard-id')||button.getAttribute('data-campaign-target')||labelId(button)}
   function launcherKey(button){
-    return button.getAttribute('data-campaign-target')||button.getAttribute('data-dashboard-id')||launcherId(button);
+    // Locked-state decoration may add data-campaign-target after a launcher has already
+    // been hosted. A module-specific *-launch class is the stable identity shared by
+    // both the fresh render and the previously hosted button; never key on generic
+    // fl-launch or on post-render decoration first.
+    return specificLaunchClass(button)||button.getAttribute('data-dashboard-id')||button.getAttribute('data-campaign-target')||labelId(button);
   }
-  function signature(buttons){
-    return buttons.map(b=>`${groupFor(b).id}:${orderFor(b)}:${launcherKey(b)}`).sort().join('|');
-  }
+  function signature(buttons){return buttons.map(b=>`${groupFor(b).id}:${orderFor(b)}:${launcherKey(b)}`).sort().join('|')}
   function createHub(){
     const hub=document.createElement('section');hub.className='company-system-hub fl-panel';hub.setAttribute('aria-labelledby','company-system-hub-title');
     hub.innerHTML=`<header class="company-system-hub-head"><div class="company-system-hub-copy"><div class="eyebrow">COMPANY SYSTEMS</div><h2 id="company-system-hub-title">Run the lab</h2><p>Technical, operational and company systems are grouped here so the main dashboard stays readable as the simulation grows.</p></div><span class="company-system-count fl-badge">0 systems</span></header><div class="company-system-groups"></div>`;
@@ -55,10 +46,8 @@
     return section;
   }
   function allLaunchers(shell,hub){
-    // A render can create a fresh launcher set while the previous semantic set is still
-    // hosted in the dashboard hub. Prefer the fresh shell child and keep exactly one
-    // button for each logical campaign/dashboard target; DOM identity is not sufficient.
     const byKey=new Map();
+    // Prefer the newly rendered shell launcher when both generations exist.
     for(const child of shell.children)if(isLauncher(child))byKey.set(launcherKey(child),child);
     if(hub)for(const button of hub.querySelectorAll('button'))if(isLauncher(button)&&!byKey.has(launcherKey(button)))byKey.set(launcherKey(button),button);
     return [...byKey.values()];
@@ -68,10 +57,7 @@
     const app=document.getElementById('app');
     const shell=app?.querySelector('.game-shell');
     const existing=app?.querySelector('.company-system-hub');
-    if(!shell||typeof state==='undefined'||!state?.started||state.view!=='company'){
-      existing?.remove();
-      return;
-    }
+    if(!shell||typeof state==='undefined'||!state?.started||state.view!=='company'){existing?.remove();return}
     const buttons=allLaunchers(shell,existing);
     if(!buttons.length){existing?.remove();return}
     buttons.sort((a,b)=>orderFor(a)-orderFor(b)||launcherId(a).localeCompare(launcherId(b)));
@@ -81,16 +67,11 @@
       const count=existing.querySelector('.company-system-count');if(count)count.textContent=`${buttons.length} system${buttons.length===1?'':'s'}`;
       return;
     }
-
     const hub=existing||createHub();
     const groups=hub.querySelector('.company-system-groups');groups.replaceChildren();
-    for(const group of GROUPS){
-      const items=buttons.filter(b=>groupFor(b).id===group.id);
-      if(items.length)groups.appendChild(groupNode(group,items));
-    }
+    for(const group of GROUPS){const items=buttons.filter(b=>groupFor(b).id===group.id);if(items.length)groups.appendChild(groupNode(group,items))}
     hub.dataset.dashboardSignature=sig;
     hub.querySelector('.company-system-count').textContent=`${buttons.length} system${buttons.length===1?'':'s'}`;
-
     if(!hub.isConnected){
       const world=shell.querySelector(':scope > .world-grid');
       const rolebar=shell.querySelector(':scope > .rolebar');
@@ -101,11 +82,8 @@
 
   window.frontierCompanyDashboardSync=organize;
   document.documentElement.dataset.flCompanyDashboard='1';
-
   const app=document.getElementById('app');
-  if(app)new MutationObserver(records=>{
-    if(records.some(r=>[...r.addedNodes,...r.removedNodes].some(n=>n.nodeType===1)))schedule();
-  }).observe(app,{childList:true,subtree:true});
+  if(app)new MutationObserver(records=>{if(records.some(r=>[...r.addedNodes,...r.removedNodes].some(n=>n.nodeType===1)))schedule()}).observe(app,{childList:true,subtree:true});
   addEventListener('resize',schedule);
   schedule();
 })();
