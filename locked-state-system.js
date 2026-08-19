@@ -94,11 +94,13 @@
   function decorateCampaign(root=document){
     let count=0;
     const seenCompanyTargets=new Set();
+    const companySystemTargets=new Set(typeof window.campaignUnlockRegistry==='function'?window.campaignUnlockRegistry().filter(x=>x.kind==='system').map(x=>x.target):[]);
     const selectors='button[data-campaign-target],.company-system-hub button.fl-launch,.game-shell > button[class$="-launch"],.hiring-launch';
     for(const el of root.querySelectorAll(selectors)){
       const inCompany=!!el.closest?.('.company-system-hub');
       const target=inCompany?targetFor(el):null;
       if(inCompany&&target){
+        if(!companySystemTargets.has(target)){cleanupCampaign(el);continue}
         if(seenCompanyTargets.has(target)){cleanupCampaign(el);continue}
         seenCompanyTargets.add(target);
       }
