@@ -17,7 +17,7 @@ concurrency:
 jobs:
   release-candidate:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -53,66 +53,53 @@ jobs:
         run: |
           echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
 
-      # Item 13.14 compares against the reviewed PR #115 candidate baseline now committed in visual-qa.
+      # Pull requests already run dedicated FrontierOS workflows for Company,
+      # Desktop, Mobile, Navigation, Pager, EvalBench, Model Lab, Data Explorer,
+      # Mail, People, Projects, and Finance. Do not serially rerun those here.
+      - name: Execute focused PR cross-device gate
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run test:static
+          npm run build:site
+          python3 -m http.server 4173 --directory _site >/tmp/cross-device-pr.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            if [ "$i" = 30 ]; then cat /tmp/cross-device-pr.log; exit 1; fi
+            sleep 1
+          done
+          export TEST_URL='http://127.0.0.1:4173/?frontieros=0'
+          npm run test:disclosure
+          npm run test:empty
+          npm run test:locked
+          npm run test:overlay
+          npm run test:a11y
+          npm run test:routes
+          npm run test:screenshots
+
+      # Keep the complete canonical 39-gate release validation for main and
+      # explicit release runs, where duplicate coverage is intentional.
       - name: Execute canonical Item 13.16 release gate
         id: release-gate
+        if: github.event_name != 'pull_request'
         run: npm run test:rc
 
       - name: Finalize Item 13.17 release sign-off
-        if: always() && steps.release-gate.outcome != 'skipped' && steps.release-gate.outcome != 'cancelled'
+        if: always() && github.event_name != 'pull_request' && steps.release-gate.outcome != 'skipped' && steps.release-gate.outcome != 'cancelled'
         run: npm run test:signoff
 
-      - name: Publish release and FrontierOS evidence
+      - name: Publish cross-device evidence summary
         if: always()
         shell: bash
         run: |
-          # Item 13.1 visual inventory
-          # Item 13.14 screenshot regression evidence
-          # Item 13.15 route crawl evidence
-          # Item 13.16 release decision
-          # Item 13.17 release sign-off
-          # P5.0.1 runtime identity evidence
-          # P5.0.2 Command + Event Bus evidence
-          # P5.0.3 Debug Bundle + Diagnostics evidence
-          # P5.1.1 FrontierOS App Registry evidence
-          # P5.1.2 Mobile FrontierOS evidence
-          # P5.1.3 Desktop FrontierOS evidence
-          # P5.1.4 Navigation + Session evidence
-          # P5.2.1 Pager evidence
-          # P5.2.2 Run Monitor evidence
-          # P5.2.3 EvalBench evidence
-          # P5.2.4 Model Lab evidence
-          # P5.2.5 Data Explorer evidence
-          # P5.2.6 Terminal evidence
-          # P5.2.7 Frontier Mail evidence
-          # P5.2.8 People evidence
-          # P5.2.9 Projects evidence
-          # P5.2.10 Finance evidence
-          # P5.2.11 Company evidence
           for report in \
-            artifacts/visual-inventory/REPORT.md \
             artifacts/screenshot-regression/REPORT.md \
             artifacts/route-crawl/REPORT.md \
             artifacts/release-gate/REPORT.md \
-            artifacts/release-signoff/REPORT.md \
-            artifacts/state-identity/REPORT.md \
-            artifacts/command-event-bus/REPORT.md \
-            artifacts/debug-bundle/REPORT.md \
-            artifacts/app-registry/REPORT.md \
-            artifacts/mobile-frontieros/REPORT.md \
-            artifacts/desktop-frontieros/REPORT.md \
-            artifacts/frontieros-session/REPORT.md \
-            artifacts/pager-frontieros/REPORT.md \
-            artifacts/run-monitor-frontieros/REPORT.md \
-            artifacts/evalbench-frontieros/REPORT.md \
-            artifacts/model-lab-frontieros/REPORT.md \
-            artifacts/data-explorer-frontieros/REPORT.md \
-            artifacts/terminal-frontieros/REPORT.md \
-            artifacts/frontier-mail/REPORT.md \
-            artifacts/people-frontieros/REPORT.md \
-            artifacts/projects-frontieros/REPORT.md \
-            artifacts/finance-frontieros/REPORT.md \
-            artifacts/company-frontieros/REPORT.md; do
+            artifacts/release-signoff/REPORT.md; do
             if [ -f "$report" ]; then
               cat "$report" >> "$GITHUB_STEP_SUMMARY"
               printf '\n' >> "$GITHUB_STEP_SUMMARY"
