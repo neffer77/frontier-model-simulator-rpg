@@ -53,6 +53,7 @@ jobs:
         run: |
           echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
 
+      # Item 13.14 compares against the reviewed PR #115 candidate baseline now committed in visual-qa.
       - name: Execute canonical Item 13.16 release gate
         id: release-gate
         run: npm run test:rc
