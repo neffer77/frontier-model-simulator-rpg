@@ -93,8 +93,17 @@
   }
   function decorateCampaign(root=document){
     let count=0;
+    const seenCompanyTargets=new Set();
     const selectors='button[data-campaign-target],.company-system-hub button.fl-launch,.game-shell > button[class$="-launch"],.hiring-launch';
-    for(const el of root.querySelectorAll(selectors))if(decorateCampaignControl(el))count++;
+    for(const el of root.querySelectorAll(selectors)){
+      const inCompany=!!el.closest?.('.company-system-hub');
+      const target=inCompany?targetFor(el):null;
+      if(inCompany&&target){
+        if(seenCompanyTargets.has(target)){cleanupCampaign(el);continue}
+        seenCompanyTargets.add(target);
+      }
+      if(decorateCampaignControl(el))count++;
+    }
     return count;
   }
 
