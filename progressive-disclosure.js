@@ -16,9 +16,15 @@
       || classHint(section).replace(/[-_]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase())
       || `Section ${i+1}`;
   }
+  function hasEmptyCopy(value){
+    const text=String(value||'').replace(/\s+/g,' ').trim();
+    if(EMPTY_COPY.test(text))return true;
+    const lower=text.toLowerCase();
+    return /\bno active projects?\b/.test(lower)||/\bno projects? yet\b/.test(lower)||/\bempty team\b/.test(lower);
+  }
   function disclosureState(section){
     if(section.matches('.locked,[data-locked="true"],[data-lock-state="locked"]')||section.querySelector('.locked,[data-locked="true"],[data-lock-state="locked"]'))return 'locked';
-    if(section.matches('.fl-empty,[class*="empty"]')||section.querySelector('.fl-empty,[class*="empty"]')||EMPTY_COPY.test(section.textContent||''))return 'empty';
+    if(section.matches('.fl-empty,[class*="empty"]')||section.querySelector('.fl-empty,[class*="empty"]')||hasEmptyCopy(section.textContent))return 'empty';
     return 'ready';
   }
   function rootFor(app){
@@ -26,9 +32,10 @@
     if(preferred)return preferred;
     return [...app.children].find(x=>x.nodeType===1&&!x.matches('.gameplay-guidance,.campaign-progress,lab-install-prompt,.fl-sr-page-title'))||app;
   }
+  function ownsZeroState(section){return !!section.querySelector(':scope .fl-zero-state,:scope [data-fl-zero-key]')}
   function candidatesFor(root){
     return [...root.querySelectorAll(':scope > section, :scope > main > section, :scope > div > section')]
-      .filter(s=>!s.closest('.gameplay-guidance,.story-overlay,.modal-back,.incident-back,.gameplay-more-sheet')&&!s.matches('[data-pd-ignore],.fl-zero-state,[data-fl-zero-key]'));
+      .filter(s=>!s.closest('.gameplay-guidance,.story-overlay,.modal-back,.incident-back,.gameplay-more-sheet')&&!s.matches('[data-pd-ignore],.fl-zero-state,[data-fl-zero-key]')&&!ownsZeroState(s));
   }
   function stableKeys(candidates){
     const seen=new Map();
@@ -63,26 +70,28 @@
       apply(section,btn,{open:next,title,status:disclosureState(section),key});
     };
   }
-  function cleanup(root=document){
-    for(const section of root.querySelectorAll?.('.pd-enhanced')||[]){
-      section.querySelector(':scope > .pd-toggle')?.remove();
-      section.classList.remove('pd-enhanced','pd-collapsed');
-      delete section.dataset.pdState;delete section.dataset.pdKey;delete section.dataset.pdOpen;
-    }
+  function cleanupSection(section){
+    section.querySelector(':scope > .pd-toggle')?.remove();
+    section.classList.remove('pd-enhanced','pd-collapsed');
+    delete section.dataset.pdState;delete section.dataset.pdKey;delete section.dataset.pdOpen;
   }
+  function cleanup(root=document){for(const section of root.querySelectorAll?.('.pd-enhanced')||[])cleanupSection(section)}
   function decorate(){
     queued=false;
     const app=document.getElementById('app');if(!app)return;
     const view=viewName();
     if(!media.matches||!state?.started||!denseViews.has(view)){cleanup(app);return}
-    const candidates=candidatesFor(rootFor(app));
+    const root=rootFor(app);
+    // Empty-state guidance contains its own actionable UI. Never leave an ancestor
+    // disclosure collapsed around it; that makes valid mobile controls measure 0px.
+    for(const section of root.querySelectorAll('.pd-enhanced'))if(ownsZeroState(section))cleanupSection(section);
+    const candidates=candidatesFor(root);
     if(!candidates.length){cleanup(app);return}
+    const candidateSet=new Set(candidates);
+    for(const section of root.querySelectorAll('.pd-enhanced'))if(!candidateSet.has(section))cleanupSection(section);
     const memory=saved(view),entries=stableKeys(candidates);
     entries.forEach(({section,title,key},i)=>{
-      if(i===0&&entries.length>1){
-        if(section.classList.contains('pd-enhanced'))cleanup(section.parentElement||app);
-        return;
-      }
+      if(i===0&&entries.length>1){if(section.classList.contains('pd-enhanced'))cleanupSection(section);return}
       const status=disclosureState(section);
       const defaultOpen=status==='ready'&&(entries.length===1||i===1);
       enhance(section,title,key,status,defaultOpen,memory,view);
