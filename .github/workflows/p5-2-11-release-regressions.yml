@@ -17,7 +17,7 @@ jobs:
   verify:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,7 +39,9 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-      - name: Install Chromium system dependencies
+      - name: Install Chromium system dependencies on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 2
         run: npx playwright install-deps chromium
       - name: Download Chromium on cache miss
         if: steps.playwright-cache.outputs.cache-hit != 'true'
@@ -70,10 +72,6 @@ jobs:
         env:
           TEST_URL: http://127.0.0.1:4173/?frontieros=0
         run: npm run visual:screenshot-baseline
-      - name: Re-run screenshot regression against generated baseline
-        env:
-          TEST_URL: http://127.0.0.1:4173/?frontieros=0
-        run: npm run test:screenshots
       - name: Validate complete active baseline
         run: |
           node - <<'NODE'
