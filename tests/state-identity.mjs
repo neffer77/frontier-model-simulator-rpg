@@ -17,9 +17,10 @@ const outDir=path.resolve('artifacts/state-identity');fs.rmSync(outDir,{recursiv
     addEventListener('beforeunload',()=>{
       try{const saved=JSON.parse(localStorage.getItem('frontier-lab-v3')||'{}');sessionStorage.setItem('frontier-qa-before-reload-revision',String(Number(saved?._frontier?.stateRevision)||0))}catch{sessionStorage.setItem('frontier-qa-before-reload-revision','0')}
     },{once:true});
-    location.reload();
-  }).catch(()=>{});
-  await page.waitForLoadState('networkidle');
+  });
+  // Let Playwright own the navigation. Triggering location.reload() inside page.evaluate()
+  // destroys that execution context by design and makes the assertion race the browser.
+  await page.reload({waitUntil:'networkidle'});
   const boundaryRevision=Number(await page.evaluate(()=>sessionStorage.getItem('frontier-qa-before-reload-revision')||'0'));
   const afterReload=await page.evaluate(()=>frontierDiagnostics());const reloadTimeline=await page.evaluate(()=>frontierStateWriteTimeline?.()||[]);evidence.push({case:'desktop-reload',diagnostics:afterReload,reloadBoundaryRevision:boundaryRevision,writeTimeline:reloadTimeline});fs.writeFileSync(path.join(outDir,'reload-write-timeline.json'),JSON.stringify({beforeRevision:boundaryRevision,afterRevision:afterReload.state.stateRevision,writes:reloadTimeline},null,2)+'\n');assert.notEqual(afterReload.session.sessionId,sessionBefore);assert.equal(afterReload.state.stateRevision,boundaryRevision,`reload fabricated a revision; writes=${JSON.stringify(reloadTimeline)}`);
   const text=await page.evaluate(()=>frontierDiagnosticsText());for(const marker of ['FrontierOS Diagnostics','Build','Session','State rev','Device','Viewport','Route'])assert(text.includes(marker),`diagnostics text missing ${marker}`);await context.close();
