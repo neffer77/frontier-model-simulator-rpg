@@ -5,7 +5,23 @@ const url=process.env.TEST_URL||'http://127.0.0.1:4173/';
 const browser=await chromium.launch({headless:true});
 const page=await browser.newPage({viewport:{width:1280,height:1000}});
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
-async function dismissStory(p){for(let i=0;i<12&&await p.locator('.story-overlay').count();i++){const next=p.locator('.story-overlay button').last();if(!(await next.count()))break;await next.click();await p.waitForTimeout(30)}}
+async function settle(p,ms=40){await p.waitForTimeout(ms);await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))}
+async function clearTransientOverlays(p){
+  for(let i=0;i<20;i++){
+    const top=await p.evaluate(()=>window.frontierOverlayTop?.()?.type||null);
+    if(!top||top==='incident')break;
+    if(!['story','milestone','modal','priority','more'].includes(top))break;
+    await p.keyboard.press('Escape');await settle(p,25);
+  }
+  await p.evaluate(()=>window.frontierOverlaySync?.());await settle(p,20);
+}
+async function dismissStory(p){
+  for(let i=0;i<12&&await p.locator('.story-overlay').count();i++){
+    const next=p.locator('.story-overlay button').last();if(!(await next.count()))break;
+    await next.click();await settle(p,30);
+  }
+  await clearTransientOverlays(p);
+}
 await page.goto(url,{waitUntil:'networkidle'});
 
 assert(await page.locator('.replay-founder').isVisible(),'fresh founder screen should expose run configuration');
@@ -56,7 +72,7 @@ assert(wrong.cashLoss>=.18,'Redline wrong diagnosis should cost at least the exp
 assert.equal(wrong.wrong,1,'wrong diagnosis should still feed canonical balance telemetry');
 assert(wrong.feed.some(x=>/Difficulty consequence: wrong diagnosis cost 2d and \$0\.18M/.test(x)),'difficulty consequence should be visible in company history');
 
-await dismissStory(page);await page.locator('.replay-hud').click();await page.waitForTimeout(50);
+await clearTransientOverlays(page);await page.locator('.replay-hud').click();await page.waitForTimeout(50);
 assert(await page.getByRole('heading',{name:'Run Archive'}).isVisible(),'run archive should open');
 assert(/80 core combinations/.test(await page.locator('.replay-card').last().textContent()),'archive should report the five-archetype replay matrix');
 await page.getByRole('button',{name:/Return to company/i}).click();await page.waitForTimeout(50);
@@ -73,7 +89,6 @@ assert.equal(cleared.run.medal,'gold','Day 60 of a Day 96 challenge should earn 
 assert.equal(cleared.career.completedRuns,1,'career archive should persist completed run');
 assert(cleared.career.points>=2,'Redline gold clear should award career points');
 
-// Start a fresh company in-memory while preserving the separate career archive.
 await page.evaluate(()=>{localStorage.removeItem('frontier-lab-v3');state=fresh();render()});
 await page.waitForTimeout(120);
 assert(await page.locator('.replay-founder').isVisible(),'new run should return to founder setup');
@@ -86,7 +101,7 @@ const late=await lateCtx.newPage();const lateErrors=[];late.on('pageerror',e=>la
 await late.goto(url,{waitUntil:'networkidle'});
 await late.getByRole('button',{name:/Redline/}).click();
 await late.getByRole('button',{name:/Scale Race/}).click();
-await late.getByRole('button',{name:/Found the lab/i}).click();await late.waitForTimeout(80);
+await late.getByRole('button',{name:/Found the lab/i}).click();await late.waitForTimeout(80);await clearTransientOverlays(late);
 await late.evaluate(()=>{
   state.day=97;
   state.models.push({id:'late-30b',name:'LATE-30B',tier:'30B Dense',paramsB:30,day:97,architecture:{type:'Dense Transformer',parametersB:30,activeParametersB:30,contextLength:8192,precision:'BF16 mixed'},training:{status:'completed',startedDay:90,completedDay:97,config:{},history:[]},checkpoints:[],evals:[],experiments:[],postTraining:[],launches:[],incidents:[],costs:{trainingM:6.5,simulatedH100h:1},capabilities:{},weaknesses:[],technicalDebt:[],discoveries:[]});
