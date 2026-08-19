@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "item": "13.17",
+  "status": "reviewed",
+  "sourceRun": 32281977641,
+  "sourceArtifact": 9376736353,
+  "sourceHeadSha": "faad06e20b3fcf81aa920e460361212738cb6db6",
+  "rationale": "Reviewed deterministic visual deltas from P5.2.11 Company/dashboard and mobile disclosure changes. Exact hashes remain enforced.",
+  "captures": {
+    "phone-portrait/company-early": {"sha256":"9359d6ce36dd6d367a5c1df35bba034256f0da5d6c8e86ad08ac80ddd8793808","width":390,"height":8591},
+    "phone-portrait/more-unlocked": {"sha256":"cb9a4627c995017c30dc051fed2b65cd8a4a872bbb48608e6683feb3e7469456","width":390,"height":7953},
+    "phone-portrait/route-company-home": {"sha256":"81893e4ac1aaa981ad67a950baf7f571a994d3d49866409396f3bc0708e108de","width":390,"height":7953},
+    "phone-portrait/route-training": {"sha256":"f61a5d950f953314f4452b2b2fdb16c3c9adc6b07d3fa7b5d54c16160efd3b8e","width":390,"height":7953},
+    "phone-portrait/route-workforce": {"sha256":"544f8aea48a73418da168541b77016a72101b43f34966e047dd079db544ffba5","width":390,"height":2436},
+    "phone-portrait/route-program-learning": {"sha256":"06db6cbf97e0e17cb3631939f036339b285ac6699729e338b24eed4fdadb9d5a","width":390,"height":1675},
+    "phone-portrait/route-strategy": {"sha256":"73727cc0be4a39190429d69e26e90ef0ad3692a395303e7e2bd494de86f76a55","width":390,"height":1829},
+    "phone-portrait/route-investment": {"sha256":"c70c501d67f3fab192cb6a5c3e033b7aa977af1927d8d36c4053ec2c4a965a33","width":390,"height":2034},
+    "phone-portrait/route-ecosystem": {"sha256":"41897e5b4cee6d9f1c86fa9880c0d1c9fdc4f7fe74bb4be55140b528b63475f4","width":390,"height":1797},
+    "phone-portrait/route-policy": {"sha256":"f6a03813390d579e03f81f2dd104d81ae63e5c3c10a8645caa1f302df92791a6","width":390,"height":1967},
+    "phone-portrait/company-populated": {"sha256":"70bb697ef9b3e1fc7b381c943a2eb26533dad2af971a33a8b130502c706dd716","width":390,"height":7918},
+    "phone-landscape/company-early": {"sha256":"3a0c28b4b21f5da7b7d189c0141ad1929da8ca5bb18efd1bf5065fdc0e76cc86","width":844,"height":5380},
+    "phone-landscape/more-locked": {"sha256":"87e42f29d4e34a9fd45a0dabc0897982cba86185fae2433a06cb84ec030ead1f","width":844,"height":5380},
+    "phone-landscape/more-unlocked": {"sha256":"0de0dc6253ce3dc4ab6399340a66fa2972b77406b0be9817d4193d379ea37f7f","width":844,"height":5101},
+    "tablet/company-early": {"sha256":"0d517874ff0d228c134287e85a1238cd4732f5045813b333d486c54f85998cc7","width":834,"height":5537},
+    "tablet/more-locked": {"sha256":"103c3440bb34f945133748ed1725a65b1ea1deec3e093c783474fef817d55f5d","width":834,"height":5537},
+    "tablet/training-empty": {"sha256":"bad2b21c08c14639fc0dba4d0ff1f82e1fde5bd654d517561d8e6ef0b33b77de","width":834,"height":5537},
+    "desktop/more-unlocked": {"sha256":"e6516897775c7fa80582ce27987699d8e454d827a1daf7111a2022bb4098403d","width":1440,"height":3578},
+    "desktop/route-company-home": {"sha256":"15e305fc82718c959feab81df411d7c742bd210cdd2977ec7192fe413057869f","width":1440,"height":3578},
+    "wide/company-early": {"sha256":"c5d87b1a95a82bd1ce61891e3401b77208f1c36ad236f822a2e5368cd3903938","width":1920,"height":3431},
+    "wide/more-locked": {"sha256":"2cde5e5c31165c15d2099091ccba9a8948ee9a80af422f9b02772c82c452cebe","width":1920,"height":3431},
+    "wide/training-empty": {"sha256":"1e831c13cc073041b0689a743f27a73d1d9ad99f59f944150845a600c216d0a4","width":1920,"height":3431}
+  }
+}
