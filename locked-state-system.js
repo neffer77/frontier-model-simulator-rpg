@@ -75,13 +75,15 @@
     const s=safeState(),app=document.getElementById('app');if(!s?.started||s.view!=='company'||!app)return;
     const registry=typeof window.campaignUnlockRegistry==='function'?window.campaignUnlockRegistry().filter(x=>x.kind==='system'):[];
     if(!registry.length)return;
-    const existingTargets=new Set([...document.querySelectorAll('button')].map(targetFor).filter(Boolean));
     let hub=app.querySelector('.company-system-hub');
     if(!hub){
       const shell=app.querySelector('.game-shell');if(!shell)return;
       hub=document.createElement('section');hub.className='company-system-hub';hub.setAttribute('aria-label','Company systems');
       shell.appendChild(hub);
     }
+    // Only launchers actually hosted by Company satisfy the Company hub contract.
+    // Navigation/More-sheet buttons elsewhere must not suppress required placeholders.
+    const existingTargets=new Set([...hub.querySelectorAll('button.fl-launch')].map(targetFor).filter(Boolean));
     let group=hub.querySelector('[data-fl-placeholder-group]');
     if(!group){group=document.createElement('div');group.className='fl-launch-group';group.dataset.flPlaceholderGroup='1';group.innerHTML='<div class="fl-launch-group-head"><span>COMPANY SYSTEMS</span><small>Future simulation surfaces remain visible while guided progression unlocks them.</small></div><div class="fl-launch-grid"></div>';hub.appendChild(group)}
     const grid=group.querySelector('.fl-launch-grid')||group;
