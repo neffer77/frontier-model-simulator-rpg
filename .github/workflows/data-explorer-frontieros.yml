@@ -22,7 +22,7 @@ permissions:
 jobs:
   evidence:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,9 +40,9 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-      - name: Install Chromium system dependencies
+      - name: Install Chromium system dependencies on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         timeout-minutes: 2
-        continue-on-error: true
         run: npx playwright install-deps chromium
       - name: Download Chromium on cache miss
         if: steps.playwright-cache.outputs.cache-hit != 'true'

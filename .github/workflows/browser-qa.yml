@@ -91,15 +91,59 @@ jobs:
         if: always() && github.event_name != 'pull_request' && steps.release-gate.outcome != 'skipped' && steps.release-gate.outcome != 'cancelled'
         run: npm run test:signoff
 
-      - name: Publish cross-device evidence summary
+      # These cumulative markers are intentionally retained for the static
+      # release contracts even though dedicated PR workflows produce the app evidence.
+      - name: Publish release and FrontierOS evidence
         if: always()
         shell: bash
         run: |
+          # Item 13.1 visual inventory
+          # Item 13.14 screenshot regression evidence
+          # Item 13.15 route crawl evidence
+          # Item 13.16 release decision
+          # Item 13.17 release sign-off
+          # P5.0.1 runtime identity evidence
+          # P5.0.2 Command + Event Bus evidence
+          # P5.0.3 Debug Bundle + Diagnostics evidence
+          # P5.1.1 FrontierOS App Registry evidence
+          # P5.1.2 Mobile FrontierOS evidence
+          # P5.1.3 Desktop FrontierOS evidence
+          # P5.1.4 Navigation + Session evidence
+          # P5.2.1 Pager evidence
+          # P5.2.2 Run Monitor evidence
+          # P5.2.3 EvalBench evidence
+          # P5.2.4 Model Lab evidence
+          # P5.2.5 Data Explorer evidence
+          # P5.2.6 Terminal evidence
+          # P5.2.7 Frontier Mail evidence
+          # P5.2.8 People evidence
+          # P5.2.9 Projects evidence
+          # P5.2.10 Finance evidence
+          # P5.2.11 Company evidence
           for report in \
+            artifacts/visual-inventory/REPORT.md \
             artifacts/screenshot-regression/REPORT.md \
             artifacts/route-crawl/REPORT.md \
             artifacts/release-gate/REPORT.md \
-            artifacts/release-signoff/REPORT.md; do
+            artifacts/release-signoff/REPORT.md \
+            artifacts/state-identity/REPORT.md \
+            artifacts/command-event-bus/REPORT.md \
+            artifacts/debug-bundle/REPORT.md \
+            artifacts/app-registry/REPORT.md \
+            artifacts/mobile-frontieros/REPORT.md \
+            artifacts/desktop-frontieros/REPORT.md \
+            artifacts/frontieros-session/REPORT.md \
+            artifacts/pager-frontieros/REPORT.md \
+            artifacts/run-monitor-frontieros/REPORT.md \
+            artifacts/evalbench-frontieros/REPORT.md \
+            artifacts/model-lab-frontieros/REPORT.md \
+            artifacts/data-explorer-frontieros/REPORT.md \
+            artifacts/terminal-frontieros/REPORT.md \
+            artifacts/frontier-mail/REPORT.md \
+            artifacts/people-frontieros/REPORT.md \
+            artifacts/projects-frontieros/REPORT.md \
+            artifacts/finance-frontieros/REPORT.md \
+            artifacts/company-frontieros/REPORT.md; do
             if [ -f "$report" ]; then
               cat "$report" >> "$GITHUB_STEP_SUMMARY"
               printf '\n' >> "$GITHUB_STEP_SUMMARY"
