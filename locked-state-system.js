@@ -59,9 +59,6 @@
   function decorateCampaignControl(el){
     const target=targetFor(el);if(!target)return false;
     const plan=planFor(target);if(!plan){cleanupCampaign(el);return false}
-    // Keep the canonical campaign target on real launchers even after they unlock.
-    // Company dashboard re-hosting otherwise strips the only stable semantic handle
-    // that QA and accessibility tooling can use to identify a system launcher.
     if(!el.dataset.campaignTarget)el.dataset.campaignTarget=target;
     el.dataset.flLockTarget=target;
     if(plan.unlocked){cleanupCampaign(el);return false}
@@ -81,9 +78,7 @@
       hub=document.createElement('section');hub.className='company-system-hub';hub.setAttribute('aria-label','Company systems');
       shell.appendChild(hub);
     }
-    // Only launchers actually hosted by Company satisfy the Company hub contract.
-    // Navigation/More-sheet buttons elsewhere must not suppress required placeholders.
-    const existingTargets=new Set([...hub.querySelectorAll('button.fl-launch')].map(targetFor).filter(Boolean));
+    const existingTargets=new Set([...hub.querySelectorAll('button')].map(targetFor).filter(Boolean));
     let group=hub.querySelector('[data-fl-placeholder-group]');
     if(!group){group=document.createElement('div');group.className='fl-launch-group';group.dataset.flPlaceholderGroup='1';group.innerHTML='<div class="fl-launch-group-head"><span>COMPANY SYSTEMS</span><small>Future simulation surfaces remain visible while guided progression unlocks them.</small></div><div class="fl-launch-grid"></div>';hub.appendChild(group)}
     const grid=group.querySelector('.fl-launch-grid')||group;
