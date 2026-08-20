@@ -33,6 +33,12 @@
   }
   function decorateButtons(root=document){
     for(const button of root.querySelectorAll('button')){
+      // Author-provided accessible names carry more context than our generic symbol
+      // fallbacks (for example, "Close lock explanation" versus "Close"). Preserve
+      // explicit aria-label/aria-labelledby values and only synthesize a label for
+      // controls that are actually unlabeled or were previously labeled by this adapter.
+      const hasExplicitLabel=!!(button.getAttribute('aria-label')||button.getAttribute('aria-labelledby'))&&button.dataset.flA11yGeneratedLabel!=='1';
+      if(hasExplicitLabel)continue;
       const current=accessibleName(button),raw=(button.textContent||'').replace(/\s+/g,' ').trim();
       if(current&&!SYMBOL_LABELS[raw])continue;
       const label=inferButtonLabel(button);if(label){button.setAttribute('aria-label',label);button.dataset.flA11yGeneratedLabel='1'}
