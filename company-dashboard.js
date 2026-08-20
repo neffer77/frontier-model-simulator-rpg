@@ -34,8 +34,19 @@
   }
   function signature(buttons){return buttons.map(b=>`${groupFor(b).id}:${orderFor(b)}:${launcherKey(b)}`).sort().join('|')}
   function createHub(){
-    const hub=document.createElement('section');hub.className='company-system-hub fl-panel';hub.setAttribute('aria-labelledby','company-system-hub-title');
+    const hub=document.createElement('section');hub.className='company-system-hub fl-panel';hub.dataset.companyDashboard='1';hub.setAttribute('aria-labelledby','company-system-hub-title');
     hub.innerHTML=`<header class="company-system-hub-head"><div class="company-system-hub-copy"><div class="eyebrow">COMPANY SYSTEMS</div><h2 id="company-system-hub-title">Run the lab</h2><p>Technical, operational and company systems are grouped here so the main dashboard stays readable as the simulation grows.</p></div><span class="company-system-count fl-badge">0 systems</span></header><div class="company-system-groups"></div>`;
+    return hub;
+  }
+  function canonicalHub(existing){
+    if(!existing)return createHub();
+    if(existing.querySelector('.company-system-groups')){existing.dataset.companyDashboard='1';return existing}
+    // Other runtime layers may create a lightweight .company-system-hub first. The
+    // dashboard owns a richer internal contract, so replace that shell only after its
+    // launcher nodes have been collected. Existing button references remain valid and
+    // are re-parented into the canonical groups below.
+    const hub=createHub();
+    if(existing.isConnected)existing.replaceWith(hub);
     return hub;
   }
   function groupNode(group,items){
@@ -63,15 +74,17 @@
     buttons.sort((a,b)=>orderFor(a)-orderFor(b)||launcherId(a).localeCompare(launcherId(b)));
     const sig=signature(buttons);
     const stray=[...shell.children].filter(isLauncher);
-    if(existing&&existing.dataset.dashboardSignature===sig&&!stray.length){
+    if(existing?.querySelector('.company-system-groups')&&existing.dataset.dashboardSignature===sig&&!stray.length){
+      existing.dataset.companyDashboard='1';
       const count=existing.querySelector('.company-system-count');if(count)count.textContent=`${buttons.length} system${buttons.length===1?'':'s'}`;
       return;
     }
-    const hub=existing||createHub();
-    const groups=hub.querySelector('.company-system-groups');groups.replaceChildren();
+    const hub=canonicalHub(existing);
+    const groups=hub.querySelector('.company-system-groups');
+    groups.replaceChildren();
     for(const group of GROUPS){const items=buttons.filter(b=>groupFor(b).id===group.id);if(items.length)groups.appendChild(groupNode(group,items))}
     hub.dataset.dashboardSignature=sig;
-    hub.querySelector('.company-system-count').textContent=`${buttons.length} system${buttons.length===1?'':'s'}`;
+    const count=hub.querySelector('.company-system-count');if(count)count.textContent=`${buttons.length} system${buttons.length===1?'':'s'}`;
     if(!hub.isConnected){
       const world=shell.querySelector(':scope > .world-grid');
       const rolebar=shell.querySelector(':scope > .rolebar');
