@@ -79,11 +79,16 @@
       shell.appendChild(hub);
     }
     const existingTargets=new Set([...hub.querySelectorAll('button')].map(targetFor).filter(Boolean));
+    const missing=registry.filter(plan=>!existingTargets.has(plan.target));
     let group=hub.querySelector('[data-fl-placeholder-group]');
+    if(!missing.length){
+      if(group){const grid=group.querySelector('.fl-launch-grid')||group;if(!grid.children.length)group.remove()}
+      return;
+    }
     if(!group){group=document.createElement('div');group.className='fl-launch-group';group.dataset.flPlaceholderGroup='1';group.innerHTML='<div class="fl-launch-group-head"><span>COMPANY SYSTEMS</span><small>Future simulation surfaces remain visible while guided progression unlocks them.</small></div><div class="fl-launch-grid"></div>';hub.appendChild(group)}
     const grid=group.querySelector('.fl-launch-grid')||group;
-    for(const plan of registry){
-      if(existingTargets.has(plan.target)||grid.querySelector(`[data-campaign-target="${plan.target}"]`))continue;
+    for(const plan of missing){
+      if(grid.querySelector(`[data-campaign-target="${plan.target}"]`))continue;
       const button=document.createElement('button');button.type='button';button.className='fl-launch fl-launch-placeholder';button.dataset.campaignTarget=plan.target;button.dataset.lockLabel=plan.label;
       button.innerHTML=`<span>${plan.label.toUpperCase()}</span><b>${plan.label}</b><small>${plan.unlocked?'Open system →':`Unlocks ${plan.unlockKicker}`}</small>`;
       button.addEventListener('click',()=>{const current=planFor(plan.target);if(current?.unlocked&&typeof window.gameplayOpen==='function')window.gameplayOpen(plan.target);else if(typeof window.campaignLockedSystem==='function')window.campaignLockedSystem(plan.target)});
