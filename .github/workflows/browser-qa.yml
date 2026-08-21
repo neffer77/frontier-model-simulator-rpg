@@ -23,46 +23,34 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-
       - name: Install pinned test dependencies
         run: npm install --no-audit --no-fund
-
       - name: Resolve Playwright version
         id: playwright-version
         run: |
           VERSION=$(node -p "require('./node_modules/playwright/package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Restore Playwright browser cache
         id: playwright-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-
       - name: Install Chromium system dependencies on cache miss
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         timeout-minutes: 2
         run: npx playwright install-deps chromium
-
       - name: Download Chromium on cache miss
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium
-
       - name: Report Playwright cache
         run: echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
-
-      # Full canonical release validation is intentionally required for PRs,
-      # main pushes, and explicit release runs. Dedicated app workflows provide
-      # faster focused feedback, but they do not replace this release gate.
       - name: Execute canonical Item 13.16 release gate
         id: release-gate
         run: npm run test:rc
-
       - name: Finalize Item 13.17 release sign-off
         if: always() && steps.release-gate.outcome != 'skipped' && steps.release-gate.outcome != 'cancelled'
         run: npm run test:signoff
-
       - name: Publish release and FrontierOS evidence
         if: always()
         shell: bash
@@ -90,6 +78,7 @@ jobs:
           # P5.2.9 Projects evidence
           # P5.2.10 Finance evidence
           # P5.2.11 Company evidence
+          # P5.2.12 Knowledge + Code Lab + Artifacts evidence
           for report in \
             artifacts/visual-inventory/REPORT.md \
             artifacts/screenshot-regression/REPORT.md \
@@ -113,13 +102,13 @@ jobs:
             artifacts/people-frontieros/REPORT.md \
             artifacts/projects-frontieros/REPORT.md \
             artifacts/finance-frontieros/REPORT.md \
-            artifacts/company-frontieros/REPORT.md; do
+            artifacts/company-frontieros/REPORT.md \
+            artifacts/knowledge-engineering-frontieros/REPORT.md; do
             if [ -f "$report" ]; then
               cat "$report" >> "$GITHUB_STEP_SUMMARY"
               printf '\n' >> "$GITHUB_STEP_SUMMARY"
             fi
           done
-
       - name: Upload cross-device evidence
         if: always()
         uses: actions/upload-artifact@v4
