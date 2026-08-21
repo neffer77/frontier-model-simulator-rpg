@@ -26,11 +26,10 @@
   function specificLaunchClass(button){return classes(button).find(c=>c!=='fl-launch'&&c.endsWith('-launch'))||null}
   function launcherId(button){return specificLaunchClass(button)||button.getAttribute('data-dashboard-id')||button.getAttribute('data-campaign-target')||labelId(button)}
   function launcherKey(button){
-    // Locked-state decoration may add data-campaign-target after a launcher has already
-    // been hosted. A module-specific *-launch class is the stable identity shared by
-    // both the fresh render and the previously hosted button; never key on generic
-    // fl-launch or on post-render decoration first.
-    return specificLaunchClass(button)||button.getAttribute('data-dashboard-id')||button.getAttribute('data-campaign-target')||labelId(button);
+    // Campaign target is the semantic identity shared by a real launcher and any
+    // temporary locked-state placeholder for that same system. Prefer it once
+    // available so observer ordering cannot preserve duplicate generations.
+    return button.getAttribute('data-campaign-target')||specificLaunchClass(button)||button.getAttribute('data-dashboard-id')||labelId(button);
   }
   function signature(buttons){return buttons.map(b=>`${groupFor(b).id}:${orderFor(b)}:${launcherKey(b)}`).sort().join('|')}
   function createHub(){

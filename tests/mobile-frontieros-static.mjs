@@ -8,4 +8,4 @@ const cache=sw.match(/CACHE='frontier-lab-v(\d+)'/);assert(cache&&Number(cache[1
 assert.equal(pkg.scripts['test:mobile-os'],'node tests/mobile-frontieros.mjs');assert.equal(pkg.scripts['test:mobile-os-static'],'node tests/mobile-frontieros-static.mjs');assert(pkg.scripts['test:static'].includes('mobile-frontieros-static.mjs'));assert(pkg.scripts['test:qa'].includes('mobile-frontieros.mjs'));
 const gate=policy.gates.find(g=>g.id==='frontieros-mobile-home');assert(gate);assert.equal(gate.severity,'blocker');assert.equal(gate.script,'test:mobile-os');assert.equal(gate.evidence,'artifacts/mobile-frontieros/report.json');
 for(const marker of ['npm run test:mobile-os','artifacts/mobile-frontieros','retention-days: 30'])assert(workflow.includes(marker),`focused mobile evidence workflow missing ${marker}`);
-console.log(JSON.stringify({mobileFrontierOsStatic:'pass',surface:'phone',apps:14,cache:`v${cache[1]}`,minimum:'v32',releaseBlocker:true,evidenceRetentionDays:30},null,2));
+console.log(JSON.stringify({mobileFrontierOsStatic:'pass',surface:'phone',apps:15,cache:`v${cache[1]}`,minimum:'v32',releaseBlocker:true,evidenceRetentionDays:30},null,2));

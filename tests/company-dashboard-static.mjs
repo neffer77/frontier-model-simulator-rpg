@@ -24,6 +24,7 @@ for(const signal of ['dataeval','tech debt','architecture','model famil','mainte
 for(const contract of ['frontierCompanyDashboardSync','MutationObserver','dataset.flCompanyDashboard','dashboardSignature','isLauncher','groupFor','orderFor']){
   assert(js.includes(contract),`Company/Home runtime contract missing ${contract}`);
 }
+assert(js.includes("return button.getAttribute('data-campaign-target')||specificLaunchClass(button)"),'dashboard launcher identity must prefer semantic campaign target over CSS generation identity');
 
 const styles=[...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 const scripts=[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m=>m[1]);
@@ -43,4 +44,4 @@ assert.equal(vis001.screen,'company-home','VIS-001 must stay tied to Company/Hom
 assert(/dark simulator surface system/i.test(vis001.expected),'VIS-001 must continue to define the no-bright-surface expectation');
 assert(html.includes('company-dashboard.js')&&read('package.json').includes('tests/company-dashboard.mjs'),'VIS-001 must be guarded by the Company/Home runtime and browser regression');
 
-console.log(JSON.stringify({companyDashboardStatic:'pass',groups:6,vis001:'guarded'},null,2));
+console.log(JSON.stringify({companyDashboardStatic:'pass',groups:6,vis001:'guarded',campaignTargetIdentity:'guarded'},null,2));

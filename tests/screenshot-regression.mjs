@@ -37,9 +37,24 @@ const sha256=buffer=>crypto.createHash('sha256').update(buffer).digest('hex');
 function pngDimensions(buffer){const signature='89504e470d0a1a0a';if(buffer.length<24||buffer.subarray(0,8).toString('hex')!==signature)throw new Error('Screenshot buffer is not a PNG');return {width:buffer.readUInt32BE(16),height:buffer.readUInt32BE(20)}}
 async function settle(page,ms=80){await page.waitForTimeout(ms);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))}
 async function sync(page){
-  await page.evaluate(()=>{window.frontierPageSweepSync?.();window.frontierResponsiveSync?.();window.frontierLockedStateSync?.();window.frontierAccessibilitySync?.();window.frontierOverlaySync?.()});
+  // Company launchers are jointly organized by the dashboard and locked-state
+  // systems. Drive both synchronously in a fixed order so screenshot capture is
+  // independent of their MutationObserver scheduling order.
+  await page.evaluate(()=>{
+    window.frontierPageSweepSync?.();
+    window.frontierResponsiveSync?.();
+    window.frontierCompanyDashboardSync?.();
+    window.frontierLockedStateSync?.();
+    window.frontierCompanyDashboardSync?.();
+    window.frontierLockedStateSync?.();
+    window.frontierAccessibilitySync?.();
+    window.frontierOverlaySync?.();
+  });
   await settle(page,25);
-  await page.evaluate(()=>window.frontierLockedStateSync?.());
+  await page.evaluate(()=>{
+    window.frontierCompanyDashboardSync?.();
+    window.frontierLockedStateSync?.();
+  });
   await settle(page,25);
 }
 async function clearTransientOverlays(page){
