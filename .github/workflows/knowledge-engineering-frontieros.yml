@@ -1,0 +1,62 @@
+name: FrontierOS Knowledge + Engineering evidence
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontier-knowledge-engineering-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Resolve Playwright version
+        id: playwright-version
+        run: |
+          VERSION=$(node -p "require('./node_modules/playwright/package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Restore Playwright browser cache
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium system dependencies on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 2
+        continue-on-error: true
+        run: npx playwright install-deps chromium
+      - name: Download Chromium on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+      - name: Static contract
+        run: npm run test:knowledge-engineering-os-static
+      - name: Build production site
+        run: npm run build:site
+      - name: Start site
+        run: python3 -m http.server 4173 --directory _site >/tmp/frontier-knowledge-engineering.log 2>&1 &
+      - name: Browser evidence
+        run: npm run test:knowledge-engineering-os
+      - name: Publish evidence
+        if: always()
+        run: if [ -f artifacts/knowledge-engineering-frontieros/REPORT.md ]; then cat artifacts/knowledge-engineering-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: knowledge-engineering-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/knowledge-engineering-frontieros
+          if-no-files-found: warn
+          retention-days: 30
