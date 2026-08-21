@@ -2,12 +2,20 @@
   "version": 1,
   "item": "13.14",
   "status": "active",
-  "description": "Deterministic SHA-256 baselines for Item 13.14 full-page Playwright screenshots.",
+  "description": "Reviewed deterministic SHA-256 baselines for Item 13.14 full-page Playwright screenshots.",
   "inventoryVersion": 1,
   "responsiveMatrixVersion": 1,
   "playwrightVersion": "1.54.2",
   "expectedCaptureCount": 255,
-  "generatedAt": "2026-08-19T16:38:16.767Z",
+  "generatedAt": "2026-08-21T16:34:21.035Z",
+  "promotedAt": "2026-08-21T16:39:09.318Z",
+  "promotion": {
+    "item": "13.17",
+    "reviewed": true,
+    "reviewedBy": "github-actions[bot]",
+    "candidateSha256": "f0c8a8d1425a559f12e6d5e5ff26d4d3e14f23204abf9955282113416dbadde3",
+    "candidateFile": "artifacts/screenshot-regression/candidate-baseline.json"
+  },
   "capturePolicy": {
     "routes": "Every visual-qa/inventory.json screen in graduated empty state",
     "specials": "Every non-manual visual-qa/inventory.json special capture",
@@ -41,10 +49,10 @@
       "screenId": null
     },
     "phone-portrait/company-early": {
-      "sha256": "026c415466a4fdef47e34310b4054a9db2e24ba1336fc419bc2167d49971f052",
+      "sha256": "1cf97ba885bec5499aaecf4fbb98b31e5350311315b8252dff359245cdadb0b2",
       "width": 390,
-      "height": 8591,
-      "bytes": 1048273,
+      "height": 8696,
+      "bytes": 1059042,
       "label": "Company / Home — early campaign",
       "stateClasses": [
         "locked",
@@ -54,10 +62,10 @@
       "screenId": null
     },
     "phone-portrait/more-locked": {
-      "sha256": "cce4b4a0c252a4e20adc9765cba3a5deea486dc7ff6aa252cd1a6ca53a2b454a",
+      "sha256": "612ecec7bc723ff3897e8f3c16cbd440781360d1decbbe054fa1e6f3b0afb002",
       "width": 390,
-      "height": 8591,
-      "bytes": 1103324,
+      "height": 8696,
+      "bytes": 1115930,
       "label": "More sheet — early campaign locks",
       "stateClasses": [
         "locked"
@@ -66,10 +74,10 @@
       "screenId": null
     },
     "phone-portrait/training-empty": {
-      "sha256": "371fad69487046e6aef386befff6f54aa0b783b8247a7d54b8dcd4ff5fc9c3b2",
+      "sha256": "1cf97ba885bec5499aaecf4fbb98b31e5350311315b8252dff359245cdadb0b2",
       "width": 390,
-      "height": 8591,
-      "bytes": 1046426,
+      "height": 8696,
+      "bytes": 1059042,
       "label": "Training Operations — no active run",
       "stateClasses": [
         "empty",
@@ -79,10 +87,10 @@
       "screenId": null
     },
     "phone-portrait/more-unlocked": {
-      "sha256": "3e38d8532a7aa2ecb28681eb4c8b7eb561fa684835b08b859514ad90f854c0eb",
+      "sha256": "fc80358ee9440013eff67e7c7ec9ea6c819494f420f4dea4bb8e8a163571f424",
       "width": 390,
-      "height": 7953,
-      "bytes": 1009940,
+      "height": 8174,
+      "bytes": 1027029,
       "label": "More sheet — graduated campaign",
       "stateClasses": [
         "unlocked"
@@ -91,10 +99,10 @@
       "screenId": null
     },
     "phone-portrait/route-company-home": {
-      "sha256": "99086b9f83ebd2098396f0f367785f00eb3aec73ce0c439c5aa04a4ec781df37",
+      "sha256": "ec628856a1943c0eaee9e2de57d16f423a724733230e91e172cb501d7d38624b",
       "width": 390,
-      "height": 7953,
-      "bytes": 1001833,
+      "height": 8174,
+      "bytes": 1018489,
       "label": "Company / Home",
       "stateClasses": [
         "unlocked",
@@ -104,10 +112,10 @@
       "screenId": "company-home"
     },
     "phone-portrait/route-training": {
-      "sha256": "36d5bb4414688f0fe7bb1db654b2b29af55374a8ce45d391d30b8b7dee24e4e4",
+      "sha256": "9f9cc3d519f01e32b34d523bf463736e422aeeb5bef095912c6055a6552435d1",
       "width": 390,
-      "height": 7953,
-      "bytes": 1001640,
+      "height": 8174,
+      "bytes": 1018307,
       "label": "Training Operations",
       "stateClasses": [
         "unlocked",
@@ -143,10 +151,10 @@
       "screenId": "model-lab"
     },
     "phone-portrait/route-workstation": {
-      "sha256": "ce0cef806cb5ef5b00a39e6457e0abd72e0c91e3704697ce6c0607fafc197f3a",
+      "sha256": "dcb5e9b943d6edcab86ccdc05e5a39796a4fbc50e6ed1aa7ddbfd74b9a79aa31",
       "width": 390,
-      "height": 7953,
-      "bytes": 1033985,
+      "height": 8174,
+      "bytes": 1051519,
       "label": "Engineer Workstation",
       "stateClasses": [
         "unlocked",
@@ -338,10 +346,10 @@
       "screenId": "release-governance"
     },
     "phone-portrait/route-roadmap": {
-      "sha256": "7641139ea303c7ccdda75bead91533a90b00ce13fb052d1182813e200ca0f28c",
+      "sha256": "0b90c30037a9f6d71da754c1edb46a2b446c1de6d6da5036ecf6ad5776b8782c",
       "width": 390,
-      "height": 2488,
-      "bytes": 256821,
+      "height": 3381,
+      "bytes": 298155,
       "label": "Executive Roadmap / Enterprise Pressure",
       "stateClasses": [
         "unlocked",
@@ -364,10 +372,10 @@
       "screenId": "quarterly-board"
     },
     "phone-portrait/route-capital": {
-      "sha256": "6d760a515e7ef0b2575382a7ecc8f1f07a23a2b76c6df3123a6325912b2b2bcc",
+      "sha256": "dfb7df0cc695d1d5bafefd18b8a91461f57ecdd53d2b9779aca395a85394456f",
       "width": 390,
-      "height": 2255,
-      "bytes": 222356,
+      "height": 3097,
+      "bytes": 255367,
       "label": "Financing / Capital Strategy",
       "stateClasses": [
         "unlocked",
@@ -585,10 +593,10 @@
       "screenId": "communications"
     },
     "phone-portrait/company-populated": {
-      "sha256": "1c922f66da7abfcf273cbb326ffe11838fd364d0398133e7268f51db9eeb90b3",
+      "sha256": "40f9d929372e9d54175eccb1da7f4937e77ae2c5517bb9cceb41e30e60fbc419",
       "width": 390,
-      "height": 7918,
-      "bytes": 1031593,
+      "height": 8139,
+      "bytes": 1047971,
       "label": "Company / Home — representative model/run data",
       "stateClasses": [
         "populated",
@@ -598,10 +606,10 @@
       "screenId": null
     },
     "phone-portrait/training-incident": {
-      "sha256": "d9b17d5e0bbe4a8d5f3f139251b34ebb67ceada7c4ad8b3a218eca97aa73279f",
+      "sha256": "dbcb829379040a3a4a91d2e819c4eb8ddcd53626d8a02ae3499913a460bcd733",
       "width": 390,
-      "height": 7525,
-      "bytes": 959139,
+      "height": 7745,
+      "bytes": 976543,
       "label": "Training incident investigation",
       "stateClasses": [
         "error",
@@ -611,10 +619,10 @@
       "screenId": null
     },
     "phone-portrait/technical-explainer": {
-      "sha256": "75406de49f84177910286b7d0f5a7d54c520ad8515688b08ee2e29826b6a9419",
+      "sha256": "44f14b76642d1c69a2863f41d09fddfbaf454e0ee704f33c55f8429ce7db092b",
       "width": 390,
-      "height": 7918,
-      "bytes": 1017862,
+      "height": 8139,
+      "bytes": 1034267,
       "label": "Technical explainer modal",
       "stateClasses": [
         "populated"
@@ -623,10 +631,10 @@
       "screenId": null
     },
     "phone-portrait/milestone": {
-      "sha256": "1bed500e7b233390420bcdce3152201232a76c4201bf42608de185b811a74899",
+      "sha256": "bd61410cb9a07b5105daabbcc8c764d6441d19df54b9d781b8e94b3d6cb402b0",
       "width": 390,
-      "height": 7918,
-      "bytes": 995202,
+      "height": 8139,
+      "bytes": 1010415,
       "label": "Milestone celebration overlay",
       "stateClasses": [
         "populated"
@@ -635,10 +643,10 @@
       "screenId": null
     },
     "phone-portrait/company-priority": {
-      "sha256": "481a392c0718737d535a66ce65e2f23d1b2b6f9a1b3a7f8752b48aa58441c2b2",
+      "sha256": "e47bd9a6bde194f7350b7e8b4ca6f69e6736f1b22ef41b443b83f73d377412ee",
       "width": 390,
-      "height": 7918,
-      "bytes": 1020664,
+      "height": 8139,
+      "bytes": 1037053,
       "label": "Company priority decision",
       "stateClasses": [
         "populated",
@@ -697,10 +705,10 @@
       "screenId": null
     },
     "phone-landscape/company-early": {
-      "sha256": "9afb278938e80f38e6274d3c1ce7e15d912464553ebdf3c9a3928e46ed1e0b2a",
+      "sha256": "64d58bad305bf74d69db91fec6179c8a6df89e0579a52dd7a7ddc211dbc99412",
       "width": 844,
-      "height": 5380,
-      "bytes": 1390991,
+      "height": 5453,
+      "bytes": 1482966,
       "label": "Company / Home — early campaign",
       "stateClasses": [
         "locked",
@@ -710,10 +718,10 @@
       "screenId": null
     },
     "phone-landscape/more-locked": {
-      "sha256": "823df8282831b7609276584f8400d946c7afb2c67dc92948f5f2547030795dfa",
+      "sha256": "a766509db430feb866c9ddda06dfaa7ceb74ea5dd5043ff5e9f74483e4799b04",
       "width": 844,
-      "height": 5380,
-      "bytes": 1473962,
+      "height": 5453,
+      "bytes": 1565087,
       "label": "More sheet — early campaign locks",
       "stateClasses": [
         "locked"
@@ -722,10 +730,10 @@
       "screenId": null
     },
     "phone-landscape/training-empty": {
-      "sha256": "3a0c28b4b21f5da7b7d189c0141ad1929da8ca5bb18efd1bf5065fdc0e76cc86",
+      "sha256": "64d58bad305bf74d69db91fec6179c8a6df89e0579a52dd7a7ddc211dbc99412",
       "width": 844,
-      "height": 5380,
-      "bytes": 1390782,
+      "height": 5453,
+      "bytes": 1482966,
       "label": "Training Operations — no active run",
       "stateClasses": [
         "empty",
@@ -735,10 +743,10 @@
       "screenId": null
     },
     "phone-landscape/more-unlocked": {
-      "sha256": "db4259be0144e7c97521886d62e355530a9a6a176f5870ff0cf2248425660829",
+      "sha256": "87615dbf1949328e05f37eae363d5f5c8601d811df97fb8a1469604998c6d203",
       "width": 844,
-      "height": 5101,
-      "bytes": 1678090,
+      "height": 5261,
+      "bytes": 1737703,
       "label": "More sheet — graduated campaign",
       "stateClasses": [
         "unlocked"
@@ -747,10 +755,10 @@
       "screenId": null
     },
     "phone-landscape/route-company-home": {
-      "sha256": "9b4e87f7ffe2996047a00db6ea59e48eac1af4ce6b71087bad8971cb22e51747",
+      "sha256": "be197ca784c23cfc30ab8535e517985beb0369e8f952f254ef4451b5e77988e4",
       "width": 844,
-      "height": 5101,
-      "bytes": 1654788,
+      "height": 5261,
+      "bytes": 1711011,
       "label": "Company / Home",
       "stateClasses": [
         "unlocked",
@@ -760,10 +768,10 @@
       "screenId": "company-home"
     },
     "phone-landscape/route-training": {
-      "sha256": "6f0b7929bb176bc85f81c4187fb248ef8a6714ccf2eda44f3e6257d0ad12cfc9",
+      "sha256": "f2334d2fdc6b86496fd234bf0e22f16bfc1002582493e7a363a3c81523379595",
       "width": 844,
-      "height": 5101,
-      "bytes": 1654785,
+      "height": 5261,
+      "bytes": 1711013,
       "label": "Training Operations",
       "stateClasses": [
         "unlocked",
@@ -799,10 +807,10 @@
       "screenId": "model-lab"
     },
     "phone-landscape/route-workstation": {
-      "sha256": "d1c2f92de4b1855d5c8a404441ca5007d864a1cd32cac01367d45dd2dfa775a7",
+      "sha256": "7c909707accd71481cf19412516bb19b72fb10d21398a3952a6f78f9502c8e39",
       "width": 844,
-      "height": 5101,
-      "bytes": 1677960,
+      "height": 5261,
+      "bytes": 1737567,
       "label": "Engineer Workstation",
       "stateClasses": [
         "unlocked",
@@ -1241,10 +1249,10 @@
       "screenId": "communications"
     },
     "phone-landscape/company-populated": {
-      "sha256": "004a6b9e86e54093732d6f29626748524ca48cc193926d5e0b8550a1e03c9ae3",
+      "sha256": "34f73d170f0a83c6592a644b31a800735684d9440c1c8b7dc6ffbd741de8d8e0",
       "width": 844,
-      "height": 5072,
-      "bytes": 1678000,
+      "height": 5232,
+      "bytes": 1738078,
       "label": "Company / Home — representative model/run data",
       "stateClasses": [
         "populated",
@@ -1254,10 +1262,10 @@
       "screenId": null
     },
     "phone-landscape/training-incident": {
-      "sha256": "c9ec7ba01f6f61dacf64ebbdb84619d8dc304223a4759746056ae221827aee4c",
+      "sha256": "f70f05843d1eca229bc23d10e0cc9b7218432cb3509d555e6815bfb0c6abf5e7",
       "width": 844,
-      "height": 4976,
-      "bytes": 1619117,
+      "height": 5136,
+      "bytes": 1676536,
       "label": "Training incident investigation",
       "stateClasses": [
         "error",
@@ -1267,10 +1275,10 @@
       "screenId": null
     },
     "phone-landscape/technical-explainer": {
-      "sha256": "ab218ad818735f7cb1fae37f21c9c95e771ba0cc063205791b522ce5e23302d9",
+      "sha256": "562f79154845d91a3dd58f609c665400f64a5b004a52ebd09ffff99c8033c6b8",
       "width": 844,
-      "height": 5072,
-      "bytes": 1725351,
+      "height": 5232,
+      "bytes": 1782219,
       "label": "Technical explainer modal",
       "stateClasses": [
         "populated"
@@ -1279,10 +1287,10 @@
       "screenId": null
     },
     "phone-landscape/milestone": {
-      "sha256": "a8f06f11e8bb3c836b0ad7b783f716d8e2c75a030edcbbe439a08db857ad6813",
+      "sha256": "af5012d7b3aa29d3d93d7d052eed9304b75cbe8068825750c7d3665084810c0e",
       "width": 844,
-      "height": 5072,
-      "bytes": 1696479,
+      "height": 5232,
+      "bytes": 1753613,
       "label": "Milestone celebration overlay",
       "stateClasses": [
         "populated"
@@ -1291,10 +1299,10 @@
       "screenId": null
     },
     "phone-landscape/company-priority": {
-      "sha256": "3ec9bde74d08559ea99bf1b85693a0ea577b87f5e709ff796f645a7dbc9292d6",
+      "sha256": "67af0bc276b2f3507949b936bff0d263f25d5b0a9fc06926efa50ef6ed6cbd2d",
       "width": 844,
-      "height": 5072,
-      "bytes": 1718606,
+      "height": 5232,
+      "bytes": 1778564,
       "label": "Company priority decision",
       "stateClasses": [
         "populated",
@@ -1353,10 +1361,10 @@
       "screenId": null
     },
     "tablet/company-early": {
-      "sha256": "bad2b21c08c14639fc0dba4d0ff1f82e1fde5bd654d517561d8e6ef0b33b77de",
+      "sha256": "b378d81740fb73b5408ac701f6fa895a64eca9b23a1ba0cd8dcb9bb7206c8522",
       "width": 834,
-      "height": 5537,
-      "bytes": 1408539,
+      "height": 5610,
+      "bytes": 1503815,
       "label": "Company / Home — early campaign",
       "stateClasses": [
         "locked",
@@ -1366,10 +1374,10 @@
       "screenId": null
     },
     "tablet/more-locked": {
-      "sha256": "47a848d6b6d0cd81fd7357dcef3a39464fe7b2ba0b8cb95d603138089c6897e4",
+      "sha256": "744d6c006f2b6950304f181b85292528f65f7322001255a6a17e34d3f2b8f6fd",
       "width": 834,
-      "height": 5537,
-      "bytes": 1400006,
+      "height": 5610,
+      "bytes": 1492296,
       "label": "More sheet — early campaign locks",
       "stateClasses": [
         "locked"
@@ -1378,10 +1386,10 @@
       "screenId": null
     },
     "tablet/training-empty": {
-      "sha256": "0d517874ff0d228c134287e85a1238cd4732f5045813b333d486c54f85998cc7",
+      "sha256": "7a6a61c51fa6df0e8ef8d61f8c73b66510508bcc530049950cc480acd02b25f0",
       "width": 834,
-      "height": 5537,
-      "bytes": 1408238,
+      "height": 5610,
+      "bytes": 1503818,
       "label": "Training Operations — no active run",
       "stateClasses": [
         "empty",
@@ -1391,10 +1399,10 @@
       "screenId": null
     },
     "tablet/more-unlocked": {
-      "sha256": "a8fdb1c6e2a10fa7e99e39cbaff2d8ed8e27e4ff0ad19fd4f5eae58659471aa0",
+      "sha256": "cb3dd927b8d0ece047ddf6a4b11ff79228fde32c79b76bc6edfa189003aa29a3",
       "width": 834,
-      "height": 5257,
-      "bytes": 1525345,
+      "height": 5417,
+      "bytes": 1584873,
       "label": "More sheet — graduated campaign",
       "stateClasses": [
         "unlocked"
@@ -1403,10 +1411,10 @@
       "screenId": null
     },
     "tablet/route-company-home": {
-      "sha256": "c9e6da5f51a9c565f0abebb03956ace6abd4be2e70347019a8940128484851f7",
+      "sha256": "a8e6a3221f8bc46a844ab302f5f612b5fdd1bc02e7720098cb8dd57a5dd92410",
       "width": 834,
-      "height": 5257,
-      "bytes": 1660125,
+      "height": 5417,
+      "bytes": 1718419,
       "label": "Company / Home",
       "stateClasses": [
         "unlocked",
@@ -1416,10 +1424,10 @@
       "screenId": "company-home"
     },
     "tablet/route-training": {
-      "sha256": "af741901dc93b456abd4f07c637f39e25f0f435f847587423e8e9d610e5d69b3",
+      "sha256": "b49a806592d859fb1398ed43b443dba44330c5e1774a4a926d8098d1e14e5c28",
       "width": 834,
-      "height": 5257,
-      "bytes": 1660118,
+      "height": 5417,
+      "bytes": 1718391,
       "label": "Training Operations",
       "stateClasses": [
         "unlocked",
@@ -1455,10 +1463,10 @@
       "screenId": "model-lab"
     },
     "tablet/route-workstation": {
-      "sha256": "7f1360513914632d5b1ddd5eaa8672746d3c72005bb931d0c354aaad9d891eeb",
+      "sha256": "14b6820ace90af1bc890bd1a0ebcd3bcf8d546b2020a2f309ac53bbebb7bc9dd",
       "width": 834,
-      "height": 5257,
-      "bytes": 1648469,
+      "height": 5417,
+      "bytes": 1707638,
       "label": "Engineer Workstation",
       "stateClasses": [
         "unlocked",
@@ -1897,10 +1905,10 @@
       "screenId": "communications"
     },
     "tablet/company-populated": {
-      "sha256": "93a1070ebf35a031539036d374640f4ab02f43e300d8e75c9bb7377cb5fd95ca",
+      "sha256": "6603a6da516923cc5742cacfef3d1735a6dffec9f7eb180f954093e7af3bcaba",
       "width": 834,
-      "height": 5229,
-      "bytes": 1647198,
+      "height": 5389,
+      "bytes": 1705519,
       "label": "Company / Home — representative model/run data",
       "stateClasses": [
         "populated",
@@ -1910,10 +1918,10 @@
       "screenId": null
     },
     "tablet/training-incident": {
-      "sha256": "2462b405d368324722e24119586e43c37649f210694afb15f3c0a152a4504c78",
+      "sha256": "ea8fc762c531fe1dd5351354642423b2b2c804dac9ccb8cc7989b1216cbe8812",
       "width": 834,
-      "height": 5122,
-      "bytes": 1588709,
+      "height": 5282,
+      "bytes": 1645576,
       "label": "Training incident investigation",
       "stateClasses": [
         "error",
@@ -1923,10 +1931,10 @@
       "screenId": null
     },
     "tablet/technical-explainer": {
-      "sha256": "efd93d1ce8156fc442df38e0733781ef4bb285cf41fd43e7e63281210600d2f8",
+      "sha256": "1c929f1618704e71c5ea383a7bc5b8ba45a18d3ca3e93ba764de9fe5dbd6261a",
       "width": 834,
-      "height": 5206,
-      "bytes": 1544876,
+      "height": 5366,
+      "bytes": 1604652,
       "label": "Technical explainer modal",
       "stateClasses": [
         "populated"
@@ -1935,10 +1943,10 @@
       "screenId": null
     },
     "tablet/milestone": {
-      "sha256": "2800548ccb9e3cb6b6446cfd4bcc8e072a7369c1f27d8c3c9662b2afd65d39e2",
+      "sha256": "53e962ec41dfda363f665478d29b1ee56a282e63dc3d52c397b2ed2c0c10b259",
       "width": 834,
-      "height": 5206,
-      "bytes": 1517104,
+      "height": 5366,
+      "bytes": 1576523,
       "label": "Milestone celebration overlay",
       "stateClasses": [
         "populated"
@@ -1947,10 +1955,10 @@
       "screenId": null
     },
     "tablet/company-priority": {
-      "sha256": "3382554ab871c95dbb9d1d0b6214c64f8416fc94ffc67980ed5108e3a6df3d8e",
+      "sha256": "00d2d88e604bfdfcc3f1d2aa6ff9b887e55df2efc92837bda11eed3d9607eb02",
       "width": 834,
-      "height": 5206,
-      "bytes": 1539368,
+      "height": 5366,
+      "bytes": 1597182,
       "label": "Company priority decision",
       "stateClasses": [
         "populated",
@@ -2009,10 +2017,10 @@
       "screenId": null
     },
     "desktop/company-early": {
-      "sha256": "27fb0a4f2e9d4ba8fa25c049927ade7a865051f18318dd17e0a813c6df20f8e2",
+      "sha256": "4cbf8bfd3bd5aa359971b51c1b97354c8b7cabc9355662e9776bd93c69450b9d",
       "width": 1440,
-      "height": 3774,
-      "bytes": 1582353,
+      "height": 3780,
+      "bytes": 1658688,
       "label": "Company / Home — early campaign",
       "stateClasses": [
         "locked",
@@ -2022,10 +2030,10 @@
       "screenId": null
     },
     "desktop/more-locked": {
-      "sha256": "126a03634d2c7ba67e4d11185a83018f71e8695f971d56774f60365f9494fe9e",
+      "sha256": "f201233873a635bb5e2d143720d492716783dc4ee9d1e87f4ad2d75a6ae00d17",
       "width": 1440,
-      "height": 3774,
-      "bytes": 1500142,
+      "height": 3780,
+      "bytes": 1570727,
       "label": "More sheet — early campaign locks",
       "stateClasses": [
         "locked"
@@ -2034,10 +2042,10 @@
       "screenId": null
     },
     "desktop/training-empty": {
-      "sha256": "9b7eb8fdd5dd855b103816c5a0798917926d599584b0630f472899c7b16c0c31",
+      "sha256": "72d2db58d8f1d335684e5bada4bcecf8f8c09a57ad4d6ecb2142eb55408fbb50",
       "width": 1440,
-      "height": 3774,
-      "bytes": 1582442,
+      "height": 3780,
+      "bytes": 1658765,
       "label": "Training Operations — no active run",
       "stateClasses": [
         "empty",
@@ -2047,10 +2055,10 @@
       "screenId": null
     },
     "desktop/more-unlocked": {
-      "sha256": "735a750253e8288f6dcce2d2cfa1b1007e9d54dfcc60826de9e0fdf552c4e4ca",
+      "sha256": "7a17ac6ef6e70ae0b50bc7662766abfbcf67523795197d816c6c1ee132d2278b",
       "width": 1440,
-      "height": 3578,
-      "bytes": 1587637,
+      "height": 3658,
+      "bytes": 1636766,
       "label": "More sheet — graduated campaign",
       "stateClasses": [
         "unlocked"
@@ -2059,10 +2067,10 @@
       "screenId": null
     },
     "desktop/route-company-home": {
-      "sha256": "81548291afef87047fe79cdbf452ca108aecbf21cc2b94baaf08a8587ad545c8",
+      "sha256": "e228d62d1b420b690fab3604602f8ebbe4ce1a20f12b48ffde0c69f532feaaa5",
       "width": 1440,
-      "height": 3578,
-      "bytes": 1827109,
+      "height": 3658,
+      "bytes": 1874030,
       "label": "Company / Home",
       "stateClasses": [
         "unlocked",
@@ -2072,10 +2080,10 @@
       "screenId": "company-home"
     },
     "desktop/route-training": {
-      "sha256": "0d7a5940a7421135d191524547c6bfe0a50602cc03db94ac8531fe9a3c56ca15",
+      "sha256": "7e17611f9972d08bf7a0a33729e62c8e27fd9938e6b1a9d03fda29ee8a24b6ce",
       "width": 1440,
-      "height": 3578,
-      "bytes": 1827132,
+      "height": 3658,
+      "bytes": 1874040,
       "label": "Training Operations",
       "stateClasses": [
         "unlocked",
@@ -2111,10 +2119,10 @@
       "screenId": "model-lab"
     },
     "desktop/route-workstation": {
-      "sha256": "f28cf8640f81a6be19289a2d74e11ff30d5d38a36a1143bcdc3e251f37c143d6",
+      "sha256": "449c2b97c376e5fa374f40b5580b1b4bf392a44f8804c25877e58730d87f37ee",
       "width": 1440,
-      "height": 3578,
-      "bytes": 1738441,
+      "height": 3658,
+      "bytes": 1787331,
       "label": "Engineer Workstation",
       "stateClasses": [
         "unlocked",
@@ -2553,10 +2561,10 @@
       "screenId": "communications"
     },
     "desktop/company-populated": {
-      "sha256": "407a42314868c44376d1919378d3d70d4196f36720542e1664f79cc910f92cd7",
+      "sha256": "2c371cb10a2694ba48d224955971a78aa07202bac93cc9889a82e7d90adde7d2",
       "width": 1440,
-      "height": 3578,
-      "bytes": 1747391,
+      "height": 3658,
+      "bytes": 1796414,
       "label": "Company / Home — representative model/run data",
       "stateClasses": [
         "populated",
@@ -2566,10 +2574,10 @@
       "screenId": null
     },
     "desktop/training-incident": {
-      "sha256": "4aabb11b3cf7c170aa59408bb87d70bffa26ebb22e4fcdb4ad1d554aed17da1d",
+      "sha256": "f3615db00f222b3139c7834f1eff5daa71befa8f81b7a05797c0945489a0f25b",
       "width": 1440,
-      "height": 3452,
-      "bytes": 1670352,
+      "height": 3532,
+      "bytes": 1719276,
       "label": "Training incident investigation",
       "stateClasses": [
         "error",
@@ -2579,10 +2587,10 @@
       "screenId": null
     },
     "desktop/technical-explainer": {
-      "sha256": "043cb65f697ed3c34021d4c721561c9ec0d283b99d2b0fdeb8b680c00dc9748e",
+      "sha256": "1a76561204b336e5646184d4168673741c850d3f6ffcdff818afec9d4cfb6c2b",
       "width": 1440,
-      "height": 3578,
-      "bytes": 1610810,
+      "height": 3658,
+      "bytes": 1659009,
       "label": "Technical explainer modal",
       "stateClasses": [
         "populated"
@@ -2591,10 +2599,10 @@
       "screenId": null
     },
     "desktop/milestone": {
-      "sha256": "89c6a3fcb9e17c153f6e5f77ae3032ad8db9664860983a7edb2d84a17d8a19b2",
+      "sha256": "8926ae6b1b6ca517792ce09977af026636c88151e600c58a412c66fbcfd2ce79",
       "width": 1440,
-      "height": 3578,
-      "bytes": 1578149,
+      "height": 3658,
+      "bytes": 1626984,
       "label": "Milestone celebration overlay",
       "stateClasses": [
         "populated"
@@ -2603,10 +2611,10 @@
       "screenId": null
     },
     "desktop/company-priority": {
-      "sha256": "ad481b9f4aa0e6f688e18ecaf3dd13a9fda7997ad103e22c9a7fd67c2b1c806b",
+      "sha256": "b6f446e8af221ee28cc1938f5ed2fca5c1821b9a171609c8b70cc4bf15120c53",
       "width": 1440,
-      "height": 3578,
-      "bytes": 1614900,
+      "height": 3658,
+      "bytes": 1662599,
       "label": "Company priority decision",
       "stateClasses": [
         "populated",
@@ -2653,10 +2661,10 @@
       "screenId": null
     },
     "wide/story-intro": {
-      "sha256": "45d24ef8024a494745020b746cce0b27fd4749c20422a3cc2f9230148caf4cee",
+      "sha256": "5161aa2031e1bff9f89ce31c4113f35a3daaa23d9d3fac0a12191db3005f3c76",
       "width": 1920,
       "height": 6356,
-      "bytes": 2203422,
+      "bytes": 2203423,
       "label": "Intro story overlay",
       "stateClasses": [
         "populated"
@@ -2665,10 +2673,10 @@
       "screenId": null
     },
     "wide/company-early": {
-      "sha256": "c7d8b3b1d2630e331af5eb60ba6db740543275c09fff60676eb6c7696c1efa56",
+      "sha256": "df5fd2085274b447e6a54525f6db75fc9e64d80ebf9e4f6ea269851dc0c7ba25",
       "width": 1920,
-      "height": 3431,
-      "bytes": 1812825,
+      "height": 3438,
+      "bytes": 1880972,
       "label": "Company / Home — early campaign",
       "stateClasses": [
         "locked",
@@ -2678,10 +2686,10 @@
       "screenId": null
     },
     "wide/more-locked": {
-      "sha256": "f5786daa5c018ce70fd1ad2477fb2aacbe70e269fde5aaa03cc199a0b95f9ff3",
+      "sha256": "9fcd11b0cb811a93f374569749497a40b5f469829958ad2d31b7531a0df96083",
       "width": 1920,
-      "height": 3431,
-      "bytes": 1568447,
+      "height": 3438,
+      "bytes": 1619366,
       "label": "More sheet — early campaign locks",
       "stateClasses": [
         "locked"
@@ -2690,10 +2698,10 @@
       "screenId": null
     },
     "wide/training-empty": {
-      "sha256": "4ea81f427c473cf64b6584641a319d2b2f18c033981e46906de00418e5570a92",
+      "sha256": "bba57a02fce8fa91fd3ff4439c7c3583f5783fb5ccffe31b1337935681c1cb84",
       "width": 1920,
-      "height": 3431,
-      "bytes": 1815588,
+      "height": 3438,
+      "bytes": 1880984,
       "label": "Training Operations — no active run",
       "stateClasses": [
         "empty",
@@ -2703,10 +2711,10 @@
       "screenId": null
     },
     "wide/more-unlocked": {
-      "sha256": "91296496f3b78949cb4e2d3532def8bf2c22c6b4c3a77b621fa152374d4d0374",
+      "sha256": "eadb6558923dd9185c36651c3217ad8f5e287c9a2d50dfa7f9aa6b3f8fa0ae79",
       "width": 1920,
-      "height": 3267,
-      "bytes": 1561319,
+      "height": 3349,
+      "bytes": 1615715,
       "label": "More sheet — graduated campaign",
       "stateClasses": [
         "unlocked"
@@ -2715,10 +2723,10 @@
       "screenId": null
     },
     "wide/route-company-home": {
-      "sha256": "0953e8adf1961c8562a0bec20220baf53d63850862a2197e783591abc3a10cb9",
+      "sha256": "56d54a86e2377e1f7c010aa6b5b0b1137b5833a6a7dfd889c5e719d0c636c855",
       "width": 1920,
-      "height": 3267,
-      "bytes": 2019077,
+      "height": 3349,
+      "bytes": 2073312,
       "label": "Company / Home",
       "stateClasses": [
         "unlocked",
@@ -2728,10 +2736,10 @@
       "screenId": "company-home"
     },
     "wide/route-training": {
-      "sha256": "2274653af2c4d2e2993e40ec53d9b9477edbb3db103931769264eca3d71bee03",
+      "sha256": "c3da96cc216d62d4aa004ed60749741d2417b440aefe09c860e35f287176dc12",
       "width": 1920,
-      "height": 3267,
-      "bytes": 2019045,
+      "height": 3349,
+      "bytes": 2073298,
       "label": "Training Operations",
       "stateClasses": [
         "unlocked",
@@ -2767,10 +2775,10 @@
       "screenId": "model-lab"
     },
     "wide/route-workstation": {
-      "sha256": "544f7af30a74a11eb8fb473189c2cf674265a2b0bfad4b1f18446cd14c67cce4",
+      "sha256": "fa16d7b55c3d7564679bce7476b3310a71f3f80a75c8b5de9aeeb05d6a9cfd3e",
       "width": 1920,
-      "height": 3267,
-      "bytes": 1716864,
+      "height": 3349,
+      "bytes": 1772945,
       "label": "Engineer Workstation",
       "stateClasses": [
         "unlocked",
@@ -3209,10 +3217,10 @@
       "screenId": "communications"
     },
     "wide/company-populated": {
-      "sha256": "4a0ebab09e4031a807185cd8bc526ca62e8c4c39ca6331f0b3a23cec432435e1",
+      "sha256": "f40c8c155c3fe576342e4a2e6375c8896bd72a3f8db154ec8ef8df0854c1f176",
       "width": 1920,
-      "height": 3267,
-      "bytes": 1722875,
+      "height": 3349,
+      "bytes": 1779599,
       "label": "Company / Home — representative model/run data",
       "stateClasses": [
         "populated",
@@ -3222,10 +3230,10 @@
       "screenId": null
     },
     "wide/training-incident": {
-      "sha256": "ad1217bd376a140a093f88c3035b8fafa2a596652b78ee7116d7af8fa42baa05",
+      "sha256": "f72ec8d27237aa85b67572f0e5627d26a3b84afa76b66b10b18abb01e9fbdd43",
       "width": 1920,
-      "height": 3164,
-      "bytes": 1639035,
+      "height": 3247,
+      "bytes": 1693245,
       "label": "Training incident investigation",
       "stateClasses": [
         "error",
@@ -3235,10 +3243,10 @@
       "screenId": null
     },
     "wide/technical-explainer": {
-      "sha256": "5f147610768c19e1978abb236a401fb90992f53e406baa02268d22023e4a6c6e",
+      "sha256": "304037b3914ecfaec65b50bc5d1c665cb3a9c1a707c272902c6a19eeaeaa41f7",
       "width": 1920,
-      "height": 3267,
-      "bytes": 1582440,
+      "height": 3349,
+      "bytes": 1639720,
       "label": "Technical explainer modal",
       "stateClasses": [
         "populated"
@@ -3247,10 +3255,10 @@
       "screenId": null
     },
     "wide/milestone": {
-      "sha256": "f70b98cd6d171c06e4a936cf03a960a42fb2f819a5ea552fe16fd2b0ed9e8f77",
+      "sha256": "7c919ee2c2fd565e40acfd353202656ddb9790f0624e8558123abc7960288eea",
       "width": 1920,
-      "height": 3267,
-      "bytes": 1552795,
+      "height": 3349,
+      "bytes": 1609798,
       "label": "Milestone celebration overlay",
       "stateClasses": [
         "populated"
@@ -3259,10 +3267,10 @@
       "screenId": null
     },
     "wide/company-priority": {
-      "sha256": "50e07e5afea1fd366525a1a78ed15bc29276e0237dcf6b7f54163ef487ca1762",
+      "sha256": "c1b4a9d71c912b7a771f3ada11e49296edb4d0a9ba9924f991e4db03ca56b936",
       "width": 1920,
-      "height": 3267,
-      "bytes": 1587988,
+      "height": 3349,
+      "bytes": 1644004,
       "label": "Company priority decision",
       "stateClasses": [
         "populated",
@@ -3296,12 +3304,5 @@
       "kind": "special",
       "screenId": null
     }
-  },
-  "promotion": {
-    "item": "13.17",
-    "reviewed": true,
-    "source": "PR #115 Cross-device browser QA run 32276025215 artifact 9374568310",
-    "sourceHeadSha": "c62d4275236953349488beafd209fb43470491a1",
-    "rationale": "Reviewed deterministic candidate after intentional FrontierOS Company/dashboard and actionable zero-state visual changes."
   }
 }
