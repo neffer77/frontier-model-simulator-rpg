@@ -1,0 +1,112 @@
+name: P5.2.11 targeted release regressions
+
+# Baseline regeneration is intentionally manual-only. It must never hide or
+# replace normal pull-request validation by writing back during every push.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: p5-2-11-targeted-release-regressions
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/p5-2-11-native-company
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned dependencies
+        run: npm install --no-audit --no-fund
+      - name: Resolve Playwright version
+        id: playwright-version
+        run: |
+          VERSION=$(node -p "require('./node_modules/playwright/package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Restore Playwright browser cache
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium system dependencies on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 2
+        run: npx playwright install-deps chromium
+      - name: Download Chromium on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+      - name: Static contracts
+        run: npm run test:static
+      - name: Build production site
+        run: npm run build:site
+      - name: Start production site
+        run: python3 -m http.server 4173 --directory _site >/tmp/p5-2-11-targeted.log 2>&1 &
+      - name: Runtime identity
+        env:
+          TEST_URL: http://127.0.0.1:4173/
+        run: npm run test:identity
+      - name: Progressive disclosure
+        env:
+          TEST_URL: http://127.0.0.1:4173/?frontieros=0
+        run: npm run test:disclosure
+      - name: Empty states
+        env:
+          TEST_URL: http://127.0.0.1:4173/?frontieros=0
+        run: npm run test:empty
+      - name: Locked states
+        env:
+          TEST_URL: http://127.0.0.1:4173/?frontieros=0
+        run: npm run test:locked
+      - name: Generate deterministic screenshot baseline
+        env:
+          TEST_URL: http://127.0.0.1:4173/?frontieros=0
+        run: npm run visual:screenshot-baseline
+      - name: Promote reviewed canonical baseline and retire delta overlay
+        run: |
+          npm run visual:promote-screenshot-baseline -- artifacts/screenshot-regression/candidate-baseline.json --reviewed --reviewed-by=github-actions[bot]
+          node - <<'NODE'
+          const fs=require('fs');
+          const retired={
+            version:1,
+            item:'13.17',
+            status:'retired',
+            sourceRun:Number(process.env.GITHUB_RUN_ID||0),
+            sourceHeadSha:process.env.GITHUB_SHA||null,
+            rationale:'Canonical 255-capture baseline promoted after deterministic lock badge ordering; transitional screenshot delta overlay retired.',
+            captures:{}
+          };
+          fs.writeFileSync('visual-qa/screenshot-accepted-deltas.json',JSON.stringify(retired,null,2)+'\n');
+          NODE
+      - name: Validate complete active baseline
+        run: |
+          node - <<'NODE'
+          const b=require('./visual-qa/screenshot-baseline.json');
+          const d=require('./visual-qa/screenshot-accepted-deltas.json');
+          const count=Object.keys(b.captures||{}).length;
+          const deltas=Object.keys(d.captures||{}).length;
+          if(b.status!=='active'||b.expectedCaptureCount!==255||count!==255||deltas!==0){
+            console.error({status:b.status,expected:b.expectedCaptureCount,count,deltas});
+            process.exit(1);
+          }
+          console.log(`Validated ${count}/255 active screenshot baselines with ${deltas} transitional deltas`);
+          NODE
+      - name: Commit regenerated baseline
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add visual-qa/screenshot-baseline.json visual-qa/screenshot-accepted-deltas.json
+          if git diff --cached --quiet; then
+            echo 'Baseline unchanged.'
+          else
+            git commit -m 'Promote deterministic screenshot baseline'
+            git push origin HEAD:feature/p5-2-11-native-company
+          fi

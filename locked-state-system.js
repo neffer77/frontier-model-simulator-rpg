@@ -37,8 +37,11 @@
   function ensureLockMeta(el,plan){
     if(!(el instanceof HTMLButtonElement))return;
     let meta=[...el.children].find(x=>x.classList?.contains('fl-lock-meta'));
-    if(!meta){meta=document.createElement('span');meta.className='fl-lock-meta';el.appendChild(meta)}
+    if(!meta){meta=document.createElement('span');meta.className='fl-lock-meta'}
     meta.textContent=`🔒 ${metaLabel(plan)}`;
+    // Re-anchor only when needed. Once the badge is already the final child,
+    // leave it in place so our own MutationObserver can converge and go idle.
+    if(el.lastElementChild!==meta)el.appendChild(meta);
   }
   function removeLockMeta(el){for(const meta of el.querySelectorAll?.(':scope > .fl-lock-meta')||[])meta.remove()}
   function cleanupCampaign(el){
@@ -59,6 +62,7 @@
   function decorateCampaignControl(el){
     const target=targetFor(el);if(!target)return false;
     const plan=planFor(target);if(!plan){cleanupCampaign(el);return false}
+    if(!el.dataset.campaignTarget)el.dataset.campaignTarget=target;
     el.dataset.flLockTarget=target;
     if(plan.unlocked){cleanupCampaign(el);return false}
     el.classList.add('fl-campaign-locked');
@@ -71,18 +75,23 @@
     const s=safeState(),app=document.getElementById('app');if(!s?.started||s.view!=='company'||!app)return;
     const registry=typeof window.campaignUnlockRegistry==='function'?window.campaignUnlockRegistry().filter(x=>x.kind==='system'):[];
     if(!registry.length)return;
-    const existingTargets=new Set([...document.querySelectorAll('button')].map(targetFor).filter(Boolean));
     let hub=app.querySelector('.company-system-hub');
     if(!hub){
       const shell=app.querySelector('.game-shell');if(!shell)return;
       hub=document.createElement('section');hub.className='company-system-hub';hub.setAttribute('aria-label','Company systems');
       shell.appendChild(hub);
     }
+    const existingTargets=new Set([...hub.querySelectorAll('button')].map(targetFor).filter(Boolean));
+    const missing=registry.filter(plan=>!existingTargets.has(plan.target));
     let group=hub.querySelector('[data-fl-placeholder-group]');
+    if(!missing.length){
+      if(group){const grid=group.querySelector('.fl-launch-grid')||group;if(!grid.children.length)group.remove()}
+      return;
+    }
     if(!group){group=document.createElement('div');group.className='fl-launch-group';group.dataset.flPlaceholderGroup='1';group.innerHTML='<div class="fl-launch-group-head"><span>COMPANY SYSTEMS</span><small>Future simulation surfaces remain visible while guided progression unlocks them.</small></div><div class="fl-launch-grid"></div>';hub.appendChild(group)}
     const grid=group.querySelector('.fl-launch-grid')||group;
-    for(const plan of registry){
-      if(existingTargets.has(plan.target)||grid.querySelector(`[data-campaign-target="${plan.target}"]`))continue;
+    for(const plan of missing){
+      if(grid.querySelector(`[data-campaign-target="${plan.target}"]`))continue;
       const button=document.createElement('button');button.type='button';button.className='fl-launch fl-launch-placeholder';button.dataset.campaignTarget=plan.target;button.dataset.lockLabel=plan.label;
       button.innerHTML=`<span>${plan.label.toUpperCase()}</span><b>${plan.label}</b><small>${plan.unlocked?'Open system →':`Unlocks ${plan.unlockKicker}`}</small>`;
       button.addEventListener('click',()=>{const current=planFor(plan.target);if(current?.unlocked&&typeof window.gameplayOpen==='function')window.gameplayOpen(plan.target);else if(typeof window.campaignLockedSystem==='function')window.campaignLockedSystem(plan.target)});
@@ -92,8 +101,19 @@
   }
   function decorateCampaign(root=document){
     let count=0;
+    const seenCompanyTargets=new Set();
+    const companySystemTargets=new Set(typeof window.campaignUnlockRegistry==='function'?window.campaignUnlockRegistry().filter(x=>x.kind==='system').map(x=>x.target):[]);
     const selectors='button[data-campaign-target],.company-system-hub button.fl-launch,.game-shell > button[class$="-launch"],.hiring-launch';
-    for(const el of root.querySelectorAll(selectors))if(decorateCampaignControl(el))count++;
+    for(const el of root.querySelectorAll(selectors)){
+      const inCompany=!!el.closest?.('.company-system-hub');
+      const target=inCompany?targetFor(el):null;
+      if(inCompany&&target){
+        if(!companySystemTargets.has(target)){cleanupCampaign(el);continue}
+        if(seenCompanyTargets.has(target)){cleanupCampaign(el);continue}
+        seenCompanyTargets.add(target);
+      }
+      if(decorateCampaignControl(el))count++;
+    }
     return count;
   }
 
@@ -111,8 +131,12 @@
       if(!unavailable){cleanupUnavailable(el);continue}
       el.classList.add('fl-unavailable-now');count++;
       if(!el.hasAttribute('title')){el.title='Unavailable in the current simulation state.';el.dataset.flUnavailableTitleOwned='1'}
-      if(el instanceof HTMLButtonElement&&!el.querySelector(':scope > .fl-unavailable-meta')){
-        const meta=document.createElement('span');meta.className='fl-unavailable-meta';meta.textContent='Unavailable now';el.appendChild(meta)
+      if(el instanceof HTMLButtonElement){
+        let meta=el.querySelector(':scope > .fl-unavailable-meta');
+        if(!meta){meta=document.createElement('span');meta.className='fl-unavailable-meta';meta.textContent='Unavailable now'}
+        // Re-anchor only if another decorator appended content after the badge.
+        // If the badge is already last, do nothing so observer scheduling settles.
+        if(el.lastElementChild!==meta)el.appendChild(meta);
       }
     }
     return count;

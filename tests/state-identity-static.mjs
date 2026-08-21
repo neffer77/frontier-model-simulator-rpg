@@ -13,22 +13,9 @@ const browserQa=fs.readFileSync('.github/workflows/browser-qa.yml','utf8');
 const browserTest=fs.readFileSync('tests/state-identity.mjs','utf8');
 
 for(const marker of [
-  "SAVE_KEY='frontier-lab-v3'",
-  'stateRevision',
-  'sessionId',
-  'lastMutationAt',
-  'lastMutation',
-  'frontierDiagnostics',
-  'frontierDiagnosticsText',
-  'frontierStateEnvelope',
-  'frontierSessionIdentity',
-  'frontierDeviceMode',
-  "'phone-portrait'",
-  "'phone-landscape'",
-  "'tablet'",
-  "'desktop'",
-  "'wide-desktop'",
-  'frontier:state-saved'
+  "SAVE_KEY='frontier-lab-v3'",'stateRevision','sessionId','lastMutationAt','lastMutation',
+  'frontierDiagnostics','frontierDiagnosticsText','frontierStateEnvelope','frontierSessionIdentity','frontierDeviceMode',
+  "'phone-portrait'","'phone-landscape'","'tablet'","'desktop'","'wide-desktop'",'frontier:state-saved'
 ])assert(identity.includes(marker),`identity runtime missing contract ${marker}`);
 
 assert(identity.includes('Math.max(candidateRevision,priorRevision)+1'),'state revisions must monotonically advance from persisted history');
@@ -58,7 +45,8 @@ assert.equal(gate.severity,'blocker','runtime identity must be release blocking'
 assert.equal(gate.script,'test:identity','runtime identity gate must invoke test:identity');
 
 for(const marker of ['_site/frontier-build.js','_site/state-identity.js','runtime identity verified'])assert(pages.includes(marker),`Pages deployment missing identity verification: ${marker}`);
-for(const marker of ['artifacts/state-identity','state-identity-${{ github.event.pull_request.number || github.run_number }}','Publish P5.0.1 runtime identity evidence'])assert(browserQa.includes(marker),`browser QA missing identity evidence contract: ${marker}`);
+// Cross-device QA now retains one aggregate artifacts/ tree instead of dozens of duplicated per-gate uploads.
+for(const marker of ['artifacts/state-identity/REPORT.md','Publish release and FrontierOS evidence','path: artifacts'])assert(browserQa.includes(marker),`browser QA missing aggregate identity evidence contract: ${marker}`);
 for(const marker of ['artifacts/state-identity','report.json','REPORT.md','legacy-save-migrated','phone-landscape','wide-desktop'])assert(browserTest.includes(marker),`identity browser test missing evidence case: ${marker}`);
 
-console.log(JSON.stringify({stateIdentityStatic:'pass',identitySchema:1,releaseBlocker:true,evidenceArtifact:true,liveDeployVerification:true},null,2));
+console.log(JSON.stringify({stateIdentityStatic:'pass',identitySchema:1,releaseBlocker:true,evidenceArtifact:'aggregate',liveDeployVerification:true},null,2));

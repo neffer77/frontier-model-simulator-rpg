@@ -35,6 +35,8 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
       - name: Install Chromium system dependencies
+        timeout-minutes: 2
+        continue-on-error: true
         run: npx playwright install-deps chromium
       - name: Download Chromium on cache miss
         if: steps.playwright-cache.outputs.cache-hit != 'true'

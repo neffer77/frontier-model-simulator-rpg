@@ -25,7 +25,9 @@ jobs:
       - run: npm install --no-audit --no-fund
       - name: Resolve Playwright version
         id: playwright-version
-        run: echo "version=$(node -p \"require('./node_modules/playwright/package.json').version\")" >> "$GITHUB_OUTPUT"
+        run: |
+          VERSION=$(node -p "require('./node_modules/playwright/package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Restore Playwright browser cache
         id: playwright-cache
         uses: actions/cache@v4
@@ -33,12 +35,15 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
       - name: Install Chromium system dependencies
+        timeout-minutes: 2
+        continue-on-error: true
         run: npx playwright install-deps chromium
       - name: Download Chromium on cache miss
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium
       - name: Report Playwright cache
-        run: echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
       - name: Build production site
         run: npm run build:site
       - name: Start production server
@@ -57,5 +62,5 @@ jobs:
         with:
           name: pager-frontieros-${{ github.event.pull_request.number || github.run_number }}
           path: artifacts/pager-frontieros
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30

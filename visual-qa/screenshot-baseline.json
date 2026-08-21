@@ -1,18 +1,3308 @@
 {
   "version": 1,
   "item": "13.14",
-  "status": "bootstrap-pending",
-  "description": "Deterministic SHA-256 baselines for Item 13.14 full-page Playwright screenshots.",
+  "status": "active",
+  "description": "Reviewed deterministic SHA-256 baselines for Item 13.14 full-page Playwright screenshots.",
   "inventoryVersion": 1,
   "responsiveMatrixVersion": 1,
   "playwrightVersion": "1.54.2",
   "expectedCaptureCount": 255,
+  "generatedAt": "2026-08-21T16:34:21.035Z",
+  "promotedAt": "2026-08-21T16:39:09.318Z",
+  "promotion": {
+    "item": "13.17",
+    "reviewed": true,
+    "reviewedBy": "github-actions[bot]",
+    "candidateSha256": "f0c8a8d1425a559f12e6d5e5ff26d4d3e14f23204abf9955282113416dbadde3",
+    "candidateFile": "artifacts/screenshot-regression/candidate-baseline.json"
+  },
   "capturePolicy": {
     "routes": "Every visual-qa/inventory.json screen in graduated empty state",
     "specials": "Every non-manual visual-qa/inventory.json special capture",
     "screenshot": "Full-page PNG, deviceScaleFactor 1, animations disabled, caret hidden",
-    "deterministicRuntime": "UTC timezone, en-US locale, dark color scheme, reduced motion, fixed Date and seeded Math.random",
+    "deterministicRuntime": "UTC timezone, en-US locale, dark color scheme, reduced motion, fixed Date/build identity, seeded Math.random, deterministic randomUUID, and transient-overlay cleanup",
     "comparison": "Exact SHA-256 plus PNG dimensions under the pinned Playwright/Chromium toolchain"
   },
-  "captures": {}
+  "captures": {
+    "phone-portrait/founder": {
+      "sha256": "15e69a53538cc1a6387076e81af4b3389f4a4ec064d0a89868d22d6466b307cd",
+      "width": 390,
+      "height": 2290,
+      "bytes": 292172,
+      "label": "Founder setup",
+      "stateClasses": [
+        "empty"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/story-intro": {
+      "sha256": "8becbcc4ab4ad64e951ed7217d36c37466004de19ed146eb455121f26f18007a",
+      "width": 390,
+      "height": 9014,
+      "bytes": 1178007,
+      "label": "Intro story overlay",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/company-early": {
+      "sha256": "1cf97ba885bec5499aaecf4fbb98b31e5350311315b8252dff359245cdadb0b2",
+      "width": 390,
+      "height": 8696,
+      "bytes": 1059042,
+      "label": "Company / Home — early campaign",
+      "stateClasses": [
+        "locked",
+        "empty"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/more-locked": {
+      "sha256": "612ecec7bc723ff3897e8f3c16cbd440781360d1decbbe054fa1e6f3b0afb002",
+      "width": 390,
+      "height": 8696,
+      "bytes": 1115930,
+      "label": "More sheet — early campaign locks",
+      "stateClasses": [
+        "locked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/training-empty": {
+      "sha256": "1cf97ba885bec5499aaecf4fbb98b31e5350311315b8252dff359245cdadb0b2",
+      "width": 390,
+      "height": 8696,
+      "bytes": 1059042,
+      "label": "Training Operations — no active run",
+      "stateClasses": [
+        "empty",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/more-unlocked": {
+      "sha256": "fc80358ee9440013eff67e7c7ec9ea6c819494f420f4dea4bb8e8a163571f424",
+      "width": 390,
+      "height": 8174,
+      "bytes": 1027029,
+      "label": "More sheet — graduated campaign",
+      "stateClasses": [
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/route-company-home": {
+      "sha256": "ec628856a1943c0eaee9e2de57d16f423a724733230e91e172cb501d7d38624b",
+      "width": 390,
+      "height": 8174,
+      "bytes": 1018489,
+      "label": "Company / Home",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "company-home"
+    },
+    "phone-portrait/route-training": {
+      "sha256": "9f9cc3d519f01e32b34d523bf463736e422aeeb5bef095912c6055a6552435d1",
+      "width": 390,
+      "height": 8174,
+      "bytes": 1018307,
+      "label": "Training Operations",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "training"
+    },
+    "phone-portrait/route-hiring": {
+      "sha256": "eee66c7f11c0314cafc529a31a4c471fb2d11184578248735f51e4c045662f18",
+      "width": 390,
+      "height": 2470,
+      "bytes": 273506,
+      "label": "Hiring + Org",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "hiring"
+    },
+    "phone-portrait/route-model-lab": {
+      "sha256": "fb79db8b918847d279a83decfb329502bf46741634aa149a438f1dfce334afbb",
+      "width": 390,
+      "height": 1490,
+      "bytes": 199422,
+      "label": "Model Lab",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "model-lab"
+    },
+    "phone-portrait/route-workstation": {
+      "sha256": "dcb5e9b943d6edcab86ccdc05e5a39796a4fbc50e6ed1aa7ddbfd74b9a79aa31",
+      "width": 390,
+      "height": 8174,
+      "bytes": 1051519,
+      "label": "Engineer Workstation",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "workstation"
+    },
+    "phone-portrait/route-code-lab": {
+      "sha256": "64aa26471e2b4d084203601f137f50807ae84ec2d945fb3ffd4aee96060e06b8",
+      "width": 390,
+      "height": 2485,
+      "bytes": 255000,
+      "label": "Code Lab",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "code-lab"
+    },
+    "phone-portrait/route-knowledge": {
+      "sha256": "ab5f51d16ab968211166c9b7cc63bd1be793c788a50fd7dcef47baed04e2544d",
+      "width": 390,
+      "height": 1490,
+      "bytes": 166211,
+      "label": "Knowledge / Mastery",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "knowledge"
+    },
+    "phone-portrait/route-career": {
+      "sha256": "0af12208c933be33b50b3fc6d03a29527518e154947b7362be730d94587cbf6c",
+      "width": 390,
+      "height": 3040,
+      "bytes": 292239,
+      "label": "Career",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "career"
+    },
+    "phone-portrait/route-postmortems": {
+      "sha256": "2c8768eee57de597995be28ffd330c52eefa6bd8f83d0f6f96e162c1c6be37fe",
+      "width": 390,
+      "height": 1668,
+      "bytes": 226665,
+      "label": "Postmortems",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "postmortems"
+    },
+    "phone-portrait/route-engineering-artifacts": {
+      "sha256": "c5dc069a5001b5ba0b43cc1dd26c434958e183c0f60eb9afe25d0fe4b5063808",
+      "width": 390,
+      "height": 2597,
+      "bytes": 271570,
+      "label": "Engineering Artifacts",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "engineering-artifacts"
+    },
+    "phone-portrait/route-incident-artifacts": {
+      "sha256": "c5dc069a5001b5ba0b43cc1dd26c434958e183c0f60eb9afe25d0fe4b5063808",
+      "width": 390,
+      "height": 2597,
+      "bytes": 271570,
+      "label": "Incident Artifacts",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "incident-artifacts"
+    },
+    "phone-portrait/route-data-evals": {
+      "sha256": "a1a5c84183ae777de20a4381324f88a19186419fc91b2683adc01e140facf53b",
+      "width": 390,
+      "height": 2192,
+      "bytes": 208480,
+      "label": "Data + Evals",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "data-evals"
+    },
+    "phone-portrait/route-tech-debt": {
+      "sha256": "71bd5050d10d5e374884723d53f833a5cbd5faf988286eeda60f1fb89d68f26e",
+      "width": 390,
+      "height": 2096,
+      "bytes": 285223,
+      "label": "Technical Debt",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "tech-debt"
+    },
+    "phone-portrait/route-architecture": {
+      "sha256": "3ab0572f5ecaecde3d92cb761a058b9da6f7f981ca92d41fe2c281722652ae32",
+      "width": 390,
+      "height": 1490,
+      "bytes": 181234,
+      "label": "Architecture Portfolio",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "architecture"
+    },
+    "phone-portrait/route-model-families": {
+      "sha256": "aab68d2e874635219aed0641e53ca984a24475ba79fe30dd15e218ea236dfdc8",
+      "width": 390,
+      "height": 1490,
+      "bytes": 136635,
+      "label": "Model Families / Forks",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "model-families"
+    },
+    "phone-portrait/route-maintenance": {
+      "sha256": "ef5518f7827525f4caab204832614f00b18ddc8763e76d74e63c01a2099ec0ef",
+      "width": 390,
+      "height": 2366,
+      "bytes": 230458,
+      "label": "Maintenance Economics",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "maintenance"
+    },
+    "phone-portrait/route-operations": {
+      "sha256": "e15423d6c2adea60a1366a020c5313214915e6161624e9f48b5d4e002c6e7b3f",
+      "width": 390,
+      "height": 3975,
+      "bytes": 333557,
+      "label": "Operations",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "operations"
+    },
+    "phone-portrait/route-reliability": {
+      "sha256": "36435d9fd4d7950a364f873685653dd1639dbbc393a7c96dc7821174f8ec51f9",
+      "width": 390,
+      "height": 5413,
+      "bytes": 446450,
+      "label": "Reliability / SLOs",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "reliability"
+    },
+    "phone-portrait/route-release-governance": {
+      "sha256": "029200c555e1c2db497f9f78fd1e0b0ead8d4f710982c39a4b1d05147d746a6c",
+      "width": 390,
+      "height": 4070,
+      "bytes": 341235,
+      "label": "Release Governance",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "release-governance"
+    },
+    "phone-portrait/route-roadmap": {
+      "sha256": "0b90c30037a9f6d71da754c1edb46a2b446c1de6d6da5036ecf6ad5776b8782c",
+      "width": 390,
+      "height": 3381,
+      "bytes": 298155,
+      "label": "Executive Roadmap / Enterprise Pressure",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "roadmap"
+    },
+    "phone-portrait/route-quarterly-board": {
+      "sha256": "6c0435c9c33792cdbaccf94427861955b9663ce336db922b467ab5944e042ad4",
+      "width": 390,
+      "height": 3381,
+      "bytes": 290369,
+      "label": "Quarterly Board",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "quarterly-board"
+    },
+    "phone-portrait/route-capital": {
+      "sha256": "dfb7df0cc695d1d5bafefd18b8a91461f57ecdd53d2b9779aca395a85394456f",
+      "width": 390,
+      "height": 3097,
+      "bytes": 255367,
+      "label": "Financing / Capital Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "capital"
+    },
+    "phone-portrait/route-macro-restructuring": {
+      "sha256": "1f82c0608c936466fda21c6fa7bcb690a65b34b7e8cee4a261e99a1fb6ec0b81",
+      "width": 390,
+      "height": 2784,
+      "bytes": 253190,
+      "label": "Macro / Restructuring",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "macro-restructuring"
+    },
+    "phone-portrait/route-governance": {
+      "sha256": "1ec07d64b029146246647c0e649095d888635c11a6bd38cce590ee5a2bc06f6b",
+      "width": 390,
+      "height": 2953,
+      "bytes": 301687,
+      "label": "Governance / Board",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "governance"
+    },
+    "phone-portrait/route-executive-politics": {
+      "sha256": "0a53d79f155142324e249491df268171d8587605498e4d4861e98144e25615a3",
+      "width": 390,
+      "height": 3015,
+      "bytes": 288356,
+      "label": "Executive Politics",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "executive-politics"
+    },
+    "phone-portrait/route-talent-memory": {
+      "sha256": "5d23d16b05c7d402e76a874b31f1f1e09243bfab9268b6ddb21a37e97b417190",
+      "width": 390,
+      "height": 2616,
+      "bytes": 230292,
+      "label": "People + Talent Memory",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "talent-memory"
+    },
+    "phone-portrait/route-org-management": {
+      "sha256": "ccb64bcccb747d7a4f9c8f94989e4a7d96a6b9d5f5e787079f8ba5e17f57bd2e",
+      "width": 390,
+      "height": 4885,
+      "bytes": 470063,
+      "label": "Organization Management",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "org-management"
+    },
+    "phone-portrait/route-workforce": {
+      "sha256": "6ade6819ead21270816a77af7aa9991106c170c7705e5af0bbf2db1f9bc641f4",
+      "width": 390,
+      "height": 4884,
+      "bytes": 468446,
+      "label": "Workforce Planning",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "workforce"
+    },
+    "phone-portrait/route-portfolio": {
+      "sha256": "6982a210f720008d18e50c681ab6829ffe11acb432c1bc3cc04857206ced2810",
+      "width": 390,
+      "height": 2404,
+      "bytes": 252627,
+      "label": "Project Portfolio",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "portfolio"
+    },
+    "phone-portrait/route-critical-path": {
+      "sha256": "c481f8a6ac32842f8950b097e054330a519efb6f20999860b3549bbe990febf2",
+      "width": 390,
+      "height": 1965,
+      "bytes": 218248,
+      "label": "Critical Path",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "critical-path"
+    },
+    "phone-portrait/route-programs": {
+      "sha256": "e7b47e5ffadecc7329a148a701a5ae9fff373bd8040a941829b121ca4ae4e0cc",
+      "width": 390,
+      "height": 1921,
+      "bytes": 234207,
+      "label": "Program Management",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "programs"
+    },
+    "phone-portrait/route-program-learning": {
+      "sha256": "d9b54faaa0c4c59920fadfab79c05badbe04081d7a78029248b5a2e35b43a630",
+      "width": 390,
+      "height": 1739,
+      "bytes": 155716,
+      "label": "Program Learning",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "program-learning"
+    },
+    "phone-portrait/route-strategy": {
+      "sha256": "62b7d762dd9ef9fc38b37f772f2492bfbd57341034455220874806685c6a0876",
+      "width": 390,
+      "height": 2610,
+      "bytes": 233763,
+      "label": "Portfolio Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "strategy"
+    },
+    "phone-portrait/route-investment": {
+      "sha256": "e77ecb09a9ecc91be9b626eb9ab5785efd577bcffb845af5a0c899537495c2eb",
+      "width": 390,
+      "height": 2167,
+      "bytes": 176122,
+      "label": "Investment Committee",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "investment"
+    },
+    "phone-portrait/route-competition": {
+      "sha256": "a876235181e367e8bae92d244c3bb6f1c8fa63f331482641df0c6ae16f1eae85",
+      "width": 390,
+      "height": 2651,
+      "bytes": 252064,
+      "label": "Competitive Intelligence",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "competition"
+    },
+    "phone-portrait/route-ecosystem": {
+      "sha256": "085ab13196872c74dcd620a4b22f30eb759df40c84ec1bc6658fa3dc2e545c38",
+      "width": 390,
+      "height": 2928,
+      "bytes": 270793,
+      "label": "Ecosystem Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "ecosystem"
+    },
+    "phone-portrait/route-policy": {
+      "sha256": "a426a0d4846b31274f18a76c3497d41f019cf6b182dfc93d58a1b2cd90c67e7c",
+      "width": 390,
+      "height": 2791,
+      "bytes": 271986,
+      "label": "Policy + Regulation",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "policy"
+    },
+    "phone-portrait/route-communications": {
+      "sha256": "06c2ae0519ff703e4f55fe56dd16e82bd3c8ab9e4daa8809aaa83d306aafd99f",
+      "width": 390,
+      "height": 2324,
+      "bytes": 215776,
+      "label": "Public Communications",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "communications"
+    },
+    "phone-portrait/company-populated": {
+      "sha256": "40f9d929372e9d54175eccb1da7f4937e77ae2c5517bb9cceb41e30e60fbc419",
+      "width": 390,
+      "height": 8139,
+      "bytes": 1047971,
+      "label": "Company / Home — representative model/run data",
+      "stateClasses": [
+        "populated",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/training-incident": {
+      "sha256": "dbcb829379040a3a4a91d2e819c4eb8ddcd53626d8a02ae3499913a460bcd733",
+      "width": 390,
+      "height": 7745,
+      "bytes": 976543,
+      "label": "Training incident investigation",
+      "stateClasses": [
+        "error",
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/technical-explainer": {
+      "sha256": "44f14b76642d1c69a2863f41d09fddfbaf454e0ee704f33c55f8429ce7db092b",
+      "width": 390,
+      "height": 8139,
+      "bytes": 1034267,
+      "label": "Technical explainer modal",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/milestone": {
+      "sha256": "bd61410cb9a07b5105daabbcc8c764d6441d19df54b9d781b8e94b3d6cb402b0",
+      "width": 390,
+      "height": 8139,
+      "bytes": 1010415,
+      "label": "Milestone celebration overlay",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/company-priority": {
+      "sha256": "e47bd9a6bde194f7350b7e8b4ca6f69e6736f1b22ef41b443b83f73d377412ee",
+      "width": 390,
+      "height": 8139,
+      "bytes": 1037053,
+      "label": "Company priority decision",
+      "stateClasses": [
+        "populated",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/realism-audit": {
+      "sha256": "cefa863bcbf335ce0fa30598d47e9e83555ae9c871342665557c81ef4524e604",
+      "width": 390,
+      "height": 7105,
+      "bytes": 733019,
+      "label": "Technical Realism Audit",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-portrait/run-archive": {
+      "sha256": "bffcd2d706f777dba18f28afffb214eb6ce3f31377b511bbb65ab4a7c9fac567",
+      "width": 390,
+      "height": 1595,
+      "bytes": 140667,
+      "label": "Run Archive / New Game+",
+      "stateClasses": [
+        "empty",
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/founder": {
+      "sha256": "c9f3ad57cd0eabca3aa0bed6e49af9d2760848956e7540878b93b1cd6edbd89c",
+      "width": 844,
+      "height": 1792,
+      "bytes": 451396,
+      "label": "Founder setup",
+      "stateClasses": [
+        "empty"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/story-intro": {
+      "sha256": "bcae95a86b047fd80f2490eb2550aef7b5e828ba1520e02e2b0b21967ac6ce89",
+      "width": 844,
+      "height": 7313,
+      "bytes": 1785173,
+      "label": "Intro story overlay",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/company-early": {
+      "sha256": "64d58bad305bf74d69db91fec6179c8a6df89e0579a52dd7a7ddc211dbc99412",
+      "width": 844,
+      "height": 5453,
+      "bytes": 1482966,
+      "label": "Company / Home — early campaign",
+      "stateClasses": [
+        "locked",
+        "empty"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/more-locked": {
+      "sha256": "a766509db430feb866c9ddda06dfaa7ceb74ea5dd5043ff5e9f74483e4799b04",
+      "width": 844,
+      "height": 5453,
+      "bytes": 1565087,
+      "label": "More sheet — early campaign locks",
+      "stateClasses": [
+        "locked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/training-empty": {
+      "sha256": "64d58bad305bf74d69db91fec6179c8a6df89e0579a52dd7a7ddc211dbc99412",
+      "width": 844,
+      "height": 5453,
+      "bytes": 1482966,
+      "label": "Training Operations — no active run",
+      "stateClasses": [
+        "empty",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/more-unlocked": {
+      "sha256": "87615dbf1949328e05f37eae363d5f5c8601d811df97fb8a1469604998c6d203",
+      "width": 844,
+      "height": 5261,
+      "bytes": 1737703,
+      "label": "More sheet — graduated campaign",
+      "stateClasses": [
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/route-company-home": {
+      "sha256": "be197ca784c23cfc30ab8535e517985beb0369e8f952f254ef4451b5e77988e4",
+      "width": 844,
+      "height": 5261,
+      "bytes": 1711011,
+      "label": "Company / Home",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "company-home"
+    },
+    "phone-landscape/route-training": {
+      "sha256": "f2334d2fdc6b86496fd234bf0e22f16bfc1002582493e7a363a3c81523379595",
+      "width": 844,
+      "height": 5261,
+      "bytes": 1711013,
+      "label": "Training Operations",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "training"
+    },
+    "phone-landscape/route-hiring": {
+      "sha256": "db3580d0de51ef3909f0811d0fbbaab433436cd65069f42a4a6aa3b7cddd21c9",
+      "width": 844,
+      "height": 3566,
+      "bytes": 490150,
+      "label": "Hiring + Org",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "hiring"
+    },
+    "phone-landscape/route-model-lab": {
+      "sha256": "f0aeaeca7a2b5c6bea34e19841f2803692e80dff80a008425355c6f1d95dc406",
+      "width": 844,
+      "height": 1031,
+      "bytes": 249846,
+      "label": "Model Lab",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "model-lab"
+    },
+    "phone-landscape/route-workstation": {
+      "sha256": "7c909707accd71481cf19412516bb19b72fb10d21398a3952a6f78f9502c8e39",
+      "width": 844,
+      "height": 5261,
+      "bytes": 1737567,
+      "label": "Engineer Workstation",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "workstation"
+    },
+    "phone-landscape/route-code-lab": {
+      "sha256": "199f7d1cf7be94fd9f4b215a03fa4e5cf9794468285d9b4d1623e51e0015cc0e",
+      "width": 844,
+      "height": 1699,
+      "bytes": 278948,
+      "label": "Code Lab",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "code-lab"
+    },
+    "phone-landscape/route-knowledge": {
+      "sha256": "ad27baa1695f6c85047544d1a530e51ded9f31dda563049900820f2828e109a1",
+      "width": 844,
+      "height": 1015,
+      "bytes": 176362,
+      "label": "Knowledge / Mastery",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "knowledge"
+    },
+    "phone-landscape/route-career": {
+      "sha256": "854ac18be66bdd0404e34733aaad4ad0a728d5249f25fd751ddba1e573cde5a7",
+      "width": 844,
+      "height": 1748,
+      "bytes": 327382,
+      "label": "Career",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "career"
+    },
+    "phone-landscape/route-postmortems": {
+      "sha256": "1b096fb92d18401de92d03ca3e7f89fcd6e35a0084f18a39da715cd00295ae10",
+      "width": 844,
+      "height": 1045,
+      "bytes": 242030,
+      "label": "Postmortems",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "postmortems"
+    },
+    "phone-landscape/route-engineering-artifacts": {
+      "sha256": "30103ad1d17857b7426f0c61d8d459ddcb1533bad91fefd0bba7f94d87d5678f",
+      "width": 844,
+      "height": 1759,
+      "bytes": 327082,
+      "label": "Engineering Artifacts",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "engineering-artifacts"
+    },
+    "phone-landscape/route-incident-artifacts": {
+      "sha256": "30103ad1d17857b7426f0c61d8d459ddcb1533bad91fefd0bba7f94d87d5678f",
+      "width": 844,
+      "height": 1759,
+      "bytes": 327082,
+      "label": "Incident Artifacts",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "incident-artifacts"
+    },
+    "phone-landscape/route-data-evals": {
+      "sha256": "53d9e3a8aa70b84f42b96b2523b35d04c408379a7f74cb689e9bc1413bcd56da",
+      "width": 844,
+      "height": 1132,
+      "bytes": 229205,
+      "label": "Data + Evals",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "data-evals"
+    },
+    "phone-landscape/route-tech-debt": {
+      "sha256": "4d0b79dd2c616e562385fdd6b3e506c61569d1643cff843b57899ffe48209e4f",
+      "width": 844,
+      "height": 1491,
+      "bytes": 342254,
+      "label": "Technical Debt",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "tech-debt"
+    },
+    "phone-landscape/route-architecture": {
+      "sha256": "bb794ba5638adbeb0598d3fab2ec108457438a62cc99b6cfa60519f14d8686b8",
+      "width": 844,
+      "height": 879,
+      "bytes": 202684,
+      "label": "Architecture Portfolio",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "architecture"
+    },
+    "phone-landscape/route-model-families": {
+      "sha256": "bd9f3d9eeae655a682357e28d93d9a5bcd5a0be1278af945549d97aaf0da1f85",
+      "width": 844,
+      "height": 803,
+      "bytes": 142959,
+      "label": "Model Families / Forks",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "model-families"
+    },
+    "phone-landscape/route-maintenance": {
+      "sha256": "478fa38df2892ffb1b4d07b2442baf54654bd9949dd9a2840d4f9ef89b6adcb9",
+      "width": 844,
+      "height": 1563,
+      "bytes": 234455,
+      "label": "Maintenance Economics",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "maintenance"
+    },
+    "phone-landscape/route-operations": {
+      "sha256": "5ab8166bdf01eb9551e820df9d058d7f8e175e2be40bff7f486bb653b5b7463f",
+      "width": 844,
+      "height": 2868,
+      "bytes": 346531,
+      "label": "Operations",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "operations"
+    },
+    "phone-landscape/route-reliability": {
+      "sha256": "c755fd628f60456a5d56c562f1453b69e83593137f48e2909cfa9a41d70d617f",
+      "width": 844,
+      "height": 3552,
+      "bytes": 468520,
+      "label": "Reliability / SLOs",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "reliability"
+    },
+    "phone-landscape/route-release-governance": {
+      "sha256": "9d5cb7caf9a0f25b3da9a1e8a239e054ee5466043c6c17d6342c3e172b1e5328",
+      "width": 844,
+      "height": 2888,
+      "bytes": 334399,
+      "label": "Release Governance",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "release-governance"
+    },
+    "phone-landscape/route-roadmap": {
+      "sha256": "e3dc649d03fce59333e51c5dee57d34ff5646507ec527d95fbc40b01ba1457fa",
+      "width": 844,
+      "height": 2142,
+      "bytes": 315449,
+      "label": "Executive Roadmap / Enterprise Pressure",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "roadmap"
+    },
+    "phone-landscape/route-quarterly-board": {
+      "sha256": "9c2678fbfbc6e383343ef7be9496c9382f34c9cf6f05554b973b2e1fcf0c4269",
+      "width": 844,
+      "height": 2113,
+      "bytes": 289539,
+      "label": "Quarterly Board",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "quarterly-board"
+    },
+    "phone-landscape/route-capital": {
+      "sha256": "29afe62ead04c55dab5ccd649a206da8afeed15cbddffed5b0d4a9f6ec1fe5a2",
+      "width": 844,
+      "height": 2033,
+      "bytes": 255354,
+      "label": "Financing / Capital Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "capital"
+    },
+    "phone-landscape/route-macro-restructuring": {
+      "sha256": "f14fdc5b259c2e856c3f65b2106ff784a106ad916ab464f91d48b0f5499ae72f",
+      "width": 844,
+      "height": 1790,
+      "bytes": 261054,
+      "label": "Macro / Restructuring",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "macro-restructuring"
+    },
+    "phone-landscape/route-governance": {
+      "sha256": "b099a97afaee4bf4ec8123e3c6a8b033e3918efc96b93dab347b70349dac344a",
+      "width": 844,
+      "height": 2034,
+      "bytes": 327276,
+      "label": "Governance / Board",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "governance"
+    },
+    "phone-landscape/route-executive-politics": {
+      "sha256": "e3b73fc19609494016170e7a6e10db358d48061f1d0685fa989d0df43a993260",
+      "width": 844,
+      "height": 1965,
+      "bytes": 287684,
+      "label": "Executive Politics",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "executive-politics"
+    },
+    "phone-landscape/route-talent-memory": {
+      "sha256": "c84f16aeb989c787405fdace50d33fa19289e74633f8084e1174839608deb54f",
+      "width": 844,
+      "height": 1765,
+      "bytes": 256361,
+      "label": "People + Talent Memory",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "talent-memory"
+    },
+    "phone-landscape/route-org-management": {
+      "sha256": "761f04ae53967941ebc98020030183334fb69e8a89e8bbc5ab511c2f5c42ca8f",
+      "width": 844,
+      "height": 2670,
+      "bytes": 446708,
+      "label": "Organization Management",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "org-management"
+    },
+    "phone-landscape/route-workforce": {
+      "sha256": "65888c0b50d09d6a5af6c539d6761fd7eb6d23556e762e6667f63822c2cd0f07",
+      "width": 844,
+      "height": 2812,
+      "bytes": 426442,
+      "label": "Workforce Planning",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "workforce"
+    },
+    "phone-landscape/route-portfolio": {
+      "sha256": "ea345f79bacab6d65472af6f0d2547e1979574da0f7d7c2be28965848375cbc3",
+      "width": 844,
+      "height": 1554,
+      "bytes": 259322,
+      "label": "Project Portfolio",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "portfolio"
+    },
+    "phone-landscape/route-critical-path": {
+      "sha256": "109d9bc3c8039a6857aeadcbdf0d9bf5f60a0dbe3b42a781f0240ab8d5e8b71d",
+      "width": 844,
+      "height": 1316,
+      "bytes": 246578,
+      "label": "Critical Path",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "critical-path"
+    },
+    "phone-landscape/route-programs": {
+      "sha256": "2a0b9618b47d093909f3aa67b5bf8d81265ca0faf16fde6015259991db533edc",
+      "width": 844,
+      "height": 1306,
+      "bytes": 254961,
+      "label": "Program Management",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "programs"
+    },
+    "phone-landscape/route-program-learning": {
+      "sha256": "080af099561f5da287e2a023e8de6ba6d5cf4025f2c44327d3af1a1012444013",
+      "width": 844,
+      "height": 1292,
+      "bytes": 191952,
+      "label": "Program Learning",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "program-learning"
+    },
+    "phone-landscape/route-strategy": {
+      "sha256": "2ccaa10c5d036f2936097df477b1c670e1668394e2bfc93051e7c3a21c1e84bd",
+      "width": 844,
+      "height": 1604,
+      "bytes": 234115,
+      "label": "Portfolio Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "strategy"
+    },
+    "phone-landscape/route-investment": {
+      "sha256": "889bd928827a5f6ed80781bdb27bb311978e05a018b772d9b3b8a9ead983f4b2",
+      "width": 844,
+      "height": 1490,
+      "bytes": 207926,
+      "label": "Investment Committee",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "investment"
+    },
+    "phone-landscape/route-competition": {
+      "sha256": "20114b90d1b4e4e07de3f692fa81c81b5d7132f8a9749063122db3627d22a7f6",
+      "width": 844,
+      "height": 1729,
+      "bytes": 273583,
+      "label": "Competitive Intelligence",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "competition"
+    },
+    "phone-landscape/route-ecosystem": {
+      "sha256": "4228a0235e27c75b3ecf07eda6994df1cc9aac18bbf52c1c482f717568fe30e3",
+      "width": 844,
+      "height": 1756,
+      "bytes": 261979,
+      "label": "Ecosystem Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "ecosystem"
+    },
+    "phone-landscape/route-policy": {
+      "sha256": "f74a706db4f01cecb326315d01053c940af5bebd20e4cd953f55151c79ac91db",
+      "width": 844,
+      "height": 1785,
+      "bytes": 282632,
+      "label": "Policy + Regulation",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "policy"
+    },
+    "phone-landscape/route-communications": {
+      "sha256": "a4036791f085aa123b41d37a1348d6dc5bf0445a3b8a11d692aeb2eeeb424006",
+      "width": 844,
+      "height": 1587,
+      "bytes": 233733,
+      "label": "Public Communications",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "communications"
+    },
+    "phone-landscape/company-populated": {
+      "sha256": "34f73d170f0a83c6592a644b31a800735684d9440c1c8b7dc6ffbd741de8d8e0",
+      "width": 844,
+      "height": 5232,
+      "bytes": 1738078,
+      "label": "Company / Home — representative model/run data",
+      "stateClasses": [
+        "populated",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/training-incident": {
+      "sha256": "f70f05843d1eca229bc23d10e0cc9b7218432cb3509d555e6815bfb0c6abf5e7",
+      "width": 844,
+      "height": 5136,
+      "bytes": 1676536,
+      "label": "Training incident investigation",
+      "stateClasses": [
+        "error",
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/technical-explainer": {
+      "sha256": "562f79154845d91a3dd58f609c665400f64a5b004a52ebd09ffff99c8033c6b8",
+      "width": 844,
+      "height": 5232,
+      "bytes": 1782219,
+      "label": "Technical explainer modal",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/milestone": {
+      "sha256": "af5012d7b3aa29d3d93d7d052eed9304b75cbe8068825750c7d3665084810c0e",
+      "width": 844,
+      "height": 5232,
+      "bytes": 1753613,
+      "label": "Milestone celebration overlay",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/company-priority": {
+      "sha256": "67af0bc276b2f3507949b936bff0d263f25d5b0a9fc06926efa50ef6ed6cbd2d",
+      "width": 844,
+      "height": 5232,
+      "bytes": 1778564,
+      "label": "Company priority decision",
+      "stateClasses": [
+        "populated",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/realism-audit": {
+      "sha256": "ef47e3f409b066a07ae25ecefea02e43e63da780f649d9240095e179f48951f6",
+      "width": 844,
+      "height": 4809,
+      "bytes": 757428,
+      "label": "Technical Realism Audit",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "phone-landscape/run-archive": {
+      "sha256": "1c87ae294befe4b2ab74371024203e7c48feef9f17a7008ca54bcb0b12a35ce7",
+      "width": 844,
+      "height": 1298,
+      "bytes": 184723,
+      "label": "Run Archive / New Game+",
+      "stateClasses": [
+        "empty",
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/founder": {
+      "sha256": "72567b3ab3ff29fd88b549550532821294e7785eef39d73741cb859cef0c2622",
+      "width": 834,
+      "height": 1732,
+      "bytes": 439730,
+      "label": "Founder setup",
+      "stateClasses": [
+        "empty"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/story-intro": {
+      "sha256": "afdbf1b860ee0c3a5f3b095dae292b5c993adb263da0abbfc7263e651e7c1296",
+      "width": 834,
+      "height": 7454,
+      "bytes": 1719163,
+      "label": "Intro story overlay",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/company-early": {
+      "sha256": "b378d81740fb73b5408ac701f6fa895a64eca9b23a1ba0cd8dcb9bb7206c8522",
+      "width": 834,
+      "height": 5610,
+      "bytes": 1503815,
+      "label": "Company / Home — early campaign",
+      "stateClasses": [
+        "locked",
+        "empty"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/more-locked": {
+      "sha256": "744d6c006f2b6950304f181b85292528f65f7322001255a6a17e34d3f2b8f6fd",
+      "width": 834,
+      "height": 5610,
+      "bytes": 1492296,
+      "label": "More sheet — early campaign locks",
+      "stateClasses": [
+        "locked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/training-empty": {
+      "sha256": "7a6a61c51fa6df0e8ef8d61f8c73b66510508bcc530049950cc480acd02b25f0",
+      "width": 834,
+      "height": 5610,
+      "bytes": 1503818,
+      "label": "Training Operations — no active run",
+      "stateClasses": [
+        "empty",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/more-unlocked": {
+      "sha256": "cb3dd927b8d0ece047ddf6a4b11ff79228fde32c79b76bc6edfa189003aa29a3",
+      "width": 834,
+      "height": 5417,
+      "bytes": 1584873,
+      "label": "More sheet — graduated campaign",
+      "stateClasses": [
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/route-company-home": {
+      "sha256": "a8e6a3221f8bc46a844ab302f5f612b5fdd1bc02e7720098cb8dd57a5dd92410",
+      "width": 834,
+      "height": 5417,
+      "bytes": 1718419,
+      "label": "Company / Home",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "company-home"
+    },
+    "tablet/route-training": {
+      "sha256": "b49a806592d859fb1398ed43b443dba44330c5e1774a4a926d8098d1e14e5c28",
+      "width": 834,
+      "height": 5417,
+      "bytes": 1718391,
+      "label": "Training Operations",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "training"
+    },
+    "tablet/route-hiring": {
+      "sha256": "a91dfd3fefcda1dc1fa13ebfa62c40a359a2d5e6c475edce7ab8204ba10f845c",
+      "width": 834,
+      "height": 3684,
+      "bytes": 517344,
+      "label": "Hiring + Org",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "hiring"
+    },
+    "tablet/route-model-lab": {
+      "sha256": "031c38fb99caddce3cd20df42f2bbc7ba0af60dabeb01cb1e80c3be978511bc4",
+      "width": 834,
+      "height": 1580,
+      "bytes": 293406,
+      "label": "Model Lab",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "model-lab"
+    },
+    "tablet/route-workstation": {
+      "sha256": "14b6820ace90af1bc890bd1a0ebcd3bcf8d546b2020a2f309ac53bbebb7bc9dd",
+      "width": 834,
+      "height": 5417,
+      "bytes": 1707638,
+      "label": "Engineer Workstation",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "workstation"
+    },
+    "tablet/route-code-lab": {
+      "sha256": "c83008be5d9c57ccbf6fe4b44928dcf6fd8e532d13aea85e831182840c98eed6",
+      "width": 834,
+      "height": 1819,
+      "bytes": 311524,
+      "label": "Code Lab",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "code-lab"
+    },
+    "tablet/route-knowledge": {
+      "sha256": "ce4a4721d0325de73b7c181a0ee6156145c576f133743507ad4ace5ba8319b81",
+      "width": 834,
+      "height": 1580,
+      "bytes": 215990,
+      "label": "Knowledge / Mastery",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "knowledge"
+    },
+    "tablet/route-career": {
+      "sha256": "ad8beb767133c80344b3a11d9c32daa47a2db030ac10986c9462df916046a833",
+      "width": 834,
+      "height": 1890,
+      "bytes": 362517,
+      "label": "Career",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "career"
+    },
+    "tablet/route-postmortems": {
+      "sha256": "ca8ef25e053a946e3e3147401f61572fbc72d407e558c21201211e4c84698bc4",
+      "width": 834,
+      "height": 1580,
+      "bytes": 279452,
+      "label": "Postmortems",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "postmortems"
+    },
+    "tablet/route-engineering-artifacts": {
+      "sha256": "bd2abdb9b63374408483c71ac330fa1680c6b8d8407b2e42c06defbf3ff55274",
+      "width": 834,
+      "height": 1878,
+      "bytes": 361051,
+      "label": "Engineering Artifacts",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "engineering-artifacts"
+    },
+    "tablet/route-incident-artifacts": {
+      "sha256": "bd2abdb9b63374408483c71ac330fa1680c6b8d8407b2e42c06defbf3ff55274",
+      "width": 834,
+      "height": 1878,
+      "bytes": 361051,
+      "label": "Incident Artifacts",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "incident-artifacts"
+    },
+    "tablet/route-data-evals": {
+      "sha256": "12c476dafb3cf75be51744f163ff82cf259370c67617df49c46966bf06542d1a",
+      "width": 834,
+      "height": 1580,
+      "bytes": 275537,
+      "label": "Data + Evals",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "data-evals"
+    },
+    "tablet/route-tech-debt": {
+      "sha256": "2a470d17a6e43f79ff19451fa167b657b9af69fed364ecab0e0b26e851e54531",
+      "width": 834,
+      "height": 1611,
+      "bytes": 367641,
+      "label": "Technical Debt",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "tech-debt"
+    },
+    "tablet/route-architecture": {
+      "sha256": "4aa9946c98f6839f362bcbae1e93d4776bde11ff527402017d59d5005f6ba336",
+      "width": 834,
+      "height": 1580,
+      "bytes": 250066,
+      "label": "Architecture Portfolio",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "architecture"
+    },
+    "tablet/route-model-families": {
+      "sha256": "2f75dc0adda2daadf1c24b7ddca9075cd5220da70f82ab3cf823bd3f698eb408",
+      "width": 834,
+      "height": 1580,
+      "bytes": 156686,
+      "label": "Model Families / Forks",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "model-families"
+    },
+    "tablet/route-maintenance": {
+      "sha256": "15dd8b48e02fb7370e189bce05476976a0908e691158bc24b30c31b610d7650c",
+      "width": 834,
+      "height": 1683,
+      "bytes": 255621,
+      "label": "Maintenance Economics",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "maintenance"
+    },
+    "tablet/route-operations": {
+      "sha256": "d7577b32d88ad7e68655704aaccb67a164e1a4d06072a5434bfe6c40db759eab",
+      "width": 834,
+      "height": 2988,
+      "bytes": 357784,
+      "label": "Operations",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "operations"
+    },
+    "tablet/route-reliability": {
+      "sha256": "45f96d653269f833e30d10b8cdf7ecfc5ef6d1890a8a37d16fd7474c262e0822",
+      "width": 834,
+      "height": 3672,
+      "bytes": 491573,
+      "label": "Reliability / SLOs",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "reliability"
+    },
+    "tablet/route-release-governance": {
+      "sha256": "f6f8e88ec2aaad9dae90dac0acf46ff419e5dec9d78a9016dc58c251a374e379",
+      "width": 834,
+      "height": 3008,
+      "bytes": 350410,
+      "label": "Release Governance",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "release-governance"
+    },
+    "tablet/route-roadmap": {
+      "sha256": "8d9422aa52b2de09ed3ec28690bb5afb1c94b833c0858006a7bb716039ba9155",
+      "width": 834,
+      "height": 2262,
+      "bytes": 343250,
+      "label": "Executive Roadmap / Enterprise Pressure",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "roadmap"
+    },
+    "tablet/route-quarterly-board": {
+      "sha256": "1eb7987642031fdaec41be92684574b2b60b52b4e978a2196e8457b9a5962f16",
+      "width": 834,
+      "height": 2423,
+      "bytes": 326873,
+      "label": "Quarterly Board",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "quarterly-board"
+    },
+    "tablet/route-capital": {
+      "sha256": "81697f7e5e1e0187527510ed4b366b22b517b16dad556903e253dce4a84c8f64",
+      "width": 834,
+      "height": 2153,
+      "bytes": 285954,
+      "label": "Financing / Capital Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "capital"
+    },
+    "tablet/route-macro-restructuring": {
+      "sha256": "8cc6d57ed213443b98f203693dd67494f1490e7adc0728f7928b5891a0feaff3",
+      "width": 834,
+      "height": 1910,
+      "bytes": 281385,
+      "label": "Macro / Restructuring",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "macro-restructuring"
+    },
+    "tablet/route-governance": {
+      "sha256": "f3e992abd1560af5edc78aceab8d41f3ebbccb5d8d2d07cba9d5c142d03d5cee",
+      "width": 834,
+      "height": 2154,
+      "bytes": 354045,
+      "label": "Governance / Board",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "governance"
+    },
+    "tablet/route-executive-politics": {
+      "sha256": "627baab60806badb25249cc1111f0aebd79a2286a5257d94a6819670ff891bde",
+      "width": 834,
+      "height": 2085,
+      "bytes": 320136,
+      "label": "Executive Politics",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "executive-politics"
+    },
+    "tablet/route-talent-memory": {
+      "sha256": "dd4a660e2259957a31a174dffafef08e975d29c0dfb5c6f965d32ea8ca89f8c2",
+      "width": 834,
+      "height": 1885,
+      "bytes": 280410,
+      "label": "People + Talent Memory",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "talent-memory"
+    },
+    "tablet/route-org-management": {
+      "sha256": "ddfb5071bbcd878461b89c2f295c74d58a60891756735727f36548eb4990b1e7",
+      "width": 834,
+      "height": 2790,
+      "bytes": 471021,
+      "label": "Organization Management",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "org-management"
+    },
+    "tablet/route-workforce": {
+      "sha256": "fbcd1a45e9280e85ab2dcf811de5fee52b9ff96857da1e653bee5abb186197ba",
+      "width": 834,
+      "height": 2932,
+      "bytes": 453448,
+      "label": "Workforce Planning",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "workforce"
+    },
+    "tablet/route-portfolio": {
+      "sha256": "e6c936a3808334fb41755ba5405c05cf3f6d006270e73968e21600b7fdf54c2b",
+      "width": 834,
+      "height": 1674,
+      "bytes": 290134,
+      "label": "Project Portfolio",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "portfolio"
+    },
+    "tablet/route-critical-path": {
+      "sha256": "6198437ebb2fd97c384339ad4f9f3bc019f2930d5ba87e5653463c0e8f4662b7",
+      "width": 834,
+      "height": 1453,
+      "bytes": 272627,
+      "label": "Critical Path",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "critical-path"
+    },
+    "tablet/route-programs": {
+      "sha256": "0948ba25fad120590da2687c03f187492f65fc7dbb57d39932657e4a6e13c4f4",
+      "width": 834,
+      "height": 1580,
+      "bytes": 280182,
+      "label": "Program Management",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "programs"
+    },
+    "tablet/route-program-learning": {
+      "sha256": "43547890834706f744afa260a06e896a358b7fe82fb571e64df2a9df20305a51",
+      "width": 834,
+      "height": 1412,
+      "bytes": 215449,
+      "label": "Program Learning",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "program-learning"
+    },
+    "tablet/route-strategy": {
+      "sha256": "3ec1e7f333b88e63bea7264d006e20a5ccd3d4a2fc1f713235008d61da1e0039",
+      "width": 834,
+      "height": 1724,
+      "bytes": 260487,
+      "label": "Portfolio Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "strategy"
+    },
+    "tablet/route-investment": {
+      "sha256": "65499c4de3c73e11df8f67eed3b3889577db40e0e349b4c85597ed8100fd20b4",
+      "width": 834,
+      "height": 1610,
+      "bytes": 229849,
+      "label": "Investment Committee",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "investment"
+    },
+    "tablet/route-competition": {
+      "sha256": "dc776ff961f6fc82ee889928b2cf62ad90cca2667856b8b3be024928dfc1fb14",
+      "width": 834,
+      "height": 1849,
+      "bytes": 299763,
+      "label": "Competitive Intelligence",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "competition"
+    },
+    "tablet/route-ecosystem": {
+      "sha256": "0ddcfc9bc832cb5edf1657fe60950ea71f6b63253a2b2ff0415013c4046e872b",
+      "width": 834,
+      "height": 1876,
+      "bytes": 293208,
+      "label": "Ecosystem Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "ecosystem"
+    },
+    "tablet/route-policy": {
+      "sha256": "9d7bf10ff2acc41d81f560754e94f67d168d3bb52d184dc9a7c01d4b5d8a214d",
+      "width": 834,
+      "height": 1905,
+      "bytes": 307620,
+      "label": "Policy + Regulation",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "policy"
+    },
+    "tablet/route-communications": {
+      "sha256": "8dea651a731a17904e8a544861b97c3b224816c72371f90553feb5ae4c00e8c7",
+      "width": 834,
+      "height": 1707,
+      "bytes": 255795,
+      "label": "Public Communications",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "communications"
+    },
+    "tablet/company-populated": {
+      "sha256": "6603a6da516923cc5742cacfef3d1735a6dffec9f7eb180f954093e7af3bcaba",
+      "width": 834,
+      "height": 5389,
+      "bytes": 1705519,
+      "label": "Company / Home — representative model/run data",
+      "stateClasses": [
+        "populated",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/training-incident": {
+      "sha256": "ea8fc762c531fe1dd5351354642423b2b2c804dac9ccb8cc7989b1216cbe8812",
+      "width": 834,
+      "height": 5282,
+      "bytes": 1645576,
+      "label": "Training incident investigation",
+      "stateClasses": [
+        "error",
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/technical-explainer": {
+      "sha256": "1c929f1618704e71c5ea383a7bc5b8ba45a18d3ca3e93ba764de9fe5dbd6261a",
+      "width": 834,
+      "height": 5366,
+      "bytes": 1604652,
+      "label": "Technical explainer modal",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/milestone": {
+      "sha256": "53e962ec41dfda363f665478d29b1ee56a282e63dc3d52c397b2ed2c0c10b259",
+      "width": 834,
+      "height": 5366,
+      "bytes": 1576523,
+      "label": "Milestone celebration overlay",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/company-priority": {
+      "sha256": "00d2d88e604bfdfcc3f1d2aa6ff9b887e55df2efc92837bda11eed3d9607eb02",
+      "width": 834,
+      "height": 5366,
+      "bytes": 1597182,
+      "label": "Company priority decision",
+      "stateClasses": [
+        "populated",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/realism-audit": {
+      "sha256": "639833b25332ba387f06e57409d3c43ef5bff1511606ded16cc07f9bcfaded9b",
+      "width": 834,
+      "height": 4849,
+      "bytes": 769818,
+      "label": "Technical Realism Audit",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "tablet/run-archive": {
+      "sha256": "4d70937b8ee5c62402ce6513c372cd41b8cbb587db54065106e387614a977083",
+      "width": 834,
+      "height": 1338,
+      "bytes": 184455,
+      "label": "Run Archive / New Game+",
+      "stateClasses": [
+        "empty",
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/founder": {
+      "sha256": "69527fcaba50a881dc2b719f2fcb4848248e81fb6b6a465e50b71111de41f044",
+      "width": 1440,
+      "height": 1726,
+      "bytes": 823069,
+      "label": "Founder setup",
+      "stateClasses": [
+        "empty"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/story-intro": {
+      "sha256": "50ea38c7bf5649fae6db88735dc87627e4643198dc9e543d6bf2b903536a0a3a",
+      "width": 1440,
+      "height": 6379,
+      "bytes": 2002819,
+      "label": "Intro story overlay",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/company-early": {
+      "sha256": "4cbf8bfd3bd5aa359971b51c1b97354c8b7cabc9355662e9776bd93c69450b9d",
+      "width": 1440,
+      "height": 3780,
+      "bytes": 1658688,
+      "label": "Company / Home — early campaign",
+      "stateClasses": [
+        "locked",
+        "empty"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/more-locked": {
+      "sha256": "f201233873a635bb5e2d143720d492716783dc4ee9d1e87f4ad2d75a6ae00d17",
+      "width": 1440,
+      "height": 3780,
+      "bytes": 1570727,
+      "label": "More sheet — early campaign locks",
+      "stateClasses": [
+        "locked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/training-empty": {
+      "sha256": "72d2db58d8f1d335684e5bada4bcecf8f8c09a57ad4d6ecb2142eb55408fbb50",
+      "width": 1440,
+      "height": 3780,
+      "bytes": 1658765,
+      "label": "Training Operations — no active run",
+      "stateClasses": [
+        "empty",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/more-unlocked": {
+      "sha256": "7a17ac6ef6e70ae0b50bc7662766abfbcf67523795197d816c6c1ee132d2278b",
+      "width": 1440,
+      "height": 3658,
+      "bytes": 1636766,
+      "label": "More sheet — graduated campaign",
+      "stateClasses": [
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/route-company-home": {
+      "sha256": "e228d62d1b420b690fab3604602f8ebbe4ce1a20f12b48ffde0c69f532feaaa5",
+      "width": 1440,
+      "height": 3658,
+      "bytes": 1874030,
+      "label": "Company / Home",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "company-home"
+    },
+    "desktop/route-training": {
+      "sha256": "7e17611f9972d08bf7a0a33729e62c8e27fd9938e6b1a9d03fda29ee8a24b6ce",
+      "width": 1440,
+      "height": 3658,
+      "bytes": 1874040,
+      "label": "Training Operations",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "training"
+    },
+    "desktop/route-hiring": {
+      "sha256": "5ff7d26157a23637b44fcd6f929957538c312c2b79a45656ef218c31384e5721",
+      "width": 1440,
+      "height": 2445,
+      "bytes": 531791,
+      "label": "Hiring + Org",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "hiring"
+    },
+    "desktop/route-model-lab": {
+      "sha256": "1092260d383d510dfa324c164972b41866e610b1227df8cca36979b207e11ac4",
+      "width": 1440,
+      "height": 1417,
+      "bytes": 355108,
+      "label": "Model Lab",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "model-lab"
+    },
+    "desktop/route-workstation": {
+      "sha256": "449c2b97c376e5fa374f40b5580b1b4bf392a44f8804c25877e58730d87f37ee",
+      "width": 1440,
+      "height": 3658,
+      "bytes": 1787331,
+      "label": "Engineer Workstation",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "workstation"
+    },
+    "desktop/route-code-lab": {
+      "sha256": "73031c01eeb7f484810fe909f57bbb0f74b539c8484903d9375f766524fe388d",
+      "width": 1440,
+      "height": 1417,
+      "bytes": 352234,
+      "label": "Code Lab",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "code-lab"
+    },
+    "desktop/route-knowledge": {
+      "sha256": "3400d5f43d07c58eabd723c33b3ebb6af3e9e222507dc701624423183b98881c",
+      "width": 1440,
+      "height": 1417,
+      "bytes": 296059,
+      "label": "Knowledge / Mastery",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "knowledge"
+    },
+    "desktop/route-career": {
+      "sha256": "e92f29fd8536ac8e04c612a7e0010a1a194b40d8be9ad608aa494b8cca580fa0",
+      "width": 1440,
+      "height": 1653,
+      "bytes": 386129,
+      "label": "Career",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "career"
+    },
+    "desktop/route-postmortems": {
+      "sha256": "29a0427828ebf4ba70853bca5731fe505b23a3471852283f8ca64334804b1dfa",
+      "width": 1440,
+      "height": 1417,
+      "bytes": 335485,
+      "label": "Postmortems",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "postmortems"
+    },
+    "desktop/route-engineering-artifacts": {
+      "sha256": "9c042018de4ef4a50842197c9131f84b4bb9f51a7ed08d16c64864c4d1129b75",
+      "width": 1440,
+      "height": 1850,
+      "bytes": 476210,
+      "label": "Engineering Artifacts",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "engineering-artifacts"
+    },
+    "desktop/route-incident-artifacts": {
+      "sha256": "9c042018de4ef4a50842197c9131f84b4bb9f51a7ed08d16c64864c4d1129b75",
+      "width": 1440,
+      "height": 1850,
+      "bytes": 476210,
+      "label": "Incident Artifacts",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "incident-artifacts"
+    },
+    "desktop/route-data-evals": {
+      "sha256": "793f0aec2775ffa2738129326dd3ff1c230347b3de9824c1b6950ec6b0a5f267",
+      "width": 1440,
+      "height": 1417,
+      "bytes": 308279,
+      "label": "Data + Evals",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "data-evals"
+    },
+    "desktop/route-tech-debt": {
+      "sha256": "b1d1a551f8b3cc28861240d304bf6373df02e3a124b46e7dbdad87f6af207265",
+      "width": 1440,
+      "height": 1417,
+      "bytes": 383723,
+      "label": "Technical Debt",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "tech-debt"
+    },
+    "desktop/route-architecture": {
+      "sha256": "84a7f8000094af073e7fdb561f449f316992f0e235f11e22606d99c298d04f4e",
+      "width": 1440,
+      "height": 1417,
+      "bytes": 316320,
+      "label": "Architecture Portfolio",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "architecture"
+    },
+    "desktop/route-model-families": {
+      "sha256": "d988a1a0ad589887e703cb7402f9dd091cf671078e28924ae6679ad51c22ac25",
+      "width": 1440,
+      "height": 1417,
+      "bytes": 179303,
+      "label": "Model Families / Forks",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "model-families"
+    },
+    "desktop/route-maintenance": {
+      "sha256": "8ba9ef347f9ddf6cbd33b73aceb8573ccdb4b15bb93b29a79657fb5703c542c6",
+      "width": 1440,
+      "height": 1361,
+      "bytes": 290262,
+      "label": "Maintenance Economics",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "maintenance"
+    },
+    "desktop/route-operations": {
+      "sha256": "b110c5ee94262a3967a15f7c5e2a5641f67fb96e549c23275b902a817e9ca378",
+      "width": 1440,
+      "height": 1785,
+      "bytes": 346182,
+      "label": "Operations",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "operations"
+    },
+    "desktop/route-reliability": {
+      "sha256": "374f5d0e202c551819d0261f365f5aa10bbc1c36c13668ef646eed9d1d1fec28",
+      "width": 1440,
+      "height": 2329,
+      "bytes": 542166,
+      "label": "Reliability / SLOs",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "reliability"
+    },
+    "desktop/route-release-governance": {
+      "sha256": "5564d0d46eb7095c9af9caea44069e60dbf56f06ea10abc53eed900803af89a8",
+      "width": 1440,
+      "height": 1865,
+      "bytes": 355147,
+      "label": "Release Governance",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "release-governance"
+    },
+    "desktop/route-roadmap": {
+      "sha256": "497d701820c6c50a0f39a676555bca4ce263697d5814c43ec12437c1c3bb3b74",
+      "width": 1440,
+      "height": 1762,
+      "bytes": 381547,
+      "label": "Executive Roadmap / Enterprise Pressure",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "roadmap"
+    },
+    "desktop/route-quarterly-board": {
+      "sha256": "1b227d95c0640084358efba9f0ed34bde3594807c8a47efd4a3ded37a2986139",
+      "width": 1440,
+      "height": 1710,
+      "bytes": 353575,
+      "label": "Quarterly Board",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "quarterly-board"
+    },
+    "desktop/route-capital": {
+      "sha256": "cdedf7ba716811265646396608271b3cc63b7106c627ea77bf317fa3291519a4",
+      "width": 1440,
+      "height": 1768,
+      "bytes": 339589,
+      "label": "Financing / Capital Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "capital"
+    },
+    "desktop/route-macro-restructuring": {
+      "sha256": "eff742760fe8239573c1254ad3e8ea8f0fd4b06ff74aa63a4a84819f3e95d495",
+      "width": 1440,
+      "height": 1484,
+      "bytes": 332677,
+      "label": "Macro / Restructuring",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "macro-restructuring"
+    },
+    "desktop/route-governance": {
+      "sha256": "bbef2d7f6c1e46794fed1ec257834f85109783fa289ebcc7960e31a4b3259beb",
+      "width": 1440,
+      "height": 1644,
+      "bytes": 406260,
+      "label": "Governance / Board",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "governance"
+    },
+    "desktop/route-executive-politics": {
+      "sha256": "da3985b8c355aa60d9db8357d28c031cab8d67eeeb972416564753a82dd13662",
+      "width": 1440,
+      "height": 1545,
+      "bytes": 361716,
+      "label": "Executive Politics",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "executive-politics"
+    },
+    "desktop/route-talent-memory": {
+      "sha256": "c6427d9247bf83951bd9f3086a1b0ac0b7267b417914c9217caacc059cd62d88",
+      "width": 1440,
+      "height": 1478,
+      "bytes": 335058,
+      "label": "People + Talent Memory",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "talent-memory"
+    },
+    "desktop/route-org-management": {
+      "sha256": "aa7b2fe64be47087369b3e0e79e17d89db8ebeb89a1ff45b9b2351d8ffa9cdd8",
+      "width": 1440,
+      "height": 2264,
+      "bytes": 491745,
+      "label": "Organization Management",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "org-management"
+    },
+    "desktop/route-workforce": {
+      "sha256": "1f4f2aa71f6ec18ca415a2d040a4c43c7ca2e551dc5f5602c34309dc324cfe65",
+      "width": 1440,
+      "height": 2459,
+      "bytes": 506530,
+      "label": "Workforce Planning",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "workforce"
+    },
+    "desktop/route-portfolio": {
+      "sha256": "c5a174a897d911fe8c39f2e60e4c5a18b7db3d846b4ef7a1309fd30b3f2066b0",
+      "width": 1440,
+      "height": 1297,
+      "bytes": 353888,
+      "label": "Project Portfolio",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "portfolio"
+    },
+    "desktop/route-critical-path": {
+      "sha256": "e9e2ffd2f6e47d280108fe2a21007369fd7fe0748b75387760e29afb4ce8e489",
+      "width": 1440,
+      "height": 1036,
+      "bytes": 328242,
+      "label": "Critical Path",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "critical-path"
+    },
+    "desktop/route-programs": {
+      "sha256": "2adad539fea2c40315f58827cc5199a82a92706636a1aa18714bd6236cda7884",
+      "width": 1440,
+      "height": 1417,
+      "bytes": 357947,
+      "label": "Program Management",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "programs"
+    },
+    "desktop/route-program-learning": {
+      "sha256": "13f5c3518fb1cd13706eb1bd38194541ec175165c1b03208cf9db463fb8178b1",
+      "width": 1440,
+      "height": 1031,
+      "bytes": 269814,
+      "label": "Program Learning",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "program-learning"
+    },
+    "desktop/route-strategy": {
+      "sha256": "82a8be4d602a71ad5a3a1f28e4ba159f02a3e279f808a6a0c4f2f2459a321711",
+      "width": 1440,
+      "height": 1310,
+      "bytes": 323576,
+      "label": "Portfolio Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "strategy"
+    },
+    "desktop/route-investment": {
+      "sha256": "3277dd74c2cef111f7a52247dc58f0ffd119635c503f8e97ba7657566ce5bfbf",
+      "width": 1440,
+      "height": 1233,
+      "bytes": 282982,
+      "label": "Investment Committee",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "investment"
+    },
+    "desktop/route-competition": {
+      "sha256": "8dbafe7a3d26b5b6276c3c2791751eb38a7658b88706e3a494e3a05ee66ad030",
+      "width": 1440,
+      "height": 1414,
+      "bytes": 347700,
+      "label": "Competitive Intelligence",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "competition"
+    },
+    "desktop/route-ecosystem": {
+      "sha256": "bfcde20493390fff8f43da3eaf39bc34878774ba761f5872fc0b99ca226c5b28",
+      "width": 1440,
+      "height": 1483,
+      "bytes": 353906,
+      "label": "Ecosystem Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "ecosystem"
+    },
+    "desktop/route-policy": {
+      "sha256": "f1d2cba5a6f6789150673c98c2184094c5fbdb5a066b1f55f61b0ea7ac4c2c4b",
+      "width": 1440,
+      "height": 1487,
+      "bytes": 351233,
+      "label": "Policy + Regulation",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "policy"
+    },
+    "desktop/route-communications": {
+      "sha256": "b467294aa39fca0ffee8d5314a4e91c77e7840b929ad6b85729271702f719bb8",
+      "width": 1440,
+      "height": 1284,
+      "bytes": 311804,
+      "label": "Public Communications",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "communications"
+    },
+    "desktop/company-populated": {
+      "sha256": "2c371cb10a2694ba48d224955971a78aa07202bac93cc9889a82e7d90adde7d2",
+      "width": 1440,
+      "height": 3658,
+      "bytes": 1796414,
+      "label": "Company / Home — representative model/run data",
+      "stateClasses": [
+        "populated",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/training-incident": {
+      "sha256": "f3615db00f222b3139c7834f1eff5daa71befa8f81b7a05797c0945489a0f25b",
+      "width": 1440,
+      "height": 3532,
+      "bytes": 1719276,
+      "label": "Training incident investigation",
+      "stateClasses": [
+        "error",
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/technical-explainer": {
+      "sha256": "1a76561204b336e5646184d4168673741c850d3f6ffcdff818afec9d4cfb6c2b",
+      "width": 1440,
+      "height": 3658,
+      "bytes": 1659009,
+      "label": "Technical explainer modal",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/milestone": {
+      "sha256": "8926ae6b1b6ca517792ce09977af026636c88151e600c58a412c66fbcfd2ce79",
+      "width": 1440,
+      "height": 3658,
+      "bytes": 1626984,
+      "label": "Milestone celebration overlay",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/company-priority": {
+      "sha256": "b6f446e8af221ee28cc1938f5ed2fca5c1821b9a171609c8b70cc4bf15120c53",
+      "width": 1440,
+      "height": 3658,
+      "bytes": 1662599,
+      "label": "Company priority decision",
+      "stateClasses": [
+        "populated",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/realism-audit": {
+      "sha256": "cfe3f0d3b6212464a756b92a585431804d26084d397834e57e8074c68a2c3d82",
+      "width": 1440,
+      "height": 2820,
+      "bytes": 769181,
+      "label": "Technical Realism Audit",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "desktop/run-archive": {
+      "sha256": "8314ff8732a9192e46e10c6d43457241d98211a17ab3972f60965e054eb482ce",
+      "width": 1440,
+      "height": 1030,
+      "bytes": 234387,
+      "label": "Run Archive / New Game+",
+      "stateClasses": [
+        "empty",
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/founder": {
+      "sha256": "2e800622781543298b43c9b8eba4134d2da16a4e951328346e205f0a437ad332",
+      "width": 1920,
+      "height": 1726,
+      "bytes": 1126185,
+      "label": "Founder setup",
+      "stateClasses": [
+        "empty"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/story-intro": {
+      "sha256": "5161aa2031e1bff9f89ce31c4113f35a3daaa23d9d3fac0a12191db3005f3c76",
+      "width": 1920,
+      "height": 6356,
+      "bytes": 2203423,
+      "label": "Intro story overlay",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/company-early": {
+      "sha256": "df5fd2085274b447e6a54525f6db75fc9e64d80ebf9e4f6ea269851dc0c7ba25",
+      "width": 1920,
+      "height": 3438,
+      "bytes": 1880972,
+      "label": "Company / Home — early campaign",
+      "stateClasses": [
+        "locked",
+        "empty"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/more-locked": {
+      "sha256": "9fcd11b0cb811a93f374569749497a40b5f469829958ad2d31b7531a0df96083",
+      "width": 1920,
+      "height": 3438,
+      "bytes": 1619366,
+      "label": "More sheet — early campaign locks",
+      "stateClasses": [
+        "locked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/training-empty": {
+      "sha256": "bba57a02fce8fa91fd3ff4439c7c3583f5783fb5ccffe31b1337935681c1cb84",
+      "width": 1920,
+      "height": 3438,
+      "bytes": 1880984,
+      "label": "Training Operations — no active run",
+      "stateClasses": [
+        "empty",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/more-unlocked": {
+      "sha256": "eadb6558923dd9185c36651c3217ad8f5e287c9a2d50dfa7f9aa6b3f8fa0ae79",
+      "width": 1920,
+      "height": 3349,
+      "bytes": 1615715,
+      "label": "More sheet — graduated campaign",
+      "stateClasses": [
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/route-company-home": {
+      "sha256": "56d54a86e2377e1f7c010aa6b5b0b1137b5833a6a7dfd889c5e719d0c636c855",
+      "width": 1920,
+      "height": 3349,
+      "bytes": 2073312,
+      "label": "Company / Home",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "company-home"
+    },
+    "wide/route-training": {
+      "sha256": "c3da96cc216d62d4aa004ed60749741d2417b440aefe09c860e35f287176dc12",
+      "width": 1920,
+      "height": 3349,
+      "bytes": 2073298,
+      "label": "Training Operations",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "training"
+    },
+    "wide/route-hiring": {
+      "sha256": "298b029182bcc6d7f0e2088abbebb367d15e7e3ca1f3cf0fadaf20603e3adb8a",
+      "width": 1920,
+      "height": 2445,
+      "bytes": 680481,
+      "label": "Hiring + Org",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "hiring"
+    },
+    "wide/route-model-lab": {
+      "sha256": "78c14c25d4f9d8c3d8b3c21153a3d80e220bd4af54081bdf782da449fe2b6f13",
+      "width": 1920,
+      "height": 1497,
+      "bytes": 447439,
+      "label": "Model Lab",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "model-lab"
+    },
+    "wide/route-workstation": {
+      "sha256": "fa16d7b55c3d7564679bce7476b3310a71f3f80a75c8b5de9aeeb05d6a9cfd3e",
+      "width": 1920,
+      "height": 3349,
+      "bytes": 1772945,
+      "label": "Engineer Workstation",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "workstation"
+    },
+    "wide/route-code-lab": {
+      "sha256": "08ba406a39cf6a12eb8deee28a6ffca1acf6127d0e29c3bdb2ec990e1791d883",
+      "width": 1920,
+      "height": 1497,
+      "bytes": 455183,
+      "label": "Code Lab",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "code-lab"
+    },
+    "wide/route-knowledge": {
+      "sha256": "df42b1587a76af89cd607e76a3b26244fd634f8aef5853628aff8df3240e2fbf",
+      "width": 1920,
+      "height": 1497,
+      "bytes": 399346,
+      "label": "Knowledge / Mastery",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "knowledge"
+    },
+    "wide/route-career": {
+      "sha256": "f9bc3d38a7221d0fe220c635f3fb1896fdea87ac71f7614cd53280e83b8bbdbe",
+      "width": 1920,
+      "height": 1653,
+      "bytes": 494909,
+      "label": "Career",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "career"
+    },
+    "wide/route-postmortems": {
+      "sha256": "c0c24c7dd5a2ca09f9bda55a5f3cf9bad784a0c92fcab9919ca739aeb5b4e05f",
+      "width": 1920,
+      "height": 1497,
+      "bytes": 436830,
+      "label": "Postmortems",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "postmortems"
+    },
+    "wide/route-engineering-artifacts": {
+      "sha256": "a688b661373ddfafe3d5190c67732b85b0266e2138e52de9ad095d96eb721194",
+      "width": 1920,
+      "height": 1850,
+      "bytes": 594218,
+      "label": "Engineering Artifacts",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "engineering-artifacts"
+    },
+    "wide/route-incident-artifacts": {
+      "sha256": "a688b661373ddfafe3d5190c67732b85b0266e2138e52de9ad095d96eb721194",
+      "width": 1920,
+      "height": 1850,
+      "bytes": 594218,
+      "label": "Incident Artifacts",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "incident-artifacts"
+    },
+    "wide/route-data-evals": {
+      "sha256": "82b0999c87d0839dd260b5c6952000ccf5686228c14255d8b88ff900631bcbfc",
+      "width": 1920,
+      "height": 1497,
+      "bytes": 407490,
+      "label": "Data + Evals",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "data-evals"
+    },
+    "wide/route-tech-debt": {
+      "sha256": "826f61726c4714c8e74256692c1ff350da7a0a6978446d9089c08e5f93165b8a",
+      "width": 1920,
+      "height": 1497,
+      "bytes": 476095,
+      "label": "Technical Debt",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "tech-debt"
+    },
+    "wide/route-architecture": {
+      "sha256": "3bfe919394817600789fc43c258f95faf84032efcc80a8d3826a9b3aa75863b9",
+      "width": 1920,
+      "height": 1497,
+      "bytes": 416661,
+      "label": "Architecture Portfolio",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "architecture"
+    },
+    "wide/route-model-families": {
+      "sha256": "3ca58de5b87b321a38127fbbaee4dac1a4fb5720d840c409caed8065083e2a2d",
+      "width": 1920,
+      "height": 1497,
+      "bytes": 250797,
+      "label": "Model Families / Forks",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "model-families"
+    },
+    "wide/route-maintenance": {
+      "sha256": "ceaeb0b077a492118676ac58bc7b94af3658def1f682795163af9bebb1e04936",
+      "width": 1920,
+      "height": 1361,
+      "bytes": 361406,
+      "label": "Maintenance Economics",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "maintenance"
+    },
+    "wide/route-operations": {
+      "sha256": "00eb07313746827cce0421cd575757bb0a83bb84048f2c27a01f11dadefc7265",
+      "width": 1920,
+      "height": 1497,
+      "bytes": 391808,
+      "label": "Operations",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "operations"
+    },
+    "wide/route-reliability": {
+      "sha256": "8bb1bed44098a8a777072d78d8cc7353d18007ffa973a0aae54967e5cca8d344",
+      "width": 1920,
+      "height": 2352,
+      "bytes": 715648,
+      "label": "Reliability / SLOs",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "reliability"
+    },
+    "wide/route-release-governance": {
+      "sha256": "640f8387becd180ab447f5e716b468c2935bfa592e4f143f821aaf5f926ac540",
+      "width": 1920,
+      "height": 1865,
+      "bytes": 469520,
+      "label": "Release Governance",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "release-governance"
+    },
+    "wide/route-roadmap": {
+      "sha256": "d573e895740c6353ba97a0d13f80d6ecbed6a71578b87e513c29861a71b1fa38",
+      "width": 1920,
+      "height": 1739,
+      "bytes": 493299,
+      "label": "Executive Roadmap / Enterprise Pressure",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "roadmap"
+    },
+    "wide/route-quarterly-board": {
+      "sha256": "d4fcee1532a7c232d47c58dfd452d7b56ea208cbe938fd2afa04c4fdf0ed7b90",
+      "width": 1920,
+      "height": 1710,
+      "bytes": 456395,
+      "label": "Quarterly Board",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "quarterly-board"
+    },
+    "wide/route-capital": {
+      "sha256": "856389d143ac1789f0c50d34e69b58b1834afb7b09c29095ebb3e76e1883bd01",
+      "width": 1920,
+      "height": 1768,
+      "bytes": 445946,
+      "label": "Financing / Capital Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "capital"
+    },
+    "wide/route-macro-restructuring": {
+      "sha256": "1e586f27beb53432a807b7baf789aa041684b2d3613a1bc9a5d907aa3f0acc00",
+      "width": 1920,
+      "height": 1484,
+      "bytes": 428902,
+      "label": "Macro / Restructuring",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "macro-restructuring"
+    },
+    "wide/route-governance": {
+      "sha256": "0a40c55417894662847554594ec45963fc13d1a69262caffbb1e5e5b415851e6",
+      "width": 1920,
+      "height": 1644,
+      "bytes": 513381,
+      "label": "Governance / Board",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "governance"
+    },
+    "wide/route-executive-politics": {
+      "sha256": "9ffb03d48545d1f962d82017a1064cd1a8fc34a1b7cccff088cab867feeb22a1",
+      "width": 1920,
+      "height": 1545,
+      "bytes": 450804,
+      "label": "Executive Politics",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "executive-politics"
+    },
+    "wide/route-talent-memory": {
+      "sha256": "17b90c263c37f399e6e63613b0bb0a840d0e24fd70cdc958c6d7cca62db9cfae",
+      "width": 1920,
+      "height": 1478,
+      "bytes": 419697,
+      "label": "People + Talent Memory",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "talent-memory"
+    },
+    "wide/route-org-management": {
+      "sha256": "216c76bb5f40a3176284ea84a4b70bcfbd542413877f1d0bc210de4e5f588d66",
+      "width": 1920,
+      "height": 2264,
+      "bytes": 609188,
+      "label": "Organization Management",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "org-management"
+    },
+    "wide/route-workforce": {
+      "sha256": "90eb64760791e82bc70c2807f6d3abb4a35ff076c11afd30c02ba3936b38c506",
+      "width": 1920,
+      "height": 2459,
+      "bytes": 634438,
+      "label": "Workforce Planning",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "workforce"
+    },
+    "wide/route-portfolio": {
+      "sha256": "2813c5414f6d77b7d160f9e4b1b694fed1af215a7cf8ac69aff2feb9752393af",
+      "width": 1920,
+      "height": 1297,
+      "bytes": 426713,
+      "label": "Project Portfolio",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "portfolio"
+    },
+    "wide/route-critical-path": {
+      "sha256": "10d7701482339070235cc2649b6fa654b85f081cdd1a4fbfc491ab28b48586b5",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 391685,
+      "label": "Critical Path",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "critical-path"
+    },
+    "wide/route-programs": {
+      "sha256": "f1210e033c8fdbfd53ae5472094d2dfae212cd406de0603e815dc4ec3ead0a4f",
+      "width": 1920,
+      "height": 1497,
+      "bytes": 441451,
+      "label": "Program Management",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "programs"
+    },
+    "wide/route-program-learning": {
+      "sha256": "84f83d57e7703c0813b9700b974c431da59982a0fc8c1e3a3f49d2f5105f2cac",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 332174,
+      "label": "Program Learning",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "program-learning"
+    },
+    "wide/route-strategy": {
+      "sha256": "cc1dce64f50e37125375216d392da9c72baf99c111ba7db8c22f285948c52863",
+      "width": 1920,
+      "height": 1310,
+      "bytes": 392892,
+      "label": "Portfolio Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "strategy"
+    },
+    "wide/route-investment": {
+      "sha256": "43bf9fb52b864beae3e8672fcb3075629cadd5e8073cf7ba17876e495152c0dd",
+      "width": 1920,
+      "height": 1233,
+      "bytes": 359999,
+      "label": "Investment Committee",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "investment"
+    },
+    "wide/route-competition": {
+      "sha256": "e27ea81382e0db20e86ae747965749e887182eb638d17591370e73dcb77ac7e2",
+      "width": 1920,
+      "height": 1414,
+      "bytes": 430350,
+      "label": "Competitive Intelligence",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "competition"
+    },
+    "wide/route-ecosystem": {
+      "sha256": "daa40a9f841a6226e9f07d271c556dab0fa686f3a38055be918d1a73cd3db174",
+      "width": 1920,
+      "height": 1483,
+      "bytes": 440299,
+      "label": "Ecosystem Strategy",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "ecosystem"
+    },
+    "wide/route-policy": {
+      "sha256": "061da7693d356b351f4a943e5f22f71b2a1ad0f7fc7ad92849907080584b6af4",
+      "width": 1920,
+      "height": 1487,
+      "bytes": 439408,
+      "label": "Policy + Regulation",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "policy"
+    },
+    "wide/route-communications": {
+      "sha256": "ac709ee7f8235bf2d73b59cdac49e879e39292ed4350b33e0cee7bae4a273885",
+      "width": 1920,
+      "height": 1284,
+      "bytes": 390187,
+      "label": "Public Communications",
+      "stateClasses": [
+        "unlocked",
+        "empty"
+      ],
+      "kind": "route",
+      "screenId": "communications"
+    },
+    "wide/company-populated": {
+      "sha256": "f40c8c155c3fe576342e4a2e6375c8896bd72a3f8db154ec8ef8df0854c1f176",
+      "width": 1920,
+      "height": 3349,
+      "bytes": 1779599,
+      "label": "Company / Home — representative model/run data",
+      "stateClasses": [
+        "populated",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/training-incident": {
+      "sha256": "f72ec8d27237aa85b67572f0e5627d26a3b84afa76b66b10b18abb01e9fbdd43",
+      "width": 1920,
+      "height": 3247,
+      "bytes": 1693245,
+      "label": "Training incident investigation",
+      "stateClasses": [
+        "error",
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/technical-explainer": {
+      "sha256": "304037b3914ecfaec65b50bc5d1c665cb3a9c1a707c272902c6a19eeaeaa41f7",
+      "width": 1920,
+      "height": 3349,
+      "bytes": 1639720,
+      "label": "Technical explainer modal",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/milestone": {
+      "sha256": "7c919ee2c2fd565e40acfd353202656ddb9790f0624e8558123abc7960288eea",
+      "width": 1920,
+      "height": 3349,
+      "bytes": 1609798,
+      "label": "Milestone celebration overlay",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/company-priority": {
+      "sha256": "c1b4a9d71c912b7a771f3ada11e49296edb4d0a9ba9924f991e4db03ca56b936",
+      "width": 1920,
+      "height": 3349,
+      "bytes": 1644004,
+      "label": "Company priority decision",
+      "stateClasses": [
+        "populated",
+        "unlocked"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/realism-audit": {
+      "sha256": "5f0cdccc83d10ac6c86193469bddfc803bb39846ff623bdbfe9e1f2f2b069fef",
+      "width": 1920,
+      "height": 2663,
+      "bytes": 877090,
+      "label": "Technical Realism Audit",
+      "stateClasses": [
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    },
+    "wide/run-archive": {
+      "sha256": "ce68e7fd364325e4be673dada26cc14677997c19e20b3436be1be144a2bd4357",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 311729,
+      "label": "Run Archive / New Game+",
+      "stateClasses": [
+        "empty",
+        "populated"
+      ],
+      "kind": "special",
+      "screenId": null
+    }
+  }
 }

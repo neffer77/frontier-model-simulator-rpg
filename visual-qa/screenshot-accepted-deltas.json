@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "item": "13.17",
+  "status": "retired",
+  "sourceRun": 32503519930,
+  "sourceHeadSha": "67767d2d55716716bc6848b74ef10701b02b881c",
+  "rationale": "Canonical 255-capture baseline promoted after deterministic lock badge ordering; transitional screenshot delta overlay retired.",
+  "captures": {}
+}

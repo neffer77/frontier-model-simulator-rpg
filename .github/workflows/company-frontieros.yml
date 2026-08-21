@@ -1,29 +1,26 @@
-name: FrontierOS desktop UI evidence
+name: FrontierOS Company evidence
 
 on:
   pull_request:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: desktop-frontieros-${{ github.event.pull_request.number || github.ref }}
+  group: frontier-company-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  desktop-shell:
+  company:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install dependencies
+      - name: Install pinned test dependencies
         run: npm install --no-audit --no-fund
       - name: Resolve Playwright version
         id: playwright-version
@@ -44,31 +41,22 @@ jobs:
       - name: Download Chromium on cache miss
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium
-      - name: Report Playwright cache
-        run: |
-          echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Static contract
+        run: npm run test:company-os-static
       - name: Build production site
         run: npm run build:site
-      - name: Start production server
-        run: python3 -m http.server 4173 --directory _site > /tmp/frontieros-desktop-server.log 2>&1 &
-      - name: Wait for server
-        run: |
-          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
-          cat /tmp/frontieros-desktop-server.log
-          exit 1
-      - name: Run P5.1.3 desktop shell regression
-        env:
-          TEST_URL: http://127.0.0.1:4173/
-        run: npm run test:desktop-os
-      - name: Publish desktop evidence summary
+      - name: Start site
+        run: python3 -m http.server 4173 --directory _site >/tmp/frontier-company-server.log 2>&1 &
+      - name: Browser evidence
+        run: npm run test:company-os
+      - name: Publish evidence
         if: always()
-        run: |
-          if [ -f artifacts/desktop-frontieros/REPORT.md ]; then cat artifacts/desktop-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
-      - name: Upload desktop FrontierOS evidence
+        run: if [ -f artifacts/company-frontieros/REPORT.md ]; then cat artifacts/company-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-frontieros-${{ github.event.pull_request.number || github.run_number }}
-          path: artifacts/desktop-frontieros
+          name: company-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/company-frontieros
           if-no-files-found: warn
           retention-days: 30
