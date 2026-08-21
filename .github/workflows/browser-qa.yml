@@ -17,7 +17,7 @@ concurrency:
 jobs:
   release-candidate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,49 +50,19 @@ jobs:
         run: npx playwright install chromium
 
       - name: Report Playwright cache
-        run: |
-          echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
 
-      # Pull requests already run dedicated FrontierOS workflows for Company,
-      # Desktop, Mobile, Navigation, Pager, EvalBench, Model Lab, Data Explorer,
-      # Mail, People, Projects, and Finance. Do not serially rerun those here.
-      - name: Execute focused PR cross-device gate
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm run test:static
-          npm run build:site
-          python3 -m http.server 4173 --directory _site >/tmp/cross-device-pr.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
-          for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
-            if [ "$i" = 30 ]; then cat /tmp/cross-device-pr.log; exit 1; fi
-            sleep 1
-          done
-          export TEST_URL='http://127.0.0.1:4173/?frontieros=0'
-          npm run test:disclosure
-          npm run test:empty
-          npm run test:locked
-          npm run test:overlay
-          npm run test:a11y
-          npm run test:routes
-          npm run test:screenshots
-
-      # Keep the complete canonical 39-gate release validation for main and
-      # explicit release runs, where duplicate coverage is intentional.
+      # Full canonical release validation is intentionally required for PRs,
+      # main pushes, and explicit release runs. Dedicated app workflows provide
+      # faster focused feedback, but they do not replace this release gate.
       - name: Execute canonical Item 13.16 release gate
         id: release-gate
-        if: github.event_name != 'pull_request'
         run: npm run test:rc
 
       - name: Finalize Item 13.17 release sign-off
-        if: always() && github.event_name != 'pull_request' && steps.release-gate.outcome != 'skipped' && steps.release-gate.outcome != 'cancelled'
+        if: always() && steps.release-gate.outcome != 'skipped' && steps.release-gate.outcome != 'cancelled'
         run: npm run test:signoff
 
-      # These cumulative markers are intentionally retained for the static
-      # release contracts even though dedicated PR workflows produce the app evidence.
       - name: Publish release and FrontierOS evidence
         if: always()
         shell: bash
