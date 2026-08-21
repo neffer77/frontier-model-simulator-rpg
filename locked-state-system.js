@@ -39,9 +39,9 @@
     let meta=[...el.children].find(x=>x.classList?.contains('fl-lock-meta'));
     if(!meta){meta=document.createElement('span');meta.className='fl-lock-meta'}
     meta.textContent=`🔒 ${metaLabel(plan)}`;
-    // Always re-anchor the badge after all native/dynamic button content so
-    // competing MutationObserver decorators converge on one child order.
-    el.appendChild(meta);
+    // Re-anchor only when needed. Once the badge is already the final child,
+    // leave it in place so our own MutationObserver can converge and go idle.
+    if(el.lastElementChild!==meta)el.appendChild(meta);
   }
   function removeLockMeta(el){for(const meta of el.querySelectorAll?.(':scope > .fl-lock-meta')||[])meta.remove()}
   function cleanupCampaign(el){
@@ -134,10 +134,9 @@
       if(el instanceof HTMLButtonElement){
         let meta=el.querySelector(':scope > .fl-unavailable-meta');
         if(!meta){meta=document.createElement('span');meta.className='fl-unavailable-meta';meta.textContent='Unavailable now'}
-        // Re-anchor on every pass. A later/native decorator may have appended an
-        // explanatory block since the previous pass; this gives the final DOM a
-        // stable order independent of observer timing.
-        el.appendChild(meta);
+        // Re-anchor only if another decorator appended content after the badge.
+        // If the badge is already last, do nothing so observer scheduling settles.
+        if(el.lastElementChild!==meta)el.appendChild(meta);
       }
     }
     return count;
