@@ -41,8 +41,8 @@ jobs:
       - name: Download Chromium on cache miss
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium
-      - name: Static contract
-        run: npm run test:knowledge-engineering-os-static
+      - name: Cumulative static contracts
+        run: npm run test:static
       - name: Build production site
         run: npm run build:site
       - name: Start site
