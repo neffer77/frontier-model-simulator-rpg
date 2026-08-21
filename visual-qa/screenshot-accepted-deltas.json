@@ -2,9 +2,9 @@
   "version": 1,
   "item": "13.17",
   "status": "reviewed",
-  "sourceRun": 32330196890,
-  "sourceArtifact": 9392916499,
-  "sourceHeadSha": "a0a40e254868b65be4a975615d97e70672a1c9fc",
+  "sourceRun": 32389886333,
+  "sourceArtifact": 9414696655,
+  "sourceHeadSha": "9825984c1a2e3463da84a2350fa062a9e9887343",
   "rationale": "Reviewed deterministic visual deltas after P5.2.11 locked-state placeholder stabilization. All functional cross-device tests, accessibility checks, and the 190-route crawl pass; exact screenshot SHA-256 and dimensions remain enforced.",
   "captures": {
     "desktop/company-early": {"sha256":"4cbf8bfd3bd5aa359971b51c1b97354c8b7cabc9355662e9776bd93c69450b9d","width":1440,"height":3780},
@@ -15,11 +15,10 @@
     "desktop/more-unlocked": {"sha256":"7a17ac6ef6e70ae0b50bc7662766abfbcf67523795197d816c6c1ee132d2278b","width":1440,"height":3658},
     "desktop/route-company-home": {"sha256":"e228d62d1b420b690fab3604602f8ebbe4ce1a20f12b48ffde0c69f532feaaa5","width":1440,"height":3658},
     "desktop/route-training": {"sha256":"7e17611f9972d08bf7a0a33729e62c8e27fd9938e6b1a9d03fda29ee8a24b6ce","width":1440,"height":3658},
-    "desktop/route-workstation": {"sha256":"449c2b97c376e5fa374f40b5580b1b4bf392a44f8804c25877e58730d87f37ee","width":1440,"height":3658},
+    "desktop/route-workstation": {"sha256":"b532971fb769b6f35231fb250e818da2e89272fa2340824b70caf182feeb8c90","width":1440,"height":3658},
     "desktop/technical-explainer": {"sha256":"1a76561204b336e5646184d4168673741c850d3f6ffcdff818afec9d4cfb6c2b","width":1440,"height":3658},
     "desktop/training-empty": {"sha256":"72d2db58d8f1d335684e5bada4bcecf8f8c09a57ad4d6ecb2142eb55408fbb50","width":1440,"height":3780},
     "desktop/training-incident": {"sha256":"f3615db00f222b3139c7834f1eff5daa71befa8f81b7a05797c0945489a0f25b","width":1440,"height":3532},
-
     "phone-landscape/company-early": {"sha256":"64d58bad305bf74d69db91fec6179c8a6df89e0579a52dd7a7ddc211dbc99412","width":844,"height":5453},
     "phone-landscape/company-populated": {"sha256":"34f73d170f0a83c6592a644b31a800735684d9440c1c8b7dc6ffbd741de8d8e0","width":844,"height":5232},
     "phone-landscape/company-priority": {"sha256":"67af0bc276b2f3507949b936bff0d263f25d5b0a9fc06926efa50ef6ed6cbd2d","width":844,"height":5232},
@@ -32,7 +31,6 @@
     "phone-landscape/technical-explainer": {"sha256":"562f79154845d91a3dd58f609c665400f64a5b004a52ebd09ffff99c8033c6b8","width":844,"height":5232},
     "phone-landscape/training-empty": {"sha256":"64d58bad305bf74d69db91fec6179c8a6df89e0579a52dd7a7ddc211dbc99412","width":844,"height":5453},
     "phone-landscape/training-incident": {"sha256":"f70f05843d1eca229bc23d10e0cc9b7218432cb3509d555e6815bfb0c6abf5e7","width":844,"height":5136},
-
     "phone-portrait/company-early": {"sha256":"b372b83750ec24e97f758dec1024aed9e5c4ac80e62486a614169fbb4695ddc5","width":390,"height":8696},
     "phone-portrait/company-populated": {"sha256":"40f9d929372e9d54175eccb1da7f4937e77ae2c5517bb9cceb41e30e60fbc419","width":390,"height":8139},
     "phone-portrait/company-priority": {"sha256":"e47bd9a6bde194f7350b7e8b4ca6f69e6736f1b22ef41b443b83f73d377412ee","width":390,"height":8139},
@@ -51,10 +49,9 @@
     "phone-portrait/route-training": {"sha256":"9f9cc3d519f01e32b34d523bf463736e422aeeb5bef095912c6055a6552435d1","width":390,"height":8174},
     "phone-portrait/route-workforce": {"sha256":"6ade6819ead21270816a77af7aa9991106c170c7705e5af0bbf2db1f9bc641f4","width":390,"height":4884},
     "phone-portrait/route-workstation": {"sha256":"829a9a7029d2603196c49001dc536bd591795b58de5aa493786d1ce604a5db2b","width":390,"height":8174},
-    "phone-portrait/technical-explainer": {"sha256":"44f14b76642d1c69a2863f41d09fddfb454e0ee704f33c55f8429ce7db092b","width":390,"height":8139},
+    "phone-portrait/technical-explainer": {"sha256":"44f14b76642d1c69a2863f41d09fddfbaf454e0ee704f33c55f8429ce7db092b","width":390,"height":8139},
     "phone-portrait/training-empty": {"sha256":"1cf97ba885bec5499aaecf4fbb98b31e5350311315b8252dff359245cdadb0b2","width":390,"height":8696},
     "phone-portrait/training-incident": {"sha256":"dbcb829379040a3a4a91d2e819c4eb8ddcd53626d8a02ae3499913a460bcd733","width":390,"height":7745},
-
     "tablet/company-early": {"sha256":"b378d81740fb73b5408ac701f6fa895a64eca9b23a1ba0cd8dcb9bb7206c8522","width":834,"height":5610},
     "tablet/company-populated": {"sha256":"6603a6da516923cc5742cacfef3d1735a6dffec9f7eb180f954093e7af3bcaba","width":834,"height":5389},
     "tablet/company-priority": {"sha256":"00d2d88e604bfdfcc3f1d2aa6ff9b887e55df2efc92837bda11eed3d9607eb02","width":834,"height":5366},
@@ -67,7 +64,6 @@
     "tablet/technical-explainer": {"sha256":"1c929f1618704e71c5ea383a7bc5b8ba45a18d3ca3e93ba764de9fe5dbd6261a","width":834,"height":5366},
     "tablet/training-empty": {"sha256":"7a6a61c51fa6df0e8ef8d61f8c73b66510508bcc530049950cc480acd02b25f0","width":834,"height":5610},
     "tablet/training-incident": {"sha256":"ea8fc762c531fe1dd5351354642423b2b2c804dac9ccb8cc7989b1216cbe8812","width":834,"height":5282},
-
     "wide/company-early": {"sha256":"f15ea9cecf980776644730fd3680ad455a142be94797c456ff231ba394d3e1a2","width":1920,"height":3438},
     "wide/company-populated": {"sha256":"a1a6052319d9185ebea28ab353369ded745ec8071d2e26c6343d19ef49b4f5bd","width":1920,"height":3349},
     "wide/company-priority": {"sha256":"c1b4a9d71c912b7a771f3ada11e49296edb4d0a9ba9924f991e4db03ca56b936","width":1920,"height":3349},
