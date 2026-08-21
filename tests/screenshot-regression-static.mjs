@@ -22,6 +22,8 @@ assert.equal(autoSpecials.length,13,'Item 13.14 should cover every non-manual It
 
 for(const needle of ['page.screenshot','sha256','responsive-matrix.json','inventory.json','deviceScaleFactor:1','timezoneId:\'UTC\'','--update','candidate-baseline.json'])assert(harness.includes(needle),`screenshot harness missing deterministic contract: ${needle}`);
 assert(harness.includes('matrix.viewports'),'harness must consume the shared viewport matrix');
+assert((harness.match(/frontierCompanyDashboardSync/g)||[]).length>=3,'screenshot harness must synchronously converge Company dashboard + locked-state ownership before capture');
+assert(harness.includes('window.frontierCompanyDashboardSync?.();\n    window.frontierLockedStateSync?.();\n    window.frontierCompanyDashboardSync?.();\n    window.frontierLockedStateSync?.();'),'Company screenshot synchronization order must remain dashboard → locked → dashboard → locked');
 
 assert.equal(pkg.scripts['test:screenshots'],'node tests/screenshot-regression.mjs','test:screenshots script missing');
 assert.equal(pkg.scripts['visual:screenshot-baseline'],'node tests/screenshot-regression.mjs --update','baseline update script missing');
