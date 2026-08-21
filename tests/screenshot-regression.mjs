@@ -36,7 +36,12 @@ const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/
 const sha256=buffer=>crypto.createHash('sha256').update(buffer).digest('hex');
 function pngDimensions(buffer){const signature='89504e470d0a1a0a';if(buffer.length<24||buffer.subarray(0,8).toString('hex')!==signature)throw new Error('Screenshot buffer is not a PNG');return {width:buffer.readUInt32BE(16),height:buffer.readUInt32BE(20)}}
 async function settle(page,ms=80){await page.waitForTimeout(ms);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))}
-async function sync(page){await page.evaluate(()=>{window.frontierPageSweepSync?.();window.frontierResponsiveSync?.();window.frontierAccessibilitySync?.();window.frontierOverlaySync?.()});await settle(page,25)}
+async function sync(page){
+  await page.evaluate(()=>{window.frontierPageSweepSync?.();window.frontierResponsiveSync?.();window.frontierLockedStateSync?.();window.frontierAccessibilitySync?.();window.frontierOverlaySync?.()});
+  await settle(page,25);
+  await page.evaluate(()=>window.frontierLockedStateSync?.());
+  await settle(page,25);
+}
 async function clearTransientOverlays(page){
   for(let i=0;i<20;i++){
     const top=await page.evaluate(()=>window.frontierOverlayTop?.()?.type||null);
@@ -144,9 +149,9 @@ await browser.close();
 
 const expectedKeys=[];for(const viewport of matrix.viewports){for(const screen of inventory.screens)expectedKeys.push(expectedKey(viewport.id,`route-${screen.id}`));for(const item of autoSpecials)expectedKeys.push(expectedKey(viewport.id,item.id))}
 for(const key of expectedKeys)if(!candidate.captures[key]&&!report.missingCaptures.some(x=>x.key===key))recordProblem('missingCaptures',{key,reason:'capture was not produced'});
-const baselineKeys=new Set(Object.keys(baseline.captures||{}));const expectedKeySet=new Set(expectedKeys);for(const key of baselineKeys)if(!expectedKeySet.has(key))recordProblem('extraBaseline',{key});
+const baselineKeys=new Set([...Object.keys(baseline.captures||{}),...Object.keys(acceptedDeltas.captures||{})]);const expectedKeySet=new Set(expectedKeys);for(const key of baselineKeys)if(!expectedKeySet.has(key))recordProblem('extraBaseline',{key});
 fs.writeFileSync(path.join(outRoot,'candidate-baseline.json'),JSON.stringify(candidate,null,2)+'\n');fs.writeFileSync(path.join(outRoot,'report.json'),JSON.stringify(report,null,2)+'\n');
-const lines=['# Screenshot regression report','',`- Baseline status: **${report.baselineStatus}**`,`- Reviewed exact deltas: **${report.acceptedDeltaCount}**`,`- Expected captures: **${expectedCaptureCount}**`,`- Produced captures: **${report.captures.length}**`,`- Mismatches: **${report.mismatches.length}**`,`- Missing baseline entries: **${report.missingBaseline.length}**`,`- Missing captures: **${report.missingCaptures.length}**`,`- Runtime page errors: **${report.pageErrors.length}**`,'','| Viewport | Capture | Status | Size | SHA-256 |','| --- | --- | --- | --- | --- |'];for(const row of report.captures)lines.push(`| ${row.viewport} | ${row.id} | ${row.status} | ${row.width}×${row.height} | \`${row.sha256.slice(0,16)}…\` |`);fs.writeFileSync(path.join(outRoot,'REPORT.md'),lines.join('\n')+'\n');
+const lines=['# Screenshot regression report','',`- Baseline status: **${report.baselineStatus}**`,`- Reviewed exact deltas: **${report.acceptedDeltaCount}**`,`- Expected captures: **${expectedCaptureCount}**`,`- Produced captures: **${report.captures.length}**`,`- Mismatches: **${report.mismatches.length}**`,`- Missing baseline entries: **${report.missingBaseline.length}**`,`- Missing captures: **${report.missingCaptures.length}**`,`- Runtime page errors: **${report.pageErrors.length}`,'','| Viewport | Capture | Status | Size | SHA-256 |','| --- | --- | --- | --- | --- |'];for(const row of report.captures)lines.push(`| ${row.viewport} | ${row.id} | ${row.status} | ${row.width}×${row.height} | \`${row.sha256.slice(0,16)}…\` |`);fs.writeFileSync(path.join(outRoot,'REPORT.md'),lines.join('\n')+'\n');
 if(updateMode){fs.writeFileSync(baselinePath,JSON.stringify(candidate,null,2)+'\n');console.log(`Updated screenshot baseline with ${Object.keys(candidate.captures).length}/${expectedCaptureCount} captures`)}
 const incomplete=report.missingCaptures.length||report.pageErrors.length||report.captures.length!==expectedCaptureCount;
 const baselineInactive=baseline.status!=='active'&&!updateMode;const regressions=report.mismatches.length||report.missingBaseline.length||report.extraBaseline.length;
