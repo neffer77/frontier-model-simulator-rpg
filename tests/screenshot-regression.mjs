@@ -28,18 +28,35 @@ const candidate={
     specials:'Every non-manual visual-qa/inventory.json special capture',
     screenshot:'Full-page PNG, deviceScaleFactor 1, animations disabled, caret hidden',
     deterministicRuntime:'UTC timezone, en-US locale, dark color scheme, reduced motion, fixed Date/build identity, seeded Math.random, deterministic randomUUID, and transient-overlay cleanup',
-    comparison:'Exact SHA-256 plus PNG dimensions under the pinned Playwright/Chromium toolchain'
+    comparison:'Exact SHA-256 plus PNG dimensions under the pinned Playwright/Chromium toolchain; explicitly reviewed host-raster variants remain finite exact-hash sets.'
   },captures:{}
 };
 
 const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,100);
 const sha256=buffer=>crypto.createHash('sha256').update(buffer).digest('hex');
 function pngDimensions(buffer){const signature='89504e470d0a1a0a';if(buffer.length<24||buffer.subarray(0,8).toString('hex')!==signature)throw new Error('Screenshot buffer is not a PNG');return {width:buffer.readUInt32BE(16),height:buffer.readUInt32BE(20)}}
+function acceptedHashes(expected){if(!expected)return[];const hashes=Array.isArray(expected.sha256AnyOf)?expected.sha256AnyOf:[expected.sha256];return [...new Set(hashes.filter(x=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x)))]}
+function matchesExpected(expected,digest,dims){return !!expected&&acceptedHashes(expected).includes(digest)&&Number(expected.width)===dims.width&&Number(expected.height)===dims.height}
 async function settle(page,ms=80){await page.waitForTimeout(ms);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))}
 async function sync(page){
-  await page.evaluate(()=>{window.frontierPageSweepSync?.();window.frontierResponsiveSync?.();window.frontierLockedStateSync?.();window.frontierAccessibilitySync?.();window.frontierOverlaySync?.()});
+  // Company launchers are jointly organized by the dashboard and locked-state
+  // systems. Drive both synchronously in a fixed order so screenshot capture is
+  // independent of their MutationObserver scheduling order.
+  await page.evaluate(()=>{
+    window.frontierPageSweepSync?.();
+    window.frontierResponsiveSync?.();
+    window.frontierCompanyDashboardSync?.();
+    window.frontierLockedStateSync?.();
+    window.frontierCompanyDashboardSync?.();
+    window.frontierLockedStateSync?.();
+    window.frontierAccessibilitySync?.();
+    window.frontierOverlaySync?.();
+  });
   await settle(page,25);
-  await page.evaluate(()=>window.frontierLockedStateSync?.());
+  await page.evaluate(()=>{
+    window.frontierCompanyDashboardSync?.();
+    window.frontierLockedStateSync?.();
+  });
   await settle(page,25);
 }
 async function clearTransientOverlays(page){
@@ -73,8 +90,8 @@ async function capture(page,viewport,id,label,stateClasses,extra={}){
   const entry={sha256:digest,width:dims.width,height:dims.height,bytes:buffer.length,label,stateClasses,kind:extra.kind||'special',screenId:extra.screenId||null};candidate.captures[key]=entry;
   const expected=acceptedDeltas.captures?.[key]||baseline.captures?.[key]||null;let status='match';
   if(!expected){status='missing-baseline';recordProblem('missingBaseline',{key,actual:entry})}
-  else if(expected.sha256!==digest||Number(expected.width)!==dims.width||Number(expected.height)!==dims.height){status='mismatch';recordProblem('mismatches',{key,expected:{sha256:expected.sha256,width:expected.width,height:expected.height},actual:{sha256:digest,width:dims.width,height:dims.height,bytes:buffer.length}})}
-  const row={key,viewport:viewport.id,id,label,status,...dims,bytes:buffer.length,sha256:digest,...extra};report.captures.push(row);
+  else if(!matchesExpected(expected,digest,dims)){status='mismatch';recordProblem('mismatches',{key,expected:{sha256:expected.sha256||null,sha256AnyOf:acceptedHashes(expected),width:expected.width,height:expected.height},actual:{sha256:digest,width:dims.width,height:dims.height,bytes:buffer.length}})}
+  const row={key,viewport:viewport.id,id,label,status,...dims,bytes:buffer.length,sha256:digest,acceptedHashCount:acceptedHashes(expected).length,...extra};report.captures.push(row);
   if(updateMode||status!=='match'){const dir=path.join(outRoot,status==='match'?'current':'changed',viewport.id);fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(path.join(dir,`${slug(id)}.png`),buffer)}
   return row;
 }

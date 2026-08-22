@@ -22,6 +22,8 @@ async function dismissTransient(page){
 async function assertDashboard(page,label,{minimumLaunchers=1}={}){
   const hub=page.locator('.company-system-hub');assert.equal(await hub.count(),1,`${label}: expected exactly one Company Systems hub`);
   const launchers=hub.locator('button.fl-launch');assert((await launchers.count())>=minimumLaunchers,`${label}: expected at least ${minimumLaunchers} grouped launchers`);
+  const duplicateTargets=await launchers.evaluateAll(els=>{const counts={};for(const el of els){const target=el.dataset.campaignTarget;if(target)counts[target]=(counts[target]||0)+1}return Object.entries(counts).filter(([,count])=>count>1)});
+  assert.equal(duplicateTargets.length,0,`${label}: duplicate campaign-target launchers survived reconciliation: ${JSON.stringify(duplicateTargets)}`);
   const orphan=await page.locator('.game-shell > button').evaluateAll(els=>els.filter(el=>el.classList.contains('fl-launch')||[...el.classList].some(c=>c.endsWith('-launch'))).map(el=>el.className));
   assert.equal(orphan.length,0,`${label}: orphan launchers remain directly under .game-shell: ${JSON.stringify(orphan)}`);
   const overflow=await hub.evaluate(el=>({scroll:el.scrollWidth,client:el.clientWidth}));assert(overflow.scroll<=overflow.client+3,`${label}: dashboard hub overflows horizontally: ${JSON.stringify(overflow)}`);

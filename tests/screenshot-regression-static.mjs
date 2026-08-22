@@ -5,6 +5,7 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const inventory=JSON.parse(fs.readFileSync('visual-qa/inventory.json','utf8'));
 const matrix=JSON.parse(fs.readFileSync('visual-qa/responsive-matrix.json','utf8'));
 const baseline=JSON.parse(fs.readFileSync('visual-qa/screenshot-baseline.json','utf8'));
+const acceptedDeltas=JSON.parse(fs.readFileSync('visual-qa/screenshot-accepted-deltas.json','utf8'));
 const policy=JSON.parse(fs.readFileSync('release-gate-policy.json','utf8'));
 const harness=fs.readFileSync('tests/screenshot-regression.mjs','utf8');
 const workflow=fs.readFileSync('.github/workflows/browser-qa.yml','utf8');
@@ -22,6 +23,10 @@ assert.equal(autoSpecials.length,13,'Item 13.14 should cover every non-manual It
 
 for(const needle of ['page.screenshot','sha256','responsive-matrix.json','inventory.json','deviceScaleFactor:1','timezoneId:\'UTC\'','--update','candidate-baseline.json'])assert(harness.includes(needle),`screenshot harness missing deterministic contract: ${needle}`);
 assert(harness.includes('matrix.viewports'),'harness must consume the shared viewport matrix');
+assert((harness.match(/frontierCompanyDashboardSync/g)||[]).length>=3,'screenshot harness must synchronously converge Company dashboard + locked-state ownership before capture');
+assert(harness.includes('window.frontierCompanyDashboardSync?.();\n    window.frontierLockedStateSync?.();\n    window.frontierCompanyDashboardSync?.();\n    window.frontierLockedStateSync?.();'),'Company screenshot synchronization order must remain dashboard → locked → dashboard → locked');
+assert(harness.includes('acceptedHashes(expected)'),'screenshot harness must resolve finite reviewed exact-hash sets');
+assert(harness.includes('sha256AnyOf'),'screenshot harness must support explicitly reviewed host-raster variants without pixel tolerances');
 
 assert.equal(pkg.scripts['test:screenshots'],'node tests/screenshot-regression.mjs','test:screenshots script missing');
 assert.equal(pkg.scripts['visual:screenshot-baseline'],'node tests/screenshot-regression.mjs --update','baseline update script missing');
@@ -49,4 +54,20 @@ if(baseline.status==='active'){
   }
 }
 
-console.log(`Screenshot regression static contract passed: ${inventory.screens.length} routes + ${autoSpecials.length} special captures × ${matrix.viewports.length} viewports = ${expected} screenshots`);
+const reviewedMultiHashKeys=[];
+for(const [key,row] of Object.entries(acceptedDeltas.captures||{})){
+  assert(/^[a-f0-9]{64}$/.test(row.sha256||''),`${key}: reviewed delta primary SHA-256 invalid`);
+  assert(Number(row.width)>0&&Number(row.height)>0,`${key}: reviewed delta PNG dimensions invalid`);
+  if(Array.isArray(row.sha256AnyOf)){
+    reviewedMultiHashKeys.push(key);
+    assert(row.sha256AnyOf.length>=2&&row.sha256AnyOf.length<=2,`${key}: reviewed host-raster set must contain exactly two hashes`);
+    assert.equal(new Set(row.sha256AnyOf).size,row.sha256AnyOf.length,`${key}: duplicate reviewed raster hash`);
+    assert(row.sha256AnyOf.includes(row.sha256),`${key}: primary SHA must remain in reviewed raster set`);
+    for(const hash of row.sha256AnyOf)assert(/^[a-f0-9]{64}$/.test(hash),`${key}: invalid reviewed alternate SHA-256`);
+  }
+}
+assert.deepEqual(reviewedMultiHashKeys.sort(),['phone-landscape/more-unlocked','wide/company-early'],'reviewed multi-hash scope must remain limited to the two cross-host raster-variant captures');
+assert(Array.isArray(acceptedDeltas.rasterVariantRuns)&&acceptedDeltas.rasterVariantRuns.length===2,'reviewed raster variants must identify both source validation runs');
+assert.match(acceptedDeltas.rationale||'',/no pixel tolerance/i,'reviewed raster rationale must explicitly preserve zero-tolerance semantics');
+
+console.log(`Screenshot regression static contract passed: ${inventory.screens.length} routes + ${autoSpecials.length} special captures × ${matrix.viewports.length} viewports = ${expected} screenshots; 2 finite reviewed raster-variant keys`);
