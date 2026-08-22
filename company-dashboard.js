@@ -19,6 +19,7 @@
 
   const classes=el=>el?.classList?[...el.classList]:[];
   const isLauncher=el=>el instanceof HTMLButtonElement&&(el.classList.contains('fl-launch')||classes(el).some(c=>c!=='fl-launch'&&c.endsWith('-launch')));
+  const isPlaceholder=el=>!!el?.classList?.contains('fl-launch-placeholder');
   function signal(button){return [button.className,button.getAttribute('onclick')||'',String(button.onclick||''),button.textContent||''].join(' ').toLowerCase().replace(/\s+/g,' ')}
   function groupFor(button){const s=signal(button);return GROUPS.find(g=>g.id!=='other'&&g.tokens.some(t=>s.includes(t)))||GROUPS.at(-1)}
   function orderFor(button){const s=signal(button),i=ORDER.findIndex(t=>s.includes(t));return i<0?999:i}
@@ -57,10 +58,26 @@
   }
   function allLaunchers(shell,hub){
     const byKey=new Map();
-    // Prefer the newly rendered shell launcher when both generations exist.
-    for(const child of shell.children)if(isLauncher(child))byKey.set(launcherKey(child),child);
-    if(hub)for(const button of hub.querySelectorAll('button'))if(isLauncher(button)&&!byKey.has(launcherKey(button)))byKey.set(launcherKey(button),button);
+    const consider=button=>{
+      const key=launcherKey(button),current=byKey.get(key);
+      if(!current||isPlaceholder(current)&&!isPlaceholder(button))byKey.set(key,button);
+    };
+    // Prefer the newly rendered shell launcher when both real generations exist,
+    // while always preferring a real launcher over a temporary placeholder.
+    for(const child of shell.children)if(isLauncher(child))consider(child);
+    if(hub)for(const button of hub.querySelectorAll('button'))if(isLauncher(button))consider(button);
     return [...byKey.values()];
+  }
+  function mountedLaunchers(shell,hub){
+    const mounted=[...shell.children].filter(isLauncher);
+    if(hub)mounted.push(...[...hub.querySelectorAll('button')].filter(isLauncher));
+    return mounted;
+  }
+  function pruneEmptyPlaceholderGroups(hub){
+    if(!hub)return;
+    for(const group of hub.querySelectorAll('[data-fl-placeholder-group]')){
+      if(![...group.querySelectorAll('button')].some(isLauncher))group.remove();
+    }
   }
   function organize(){
     queued=false;
@@ -70,10 +87,22 @@
     if(!shell||typeof state==='undefined'||!state?.started||state.view!=='company'){existing?.remove();return}
     const buttons=allLaunchers(shell,existing);
     if(!buttons.length){existing?.remove();return}
+
+    // allLaunchers() is intentionally unique by semantic launcher key. Reconcile the
+    // physical DOM to that same set before considering the dashboard stable. This is
+    // what removes stale locked-state placeholders such as a second programOpen node.
+    const keep=new Set(buttons);
+    const mounted=mountedLaunchers(shell,existing);
+    const duplicates=mounted.filter(button=>!keep.has(button));
+    for(const duplicate of duplicates)duplicate.remove();
+    pruneEmptyPlaceholderGroups(existing);
+
     buttons.sort((a,b)=>orderFor(a)-orderFor(b)||launcherId(a).localeCompare(launcherId(b)));
     const sig=signature(buttons);
     const stray=[...shell.children].filter(isLauncher);
-    if(existing?.querySelector('.company-system-groups')&&existing.dataset.dashboardSignature===sig&&!stray.length){
+    const ungrouped=existing?[...existing.querySelectorAll('button')].filter(isLauncher).filter(button=>!button.closest('.company-system-groups')):[];
+    const actualMounted=mountedLaunchers(shell,existing).length;
+    if(existing?.querySelector('.company-system-groups')&&existing.dataset.dashboardSignature===sig&&!stray.length&&!ungrouped.length&&actualMounted===buttons.length){
       existing.dataset.companyDashboard='1';
       const count=existing.querySelector('.company-system-count');if(count)count.textContent=`${buttons.length} system${buttons.length===1?'':'s'}`;
       return;
@@ -82,6 +111,7 @@
     const groups=hub.querySelector('.company-system-groups');
     groups.replaceChildren();
     for(const group of GROUPS){const items=buttons.filter(b=>groupFor(b).id===group.id);if(items.length)groups.appendChild(groupNode(group,items))}
+    pruneEmptyPlaceholderGroups(hub);
     hub.dataset.dashboardSignature=sig;
     const count=hub.querySelector('.company-system-count');if(count)count.textContent=`${buttons.length} system${buttons.length===1?'':'s'}`;
     if(!hub.isConnected){
