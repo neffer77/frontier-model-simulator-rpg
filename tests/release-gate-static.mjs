@@ -12,4 +12,16 @@ const evidence={'frontieros-terminal':'artifacts/terminal-frontieros/report.json
 for(const marker of ['releaseDecision','gate-command-failed','gate-command-timeout','ETIMEDOUT','timeoutMs','required-evidence-missing','screenshot-baseline-inactive','screenshot-report-invalid','route-report-invalid','visual-inventory-report-invalid','route-crawl-failures','route-crawl-warnings','manual-check','spawnSync','python3','_site','githubSha','gateTestUrl','frontieros','FRONTIER_QA_UI_MODE'])assert(runner.includes(marker),`release gate runner missing ${marker}`);
 for(const [script,file] of [['test:terminal-os','node tests/terminal-frontieros.mjs'],['test:mail-os','node tests/frontier-mail-frontieros.mjs'],['test:people-os','node tests/people-frontieros.mjs'],['test:projects-os','node tests/projects-frontieros.mjs'],['test:finance-os','node tests/finance-frontieros.mjs'],['test:company-os','node tests/company-frontieros.mjs'],['test:knowledge-engineering-os','node tests/knowledge-engineering-frontieros.mjs']])assert.equal(pkg.scripts[script],file,`${script}: package script drifted`);
 assert(pkg.scripts['test:static'].includes('tests/release-gate-static.mjs'));assert(workflow.includes('npm run test:rc'),'cross-device workflow must run canonical release gate');assert(workflow.includes('path: artifacts'),'cross-device workflow must retain aggregate release evidence');for(const marker of ['artifacts/release-gate','artifacts/route-crawl','artifacts/screenshot-regression','artifacts/visual-inventory','artifacts/company-frontieros'])assert(workflow.includes(marker),`workflow missing evidence marker ${marker}`);
+// Deployment must apply the same per-gate legacy/native routing as PR validation.
+const pages=read('.github/workflows/pages.yml');
+assert(pages.includes('run: npm run test:rc'),'Pages must run the canonical mode-aware release gate');
+assert(!pages.includes('npm run test:qa'),'Pages must not bypass per-gate UI modes with test:qa');
+assert(pages.includes('run: npm run test:signoff'),'Pages must finalize release sign-off');
+assert(pages.includes('path: artifacts'),'Pages must preserve release evidence on failure');
+assert.match(pages,/release-candidate:[\s\S]*?timeout-minutes: 30/,'Pages needs the cumulative release gate time budget');
+for(const file of ['run-monitor-frontieros.yml','terminal-frontieros.yml']){
+  const focused=read(`.github/workflows/${file}`);
+  assert.match(focused,/name: Resolve Playwright version\s+id: playwright-version\s+run: \|/ ,`${file}: version resolution must use a multiline shell block`);
+  assert.match(focused,/name: Report Playwright cache\s+run: \|/,`${file}: colon-containing summary must use a YAML block scalar`);
+}
 console.log(JSON.stringify({releaseGateStatic:'pass',policyVersion:policy.version,blockers:blockerIds.length,knowledgeEngineeringTimeoutMs:gateById.get('frontieros-knowledge-engineering').timeoutMs,screenshotTimeoutMs:gateById.get('screenshot-regression').timeoutMs,routeVisits:190,screenshotCaptures:255,baselineStatus:baseline.status},null,2));
