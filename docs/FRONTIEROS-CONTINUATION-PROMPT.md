@@ -1,6 +1,16 @@
-# FrontierOS continuation prompt — after PR #116
+# FrontierOS continuation prompt — after PR #117 / P5.3.1
 
 Paste the following into the development agent with access to this repository.
+
+---
+
+## Verified continuation checkpoint
+
+- PR #117 merged on September 6, 2026. Its tested head was `00792bbba0725000eb0e8d07e6255f7272c789ea`; current `main` after the merge is `1af1de86eef85e2a4169ead8a809388584e9a212`.
+- The release-workflow repair is complete. Do not recreate or reopen `fix/pr116-release-workflows`.
+- P5.3.1 implements the bounded **NPC → Mail → linked Run Monitor → same Mail thread** journey on `feature/frontieros-npc-mail-journey`. Read `P5.3.1-NPC-MAIL-JOURNEY.md` and verify its PR/check status before treating it as merged.
+- P5.3.1 advances the intended release policy to v15 and PWA cache to v49 while retaining 190 route visits and 255 screenshot captures.
+- The next single evidenced slice after P5.3.1 is **P5.3.2 — one typed decision request in Mail with approve/reject/delegate outcomes through an existing domain owner**. Do not generalize to every workflow in one PR.
 
 ---
 

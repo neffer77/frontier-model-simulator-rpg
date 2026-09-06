@@ -59,14 +59,15 @@ function npcAdviceText(e,inc){
   return `${best} I am outside my strongest specialty here, so I would treat this as a hypothesis rather than a call.`;
 }
 
-function askNpcDuringIncident(id){
-  ensureNpcTeam();const e=npcById(id),inc=INCIDENTS.find(x=>x.id===state.selectedIncident);if(!e||!inc)return;
+function askNpcDuringIncident(id,options={}){
+  ensureNpcTeam();const incidentId=options.incidentId||state.selectedIncident;const e=npcById(id),inc=INCIDENTS.find(x=>x.id===incidentId);if(!e||!inc)return null;
   const confidence=npcConfidence(e,inc),advice=npcAdviceText(e,inc);
   e.incidentsHelped++;e.workload=Math.min(100,e.workload+4);e.trust=Math.min(100,e.trust+1);
   npcRemember(e,`You asked for help on ${inc.title}. I advised: ${advice}`,inc.id);
   state.npcTeam.advice={employeeId:id,incidentId:inc.id,confidence,advice};
-  if(state.workstation&&state.workstation.incidentId===inc.id)state.workstation.npcSubview="advice";
-  save();render();
+  if(options.inline!==false&&state.workstation&&state.workstation.incidentId===inc.id)state.workstation.npcSubview="advice";
+  save();if(options.render!==false)render();
+  return {employeeId:e.id,name:e.name,address:`${e.id}@frontier.lab`,role:e.role,incidentId:inc.id,incidentTitle:inc.title,confidence,advice};
 }
 
 function closeNpcAdvice(){
