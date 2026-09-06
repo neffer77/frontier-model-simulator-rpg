@@ -29,7 +29,7 @@ jobs:
   release-candidate:
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,26 +37,30 @@ jobs:
           node-version: '22'
       - name: Install pinned test dependencies
         run: npm install --no-audit --no-fund
-      - name: Assemble production artifact
-        run: npm run build:site
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run full release-candidate regression suite against _site
+      - name: Execute canonical Item 13.16 release gate
+        id: release-gate
+        run: npm run test:rc
+      - name: Finalize Item 13.17 release sign-off
+        if: always() && steps.release-gate.outcome != 'skipped' && steps.release-gate.outcome != 'cancelled'
+        run: npm run test:signoff
+      - name: Publish release decision
+        if: always()
         run: |
-          python3 -m http.server 4173 --directory _site >/tmp/frontier-http.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
-          for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
-              break
+          for report in artifacts/release-gate/REPORT.md artifacts/release-signoff/REPORT.md; do
+            if [ -f "$report" ]; then
+              cat "$report" >> "$GITHUB_STEP_SUMMARY"
             fi
-            sleep 0.25
           done
-          if ! curl -fsS http://127.0.0.1:4173/ >/dev/null; then
-            cat /tmp/frontier-http.log
-            exit 1
-          fi
-          npm run test:qa
+      - name: Upload Pages release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-release-evidence-${{ github.run_number }}
+          path: artifacts
+          if-no-files-found: warn
+          retention-days: 30
 
   build:
     needs: release-candidate
