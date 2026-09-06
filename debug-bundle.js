@@ -51,6 +51,11 @@
       return sanitize(raw?JSON.parse(raw):null);
     }catch(e){return{error:safeText(e.message)}}
   }
+  function applicationStateSnapshot(){
+    const applications={};
+    try{if(typeof window.frontierMailReplaySnapshot==='function')applications.mail=window.frontierMailReplaySnapshot()}catch(error){applications.mail={error:safeText(error.message)}}
+    return sanitize(applications);
+  }
   function safeUrl(){
     try{return `${location.origin}${location.pathname}`}catch(e){return null}
   }
@@ -157,19 +162,20 @@
     const useful=(events||[]).filter(event=>['ui.click','command.started','command.completed','command.failed','state.saved','runtime.error','runtime.unhandledrejection','runtime.network'].includes(event.type)).slice(-80);
     return useful.map(event=>sanitize({sequence:event.sequence,type:event.type,timestamp:event.timestamp,route:event.route,stateRevision:event.stateRevision,correlationId:event.correlationId,commandId:event.commandId,severity:event.severity,data:event.data}));
   }
-  function reproduction(events){
+  function reproduction(events,applicationState){
     const steps=[];
     for(const event of (events||[]).slice(-120)){
       if(event.type==='command.started')steps.push({kind:'command',name:event.data?.name||'unknown',payload:event.data?.payload||{},route:event.route,stateRevision:event.stateRevision,correlationId:event.correlationId});
       else if(event.type==='ui.click')steps.push({kind:'click',label:event.data?.label||event.data?.id||event.data?.tag||'control',id:event.data?.id||null,dataCommand:event.data?.dataCommand||null,route:event.route,stateRevision:event.stateRevision});
     }
-    return sanitize({generated:true,steps:steps.slice(-40),note:'Replay commands only when their registry metadata marks them replayable. Redacted payload fields require manual replacement.'});
+    return sanitize({generated:true,applicationState,steps:steps.slice(-40),note:'Restore each application start snapshot before replaying commands whose registry metadata marks them replayable. Redacted payload fields require manual replacement.'});
   }
   function errorSummary(events){return sanitize((events||[]).filter(event=>event.severity==='error'||event.type==='runtime.error'||event.type==='runtime.unhandledrejection'||event.type==='command.failed').slice(-40))}
 
   async function createBundle(options={}){
     const ident=identity();
     const commandEvent=eventSnapshot();
+    const applicationState=applicationStateSnapshot();
     const bundle={
       schemaVersion:DEBUG_SCHEMA,
       item:'P5.0.3',
@@ -179,10 +185,11 @@
       identity:ident,
       environment:environment(),
       state:stateSnapshot(),
+      applicationState,
       commandEvent,
       actionTrail:actionTrail(commandEvent.events),
       errors:errorSummary(commandEvent.events),
-      reproduction:reproduction(commandEvent.events),
+      reproduction:reproduction(commandEvent.events,applicationState),
       dom:domContext(),
       performance:performanceSnapshot(),
       storage:await storageSnapshot(),

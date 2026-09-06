@@ -53,25 +53,26 @@
   function suspendCurrent(){
     if(!runtime.activeApp)return;const rec=windowRecord(runtime.activeApp);if(!rec)return;const body=$('.frontieros-window-body',rec.el);const app=liveApp();if(app&&body.contains(app)){ensureParking().appendChild(app);body.innerHTML=`<div class="frontieros-window-suspended"><strong>${esc(window.frontierApp?.(rec.appId)?.label||rec.appId)}</strong><span>Application suspended. Select this window to resume.</span></div>`}
   }
-  async function focusWindow(id,relaunch=true){
+  async function focusWindow(id,relaunch=true,options={}){
     const rec=windowRecord(id);if(!rec)return false;if(rec.minimized){rec.minimized=false;rec.el.hidden=false}
     if(runtime.activeApp!==id){suspendCurrent();runtime.activeApp=id}
     rec.el.style.zIndex=++runtime.z;$$('.frontieros-window',shell()).forEach(x=>x.classList.toggle('is-active',x===rec.el));
-    if(relaunch){const result=await window.frontierLaunchApp?.(id,{surface:'desktop',source:'desktop-frontieros'});if(!result?.ok){showToast(`${window.frontierApp?.(id)?.label||id} could not be resumed.`);return false}}
+    const payload=options.payload||((options.detail!=null)?{detail:options.detail}:{});
+    if(relaunch){const result=await window.frontierLaunchApp?.(id,{surface:'desktop',source:options.source||'desktop-frontieros',payload,correlationId:options.correlationId});if(!result?.ok){showToast(`${window.frontierApp?.(id)?.label||id} could not be resumed.`);return false}}
     const app=liveApp();const body=$('.frontieros-window-body',rec.el);
     // Focusing an already-active window happens on pointerdown. Replacing/rehosting
     // the live app between pointerdown and click cancels control clicks in Chromium.
     // Only move #app when it is not already hosted by this window.
     if(app){if(!body.contains(app)){body.innerHTML='';body.appendChild(app)}app.hidden=false}
-    $('[data-os-window-state]',rec.el).textContent='active';renderTasks();window.frontierEmitEvent?.('os.desktop.window.focused',{appId:id,rehosted:!!app&&!body.contains(app)},{source:'desktop-frontieros'});return true;
+    $('[data-os-window-state]',rec.el).textContent='active';renderTasks();window.frontierEmitEvent?.('os.desktop.window.focused',{appId:id,detail:payload.detail??null,rehosted:!!app&&!body.contains(app)},{source:'desktop-frontieros'});return true;
   }
-  async function openApp(id){
+  async function openApp(id,options={}){
     const app=window.frontierApp?.(id);if(!app){showToast('Unknown application.');return {ok:false,status:'unknown'}};
     if(app.launchState!=='ready'){showToast(app.launchState==='planned'?`${app.label} is planned for a later FrontierOS phase.`:`${app.label} is locked${app.lockReason?`: ${app.lockReason}`:''}.`);window.frontierEmitEvent?.('os.desktop.app.blocked',{appId:id,status:app.launchState,reason:app.lockReason},{source:'desktop-frontieros'});return {ok:false,status:app.launchState}}
     closeStart();let rec=windowRecord(id);if(!rec)rec=makeWindow(app);
-    const result=await window.frontierLaunchApp?.(id,{surface:'desktop',source:'desktop-frontieros'});if(!result?.ok){showToast(`${app.label} could not be opened.`);return result}
+    const payload=options.payload||((options.detail!=null)?{detail:options.detail}:{});const result=await window.frontierLaunchApp?.(id,{surface:'desktop',source:options.source||'desktop-frontieros',payload,correlationId:options.correlationId});if(!result?.ok){showToast(`${app.label} could not be opened.`);return result}
     suspendCurrent();runtime.activeApp=id;rec.minimized=false;rec.el.hidden=false;rec.el.style.zIndex=++runtime.z;$$('.frontieros-window',shell()).forEach(x=>x.classList.toggle('is-active',x===rec.el));
-    const body=$('.frontieros-window-body',rec.el);const live=liveApp();if(live){body.innerHTML='';body.appendChild(live);live.hidden=false}$('[data-os-window-state]',rec.el).textContent='active';renderTasks();window.frontierEmitEvent?.('os.desktop.app.opened',{appId:id,via:result.via,windowCount:runtime.windows.size},{source:'desktop-frontieros'});return result;
+    const body=$('.frontieros-window-body',rec.el);const live=liveApp();if(live){body.innerHTML='';body.appendChild(live);live.hidden=false}$('[data-os-window-state]',rec.el).textContent='active';renderTasks();window.frontierEmitEvent?.('os.desktop.app.opened',{appId:id,via:result.via,detail:payload.detail??null,windowCount:runtime.windows.size},{source:'desktop-frontieros'});return result;
   }
   function minimize(id){const rec=windowRecord(id);if(!rec)return false;if(runtime.activeApp===id){suspendCurrent();runtime.activeApp=null}rec.minimized=true;rec.el.hidden=true;renderTasks();window.frontierEmitEvent?.('os.desktop.window.minimized',{appId:id},{source:'desktop-frontieros'});return true}
   function closeWindow(id){const rec=windowRecord(id);if(!rec)return false;if(runtime.activeApp===id){suspendCurrent();runtime.activeApp=null}rec.el.remove();runtime.windows.delete(id);renderTasks();window.frontierEmitEvent?.('os.desktop.window.closed',{appId:id,windowCount:runtime.windows.size},{source:'desktop-frontieros'});return true}

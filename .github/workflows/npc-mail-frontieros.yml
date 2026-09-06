@@ -1,0 +1,62 @@
+name: FrontierOS NPC Mail journey
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npc-mail-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  npc-mail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Resolve Playwright version
+        id: playwright-version
+        shell: bash
+        run: |
+          version="$(node -p "require('./node_modules/playwright/package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Restore Playwright browser cache
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium system dependencies
+        timeout-minutes: 2
+        continue-on-error: true
+        run: npx playwright install-deps chromium
+      - name: Download Chromium on cache miss
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+      - name: Static contract
+        run: npm run test:npc-mail-static
+      - name: Build production site
+        run: npm run build:site
+      - name: Start site
+        run: python3 -m http.server 4173 --directory _site >/tmp/npc-mail-server.log 2>&1 &
+      - name: Domain and cross-device journey
+        run: npm run test:npc-mail
+      - name: Publish evidence
+        if: always()
+        run: if [ -f artifacts/npc-mail-frontieros/REPORT.md ]; then cat artifacts/npc-mail-frontieros/REPORT.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npc-mail-frontieros-${{ github.event.pull_request.number || github.run_number }}
+          path: artifacts/npc-mail-frontieros
+          if-no-files-found: warn
+          retention-days: 30
