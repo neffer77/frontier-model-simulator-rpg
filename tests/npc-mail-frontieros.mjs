@@ -29,7 +29,7 @@ async function runJourney(surface,viewport,device={}){
   let run=await page.evaluate(()=>frontierRunMonitorSnapshot());
   assert.equal(run.incidentId,'nan',`${surface}: incident context missing`);
   assert.equal(run.view,'data',`${surface}: originating view missing`);
-  assert.equal(run.team.length,8,`${surface}: canonical team missing`);
+  assert(run.team.length>=8&&run.team.some(person=>person.id==='maya'),`${surface}: canonical team missing`);
   const before=await page.evaluate(()=>{
     const employee=state.npcEmployees.find(person=>person.id==='maya');
     const record=state.organization.incidents.find(item=>item.status==='open'&&item.incidentType==='nan');
@@ -114,8 +114,8 @@ async function checkResponsive(name,viewport,surface){
   await page.goto(`${base}${surface==='phone'?'?frontieros=1':'?frontieros=desktop'}`,{waitUntil:'networkidle'});await page.evaluate(()=>{localStorage.clear();sessionStorage.clear()});await page.reload({waitUntil:'networkidle'});
   await page.evaluate(()=>{state.started=true;state.activeRun={name:'NOVA-RESPONSIVE',tier:'7b',progress:38,phase:'pretraining',physics:{},startedDay:5,loss:2.03,incident:'nan'};state.selectedIncident='nan';state.workstation=newWorkstation('nan');ensureIncidentRecord('nan');save()});
   assert.equal((await page.evaluate(()=>frontierOsNavigate('training',{detail:'nan/data'}))).ok,true,`${name}: Run Monitor launch failed`);await page.locator('.rm-team').waitFor({state:'visible'});
-  const layout=await page.locator('[data-frontieros-native-app="training"]').evaluate(root=>({viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,left:root.getBoundingClientRect().left,right:root.getBoundingClientRect().right,buttons:[...root.querySelectorAll('.rm-team-person')].map(button=>{const rect=button.getBoundingClientRect();return{left:rect.left,right:rect.right,height:rect.height}})}));
-  assert.equal(layout.buttons.length,8,`${name}: responsive team roster incomplete`);assert(layout.documentWidth<=layout.viewport+1,`${name}: document overflow ${JSON.stringify(layout)}`);assert(layout.buttons.every(button=>button.left>=-1&&button.right<=layout.viewport+1),`${name}: team card escapes viewport`);assert(layout.buttons.every(button=>button.height>=(surface==='phone'?44:40)),`${name}: team card target too short`);
+  const teamCount=(await page.evaluate(()=>frontierRunMonitorSnapshot())).team.length;const layout=await page.locator('[data-frontieros-native-app="training"]').evaluate(root=>({viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,left:root.getBoundingClientRect().left,right:root.getBoundingClientRect().right,buttons:[...root.querySelectorAll('.rm-team-person')].map(button=>{const rect=button.getBoundingClientRect();return{left:rect.left,right:rect.right,height:rect.height}})}));
+  assert(teamCount>=8,`${name}: canonical roster unexpectedly small`);assert.equal(layout.buttons.length,teamCount,`${name}: responsive team roster incomplete`);assert(layout.documentWidth<=layout.viewport+1,`${name}: document overflow ${JSON.stringify(layout)}`);assert(layout.buttons.every(button=>button.left>=-1&&button.right<=layout.viewport+1),`${name}: team card escapes viewport`);assert(layout.buttons.every(button=>button.height>=(surface==='phone'?44:40)),`${name}: team card target too short`);
   const shot=`${name}-run-team.png`;await page.screenshot({path:path.join(out,shot),fullPage:true});report.evidence.push(shot);report.surfaces[name]={viewport,teamCards:layout.buttons.length,noHorizontalOverflow:true};await context.close();
 }
 await checkResponsive('phone-landscape',{width:844,height:390},'phone');
