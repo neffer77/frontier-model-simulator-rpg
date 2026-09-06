@@ -89,10 +89,11 @@ async function runJourney(surface,viewport,device={}){
   for(const type of ['command.started','command.completed','npc.advice.mail.reused','mail.advice.link.opened','run-monitor.team.requested'])assert(events.some(event=>event.type===type),`${surface}: telemetry missing ${type}`);
   const beforeReload=await page.evaluate(()=>frontierOsSessionSnapshot());
   assert.equal(beforeReload.current?.detail,`thread/${advice.id}`,`${surface}: session did not preserve advice detail`);
-  await page.reload({waitUntil:'networkidle'});
-  const restored=await page.evaluate(()=>frontierOsSessionRestore());
-  assert.equal(restored,true,`${surface}: session restore failed`);
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForFunction(threadId=>{const session=window.frontierOsSessionSnapshot?.();return session?.current?.appId==='mail'&&session.current.detail===`thread/${threadId}`},advice.id);
   await page.locator('[data-frontieros-native-app="mail"]').waitFor({state:'visible'});
+  const restored=await page.evaluate(()=>frontierOsSessionSnapshot());
+  assert.equal(restored.current?.detail,`thread/${advice.id}`,`${surface}: session restore lost advice detail`);
   const afterReload=await page.evaluate(()=>frontierMailSnapshot());
   assert.equal(afterReload.threadId,advice.id,`${surface}: reload lost selected advice thread`);
   assert.equal(afterReload.threads.find(thread=>thread.id===advice.id)?.messageCount,1,`${surface}: reload lost or duplicated advice`);
