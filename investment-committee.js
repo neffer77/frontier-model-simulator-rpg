@@ -31,7 +31,18 @@ function fundingMailStatus(id){
   if(!r||r.type!==FUNDING_MAIL_TYPE)return {available:false,reason:'request-missing',request:null,delegates:[]};
   const delegates=(state.npcEmployees||[]).filter(e=>state.investmentCommittee.committeeIds.includes(e.id)).map(e=>({id:e.id,name:e.name}));
   let reason=!i?'initiative-missing':['approved','rejected'].includes(r.status)?'already-decided':fundingSource(i)!==r.sourceVersion?'initiative-changed':null;
-  return {available:!reason,reason,request:fundingCopy(r),delegates,canApprove:!reason&&Number.isFinite(state.cash)&&state.cash>=r.amountM*1e6,entityAvailable:!!i};
+  const reviewer=r.delegateId?delegates.find(e=>e.id===r.delegateId):delegates[0];
+  const followUpRecorded=r.audit.some(a=>a.action==='follow-up');
+  return {available:!reason,reason,request:fundingCopy(r),delegates,canApprove:!reason&&Number.isFinite(state.cash)&&state.cash>=r.amountM*1e6,entityAvailable:!!i,canFollowUp:!reason&&!followUpRecorded&&!!reviewer,followUpRecorded,followUpReviewerId:reviewer?.id||null};
+}
+function fundingExplanation(request,reviewerId){
+  const i=state.portfolioStrategy.initiatives.find(i=>i.id===request.initiativeId),reviewer=state.npcEmployees.find(e=>e.id===reviewerId);
+  const gate=state.investmentCommittee.gates[i.id]||{stage:0,evidence:0,spentM:0};
+  const inputs={amountM:request.amountM,stage:gate.stage,evidence:gate.evidence,risk:i.risk,upsideM:i.upsideM,costM:i.costM,scenarioEV:scenarioEV(i),optionValue:optionValue(i),stance:committeeStance(reviewer,i)};
+  if(!Object.entries(inputs).every(([key,value])=>key==='stance'||Number.isFinite(value)))return null;
+  const recommendation={fund:'fund the next tranche',hold:'hold for more evidence',stop:'stop further funding'}[inputs.stance];
+  return {question:'What supports this funding gate, and what are the risks?',reviewerId:reviewer.id,reviewerName:reviewer.name,inputs,
+    response:'For '+i.name+', gate '+(request.expectedStage+1)+' requests $'+request.amountM.toFixed(2)+'M. Evidence is '+Math.round(inputs.evidence*100)+'%; the initiative risk estimate is '+Math.round(inputs.risk*100)+'%. Under the current committee scenarios, expected net value is $'+inputs.scenarioEV.toFixed(2)+'M and staged option value is $'+inputs.optionValue.toFixed(2)+'M. My recommendation is to '+recommendation+'. These are simulation estimates, not guarantees. No funds moved; the founder still decides.'};
 }
 function createFundingMailRequest(initiativeId,at){
   const ic=state.investmentCommittee,i=state.portfolioStrategy?.initiatives?.find(i=>i.id===initiativeId);
@@ -51,7 +62,7 @@ function createFundingMailRequest(initiativeId,at){
 function respondFundingMailRequest({requestId,action,expectedRevision,delegateId=null}={}){
   const r=fundingMailRequest(requestId);
   if(!r||r.type!==FUNDING_MAIL_TYPE)return {ok:false,status:'request-missing'};
-  if(!['approve','reject','delegate'].includes(action)||!Number.isInteger(expectedRevision)||expectedRevision<0)return {ok:false,status:'invalid-response'};
+  if(!['approve','reject','delegate','follow-up'].includes(action)||!Number.isInteger(expectedRevision)||expectedRevision<0)return {ok:false,status:'invalid-response'};
   delegateId=action==='delegate'?String(delegateId||''):null;
   const prior=r.audit.find(a=>a.revision===expectedRevision+1);
   if(prior&&prior.action===action&&prior.delegateId===delegateId)return {ok:true,status:'reused',request:fundingCopy(r)};
@@ -60,14 +71,21 @@ function respondFundingMailRequest({requestId,action,expectedRevision,delegateId
   if(!live.available)return {ok:false,status:live.reason};
   if(action==='approve'&&!live.canApprove)return {ok:false,status:'insufficient-cash'};
   if(action==='delegate'&&(!live.delegates.some(e=>e.id===delegateId)||delegateId===r.delegateId))return {ok:false,status:'invalid-delegate'};
+  let followUp=null;
+  if(action==='follow-up'){
+    if(live.followUpRecorded)return {ok:false,status:'follow-up-already-recorded'};
+    if(!live.followUpReviewerId)return {ok:false,status:'reviewer-unavailable'};
+    try{followUp=fundingExplanation(r,live.followUpReviewerId)}catch(error){return {ok:false,status:'evidence-unavailable'}}
+    if(!followUp)return {ok:false,status:'evidence-unavailable'};
+  }
   // One synchronous transaction saves the money, receipt and audit together. No
   // legacy render/ensure chain runs here: those chains advance portfolio progress.
   const previous={cash:state.cash,committee:fundingCopy(state.investmentCommittee),portfolio:fundingCopy(state.portfolioStrategy)};
   try{
     if(action==='approve'&&!gateInitiative(r.initiativeId,'fund',{native:true,deferSave:true}))return {ok:false,status:'funding-denied'};
-    r.revision++;r.status=action==='approve'?'approved':action==='reject'?'rejected':'delegated';
+    r.revision++;if(action!=='follow-up')r.status=action==='approve'?'approved':action==='reject'?'rejected':'delegated';
     if(action==='delegate')r.delegateId=delegateId;
-    r.audit.push({revision:r.revision,action,actor:'player',delegateId,delegateName:action==='delegate'?live.delegates.find(e=>e.id===delegateId).name:null,day:state.day||1,at:r.createdAt+r.revision});
+    r.audit.push({revision:r.revision,action,actor:'player',delegateId,delegateName:action==='delegate'?live.delegates.find(e=>e.id===delegateId).name:null,day:state.day||1,at:r.createdAt+r.revision,...(followUp?{followUp}:{})});
     if(action==='approve')Object.assign(state.investmentCommittee.decisions.at(-1),{requestId:r.id,requestRevision:r.revision});
     save();return {ok:true,status:r.status,request:fundingCopy(r)};
   }catch(error){state.cash=previous.cash;state.investmentCommittee=previous.committee;state.portfolioStrategy=previous.portfolio;throw error}

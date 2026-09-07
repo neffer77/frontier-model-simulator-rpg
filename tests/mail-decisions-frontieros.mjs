@@ -49,7 +49,7 @@ async function assertLayout(page,label){
     controls:[...root.querySelectorAll('button,select')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,height:r.height}})
   }));
   assert(layout.documentWidth<=layout.viewport+1,label+': document overflow '+JSON.stringify(layout));
-  assert.equal(layout.controls.length,4,label+': missing decision controls');
+  assert.equal(layout.controls.length,5,label+': missing decision controls');
   assert(layout.controls.every(r=>r.height>=44&&r.left>=-1&&r.right<=layout.viewport+1),label+': unreachable decision controls '+JSON.stringify(layout));
   assert(layout.controls.every(r=>r.right<=layout.containerRight+1),label+': decision control escapes the desktop window');
   return layout;
@@ -105,7 +105,7 @@ async function run(surface,full){
     assert.equal(approved.gate.stage,before.gate.stage+1);assert.equal(approved.decisions.length,before.decisions.length+1);
     assert.equal(approved.decisions.at(-1).requestId,before.request.id);assert.equal(approved.request.revision,2);
     assert.equal(approved.request.audit.length,3);assert.equal(approved.thread.messageCount,3);
-    for(const action of ['approve','reject','delegate'])assert(await page.locator('[data-fm-decision="'+action+'"]').isDisabled());
+    for(const action of ['approve','reject','delegate','follow-up'])assert(await page.locator('[data-fm-decision="'+action+'"]').isDisabled());
     assert(await page.locator('[data-fm-decision-result]').evaluate(el=>el===document.activeElement),'Decision feedback lost keyboard focus');
     const retryApproval=await page.evaluate(p=>frontierDispatchCommand('mail.decision.respond',p),{threadId:before.thread.id,action:'approve',expectedRevision:1});
     assert.equal(retryApproval.status,'reused');assert.deepEqual(await current(page),approved);
@@ -142,7 +142,7 @@ async function run(surface,full){
     assert(await page.getByText('Insufficient portfolio cash to approve.',{exact:false}).isVisible());
     await page.evaluate(id=>{state.portfolioStrategy.initiatives=state.portfolioStrategy.initiatives.filter(i=>i.id!==id);save();frontierMailOpenThread(frontierMailSnapshot().threadId)},stale.request.initiativeId);
     assert(await page.locator('[data-fm-open-linked]').isDisabled());
-    for(const action of ['approve','reject','delegate'])assert(await page.locator('[data-fm-decision="'+action+'"]').isDisabled());
+    for(const action of ['approve','reject','delegate','follow-up'])assert(await page.locator('[data-fm-decision="'+action+'"]').isDisabled());
     await checkpoint(page,label+'-unavailable');
     report.surfaces[label]={layout,threadId:before.thread.id,requestId:before.request.id,approve:true,reject:true,delegate:true,exactlyOnce:true,linkedReturn:true,reload:true,insufficientCash:true,missingEntity:true,telemetry:true,debugBundle:true};
   }catch(error){

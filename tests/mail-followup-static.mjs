@@ -1,0 +1,14 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const read=f=>fs.readFileSync(f,'utf8'),domain=read('investment-committee.js'),mail=read('frontier-mail-frontieros.js'),cmd=read('frontier-mail-command.js');
+const pkg=JSON.parse(read('package.json')),policy=JSON.parse(read('release-gate-policy.json')),workflow=read('.github/workflows/mail-followup.yml');
+for(const token of ['fundingExplanation','canFollowUp','follow-up-already-recorded','reviewer-unavailable','evidence-unavailable','scenarioEV(i)','committeeStance(reviewer,i)'])assert(domain.includes(token),'Follow-up owner missing '+token);
+for(const token of ['Ask follow-up','data-fm-follow-up-status',"id:id+':response'",'entry.followUp'])assert(mail.includes(token),'Mail follow-up missing '+token);
+assert(cmd.includes('finance.funding.follow-up.recorded'));assert(mail.includes('SCHEMA=3'),'Additive audit must preserve Mail schema');
+assert.equal(pkg.scripts['test:mail-followup'],'node tests/mail-followup-domain.mjs && node tests/mail-followup-frontieros.mjs');
+assert(pkg.scripts['test:static'].includes('tests/mail-followup-static.mjs'));assert(pkg.scripts['test:qa'].includes('tests/mail-followup-frontieros.mjs'));
+const gate=policy.gates.find(g=>g.id==='frontieros-mail-followup');assert(policy.version>=17);assert.equal(gate?.severity,'blocker');assert.equal(gate.script,'test:mail-followup');assert.equal(gate.timeoutMs,120000);assert.equal(gate.evidence,'artifacts/mail-followup/report.json');
+assert.equal(policy.semanticEvidence.routeCrawl.expectedVisits,190);assert.equal(policy.semanticEvidence.screenshotRegression.expectedCaptureCount,255);
+assert(Number(read('sw.js').match(/CACHE='frontier-lab-v(\d+)'/)[1])>=51);
+for(const token of ['npm run test:mail-followup-static','npm run test:mail-followup','artifacts/mail-followup-domain','retention-days: 30','if: always()'])assert(workflow.includes(token));
+assert(read('docs/P5.3.3-MAIL-FOLLOWUP.md').includes('multi-tab'));assert(read('docs/FRONTIEROS-CONTINUATION-PROMPT.md').includes('P5.3.3'));
+console.log(JSON.stringify({mailFollowupStatic:'pass',policyVersion:policy.version,releaseBlocking:true,mailSchema:3},null,2));

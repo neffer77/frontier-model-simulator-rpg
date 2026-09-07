@@ -67,6 +67,14 @@
     let thread=box.threads.find(t=>t.requestKey===key),changed=false;
     if(!thread){thread={id:'m'+box.nextId++,from:'Investment Committee',address:'committee@frontier.lab',role:'Finance',subject:request.initiativeName+' · Funding gate '+(request.expectedStage+1),preview:'',unread:false,starred:false,archived:false,updatedAt:request.createdAt,requestKey:key,linkedEntity:{type:'initiative',initiativeId:request.initiativeId,originApp:'finance'},decisionRequest:{type:request.type,id:request.id},messages:[]};box.threads.unshift(thread);changed=true}
     for(const entry of request.audit){
+      if(entry.action==='follow-up'&&entry.followUp){
+        const f=entry.followUp,id='decision:'+request.id+':'+entry.revision;
+        for(const message of [{id,from:'You',at:entry.at,body:f.question},{id:id+':response',from:f.reviewerName,at:entry.at,body:f.response}]){
+          if(thread.messages.some(m=>m.id===message.id))continue;
+          thread.messages.push(message);thread.preview=message.body;thread.updatedAt=Math.max(thread.updatedAt,entry.at);box.logicalClock=Math.max(box.logicalClock,entry.at);changed=true;
+        }
+        continue;
+      }
       const id='decision:'+request.id+':'+entry.revision;if(thread.messages.some(m=>m.id===id))continue;
       const amount='$'+request.amountM.toFixed(2)+'M';
       const body=entry.action==='requested'?'Review '+amount+' for funding gate '+(request.expectedStage+1)+' of '+request.initiativeName+'. Approve funds this tranche; reject declines only this request; delegate assigns a reviewer without spending.':
@@ -91,7 +99,7 @@
       (ui.decisionError?'<p role="alert" class="fm-decision-notice">'+esc(ui.decisionError)+'</p>':'')+
       '<div class="fm-decision-actions">'+button('approve','Approve $'+r.amountM.toFixed(2)+'M',disabled||!current.canApprove?'disabled':'')+button('reject','Reject request',attr)+'</div>'+
       '<label class="fm-decision-delegate">Committee reviewer<select aria-label="Committee reviewer" data-fm-delegate '+attr+'><option value="">Choose a reviewer</option>'+current.delegates.map(e=>'<option value="'+esc(e.id)+'" '+(e.id===r.delegateId?'disabled':'')+'>'+esc(e.name)+'</option>').join('')+'</select></label>'+
-      button('delegate','Delegate review',attr)+'</aside>';
+      button('delegate','Delegate review',attr)+'<div class="fm-follow-up">'+button('follow-up','Ask follow-up',disabled||!current.canFollowUp?'disabled':'')+'<p data-fm-follow-up-status role="status">'+(current.followUpRecorded?'Explanation recorded below.':!current.followUpReviewerId?'No eligible reviewer. Assign a current committee member to request an explanation.':'Ask for one committee explanation of the funding rationale and risks. No funds move.')+'</p></div></aside>';
   }
   async function respondDecision(action,expectedRevision,delegateId){
     if(ui.decisionBusy)return {ok:false,status:'busy'};
