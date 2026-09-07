@@ -123,7 +123,7 @@ async function run(surface,full){
     const restored=await current(page);
     assert.equal(restored.cash,approved.cash);assert.deepEqual(restored.request,approved.request);
     assert.equal(restored.thread.messageCount,3);assert.equal(restored.gate.stage,1);
-    assert.equal(await page.getByRole('button',{name:'Approve $0.60M',exact:true}).isDisabled(),true);
+    assert.equal(await page.locator('[data-fm-decision="approve"]').isDisabled(),true);
 
     const rejectBefore=await requestViaUi(page);
     await page.getByRole('button',{name:'Reject request',exact:true}).click();await waitStatus(page,'rejected');
@@ -134,11 +134,11 @@ async function run(surface,full){
 
     const stale=await requestViaUi(page);
     await page.evaluate(()=>{state.cash=0;save();frontierMailOpenThread(frontierMailSnapshot().threadId)});
-    assert(await page.getByRole('button',{name:'Approve $0.60M',exact:true}).isDisabled());
-    assert(!await page.getByRole('button',{name:'Reject request',exact:true}).isDisabled());
+    assert(await page.locator('[data-fm-decision="approve"]').isDisabled());
+    assert(!await page.locator('[data-fm-decision="reject"]').isDisabled());
     assert(await page.getByText('Insufficient portfolio cash to approve.',{exact:false}).isVisible());
     await page.evaluate(id=>{state.portfolioStrategy.initiatives=state.portfolioStrategy.initiatives.filter(i=>i.id!==id);save();frontierMailOpenThread(frontierMailSnapshot().threadId)},stale.request.initiativeId);
-    assert(await page.getByRole('button',{name:'Initiative unavailable',exact:true}).isDisabled());
+    assert(await page.locator('[data-fm-open-linked]').isDisabled());
     for(const action of ['approve','reject','delegate'])assert(await page.locator('[data-fm-decision="'+action+'"]').isDisabled());
     await checkpoint(page,label+'-unavailable');
     report.surfaces[label]={layout,threadId:before.thread.id,requestId:before.request.id,approve:true,reject:true,delegate:true,exactlyOnce:true,linkedReturn:true,reload:true,insufficientCash:true,missingEntity:true,telemetry:true,debugBundle:true};
