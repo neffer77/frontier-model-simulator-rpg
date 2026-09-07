@@ -1,66 +1,56 @@
-# FrontierOS continuation prompt — after PR #117 / P5.3.1
+# FrontierOS continuation prompt — P5.3.2 Mail decisions
 
-Paste the following into the development agent with access to this repository.
+Continue development of https://github.com/neffer77/frontier-model-simulator-rpg using the FrontierOS plan. Implement and validate one bounded vertical slice, preserving existing gameplay and saves. This is not `neffer77/l33t-interview-code` (Codeopolis).
 
----
+## Verified checkpoint
 
-## Verified continuation checkpoint
+- PR #116 (native Knowledge + Engineering) and PR #117 (release-workflow repairs) are merged. Do not reopen or force-push their branches.
+- PR #118 / P5.3.1 **NPC → Mail → linked Run Monitor → same Mail thread** merged September 6, 2026. Tested PR head: `303472d999ea53301daab9de481f8f4db975256b`. Resulting `main`: `4efa51081e43dadc37ceddcc19fdb4b70b505215`. Cross-device run `34061713350` and Pages run `34061713333` passed at that main SHA.
+- P5.3.2 is implemented on `feature/frontieros-mail-decisions`, based on that main SHA: **one typed Finance funding request with approve/reject/delegate through the existing investment committee owner**. Read `P5.3.2-MAIL-DECISIONS.md`; discover its PR and verify current head/checks before treating it as merged. The implementation does not authorize merge or deployment.
+- P5.3.2 uses Mail schema v3, additive committee schema v2, release policy v16, PWA cache v50, 15 existing apps, 190 route visits, and 255 screenshot captures. Verify current values before editing.
+- Local browser dependency setup was blocked. The user approved GitHub Actions for remaining validation. Use pinned Playwright 1.54.2 in CI, retain failure evidence, and fix owning code/tests rather than weakening gates.
 
-- PR #117 merged on September 6, 2026. Its tested head was `00792bbba0725000eb0e8d07e6255f7272c789ea`; current `main` after the merge is `1af1de86eef85e2a4169ead8a809388584e9a212`.
-- The release-workflow repair is complete. Do not recreate or reopen `fix/pr116-release-workflows`.
-- P5.3.1 implements the bounded **NPC → Mail → linked Run Monitor → same Mail thread** journey on `feature/frontieros-npc-mail-journey`. Read `P5.3.1-NPC-MAIL-JOURNEY.md` and verify its PR/check status before treating it as merged.
-- P5.3.1 advances the intended release policy to v15 and PWA cache to v49 while retaining 190 route visits and 255 screenshot captures.
-- The next single evidenced slice after P5.3.1 is **P5.3.2 — one typed decision request in Mail with approve/reject/delegate outcomes through an existing domain owner**. Do not generalize to every workflow in one PR.
+## Reconstruct live state first
 
----
+Read repository instructions, latest `main`, open PRs, their actual base/head branches, current-head Actions results and latest successful Pages deployment. Record exact SHAs. Finish an existing unmerged slice before creating another. Preserve unrelated dirty worktrees. Do not duplicate merged release-workflow changes.
 
-Continue development of https://github.com/neffer77/frontier-model-simulator-rpg using the FrontierOS implementation plan. Implement and validate a bounded vertical slice; do not stop at a proposed plan. Keep existing gameplay and save data intact.
+Read the P5.0/P5.1 and relevant P5.2/P5.3 docs, `frontier-app-registry.js`, command/event bus, navigation/session owners, `release-gate-policy.json`, and associated browser tests. Current source and fresh Actions evidence override historical checkpoint claims.
 
-## Reconstruct the actual starting point
+## Original plan and boundaries
 
-1. Read repository instructions, latest `main`, open PRs, their actual base/head branches, Actions results, and the latest successful Pages deployment. Record exact SHAs. Do not confuse this repository with `neffer77/l33t-interview-code` (Codeopolis).
-2. PR #116, **P5.2.12 — Native FrontierOS Knowledge + Engineering**, was merged on August 22, 2026. Its merge SHA was `5a43ee199ded9e047a40f5e89e5f93103422ef34`; its head was `7371c57064a3fafc66d8b8ef091b30314fbee92d`. These are historical anchors, not a claim about the current HEAD. Do not reopen or force-push the merged branch.
-3. Inspect the follow-up branch `fix/pr116-release-workflows` and its PR. If still open, finish its validation first. Avoid duplicating its changes. It repairs Pages using the canonical mode-aware release gate, and repairs invalid YAML/shell quoting in Run Monitor and Terminal workflows.
-4. Check the original failures: Pages run `32605661350`, job `97110239430`, failed at `tests/browser-smoke.mjs:25` with `mobile: app not visible`; Run Monitor run `32605660848` and Terminal run `32605660517` created no jobs. Cross-device run `32605661344` passed at the same merge SHA. The Pages job used raw `test:qa`, bypassing the release policy's per-test legacy/native modes. Do not fix this by disabling the new OS, skipping smoke tests, or relaxing screenshot thresholds.
-5. Read `P5.2.12-KNOWLEDGE-ENGINEERING.md`, the P5.0/P5.1 documents in `docs/`, current native app modules, `frontier-app-registry.js`, `command-adapters.js`, the command/event bus, `release-gate-policy.json`, and related browser tests.
+The authoritative original design is **FrontierOS_Mega_Implementation_Manual.docx**, version 1.0, August 16, 2026. Retrieve its contents if accessible. These requirements preserve enough context to continue without inventing previous chat history.
 
-## Reconcile the original plan with implemented work
+Design law: **Desktop = windows. Mobile = apps. Same simulation; different presentation.** Keep core gameplay browser/PWA/Scriptable-compatible and offline-capable with no backend requirement. Separate simulation, domain services, app state, navigation, presentation and telemetry. Existing domain systems own mutations; app adapters do not create competing simulation state. Every primary surface has one registry owner. Mobile has one foreground task, safe-area support, no unintended horizontal scrolling and at least 44px touch targets.
 
-The authoritative original design is **FrontierOS_Mega_Implementation_Manual.docx**, version 1.0, August 16, 2026. If Library access is available, retrieve its current contents. This prompt preserves the relevant requirements so you can continue without inventing missing chat history.
+The manual's phases cover telemetry, shells, Pager/Run Monitor, Mail/NPC communication, Data/Evals, research, People, Projects, Company, Knowledge/engineering, desktop immersion, mobile hardening, migration cleanup, replay and visual sign-off. Later implementation used P5.2.1–P5.2.12 for native app migrations. App presence and changed numbering are not evidence that those entire gameplay phases are complete.
 
-Design law: **Desktop = windows. Mobile = apps. Same simulation; different presentation.** Keep core gameplay browser/PWA/Scriptable-compatible and offline-capable, with no backend requirement. Separate simulation, domain services, app state, navigation, presentation, and telemetry. Existing domain systems own mutations; app adapters must not duplicate them. Every primary surface has one registry owner. Mobile has one foreground task, safe-area support, no unintended horizontal scrolling, and at least 44px touch targets.
+Maintain a compact gap matrix: original requirement → implementation → test/evidence → remaining gap.
 
-The manual's broad phases were: 5.0 telemetry foundation; 5.1 shell; 5.2 Pager/Run Monitor; 5.3 Mail/NPC communication; 5.4 Data/Evals; 5.5 research; 5.6 People; 5.7 Projects; 5.8 Company; 5.9 Knowledge/Code Lab/artifacts; 5.10 desktop immersion; 5.11 mobile hardening; 5.12 migration cleanup; 5.13 observability/replay hardening; 5.14 visual sign-off.
+## Next single slice after P5.3.2
 
-Implementation subsequently used P5.2.1–P5.2.12 for native app migrations. Do not interpret the old numbering as instructions to recreate apps. Mail already shipped in PR #111/P5.2.7; People, Projects, Finance and Company also shipped. PR #116 added native Knowledge, Code Lab and Artifacts. At the historical baseline, policy v14 protects 15 registered apps, 190 route visits and 255 screenshot captures, with PWA cache v48. Verify current values before editing them.
+Once P5.3.2 is validated and merged, audit and implement **typed ask-follow-up plus one deterministic committee response on the same Finance funding request**. This is the next evidenced gap from the manual, not a claim that unseen chat history selected additional scope. If newer work has already implemented it, prove that before selecting another gap.
 
-Create a compact gap matrix: original requirement → implementation → test/evidence → remaining gap. App presence is not proof of complete gameplay integration.
+Inspect `investment-committee.js`, `frontier-mail-command.js`, `frontier-mail-frontieros.js`, `finance-frontieros.js`, Mail persistence/replay and both decision tests. The baseline owns request/audit state in `state.investmentCommittee.mailRequests`; Mail stores typed references and projects canonical audit entries. Preserve this boundary and its recovery behavior.
 
-## Next proposed slice: Mail-linked NPC advice and a real cross-app journey
+Requirements:
 
-After the release repair is green, audit and implement the smallest missing part of the manual's J03 journey: **NPC advice → Mail thread → related Run Monitor view → return to the same thread**. This is the proposed next slice based on the recovered plan and inspected code, not a claim that an unseen prior chat selected it.
-
-Inspect `frontier-mail-frontieros.js`, its command adapter and tests, NPC advice entry points, Run Monitor, navigation, notifications and persistence. The baseline Mail implementation has seeded threads, read/unread, search, star/archive, replies and `frontierMailReceive`; it does not establish completion of entity-linked advice, typed decisions or deterministic replay. Locate all callers before designing an adapter. If J03 already exists in a newer commit, prove it and select the next evidenced gap instead.
-
-Requirements for this slice:
-
-- Reuse canonical NPC advice generation and run identities. Route native Ask Team/NPC actions into a persistent Mail conversation; do not create another mailbox or NPC simulation.
-- Preserve origin app, run/incident ID and thread ID. Store serializable linked-entity data and render an explicit Open Run action through the existing navigation API.
-- Return to the original thread on phone Back and desktop app switching. Preserve thread history/read status across reload and resumed sessions. Handle missing/deleted entities gracefully without opening the wrong run.
-- Avoid duplicate threads/messages when an action is retried. Use stable identifiers and the existing command/event boundary.
-- Keep legacy entry points only where existing compatibility contracts require them; do not remove wrappers wholesale before route ownership is proven.
-- Keep mutations observable. Record command IDs, app/route, entity IDs, revisions and before/after hashes where the existing contract supports them. Mail-only UI state must not falsely advance simulation progression.
-- Use deterministic clock/RNG inputs for replayable actions. Include mailbox state in the existing replay/debug contract where needed; do not present a localStorage-only mailbox as automatically replayable from a simulation snapshot.
-- Defer broader approve/reject/delegate and executive-policy workflows to later slices unless needed for this exact journey. Document those gaps instead of pretending the entire original phase is complete.
+- Request clarification without funding, rejecting, or silently resolving the pending/delegated decision. Keep the same initiative and thread context.
+- Use canonical committee/person data and deterministic inputs for one bounded response; do not require a model backend or invent independent NPC state.
+- Record serializable commands, revisions, actor/reviewer identity, response/audit content and stable message IDs. Make duplicate and stale submissions safe.
+- Preserve approve/reject/delegate behavior, cash guards, exact-once receipts within one simulation state, source invalidation, old-save migration and interrupted Mail projection recovery.
+- Keep the distinction between single-player roles and real authentication. No claim of multi-tab or cross-device transaction coordination without implementing and testing it.
+- Do not broaden this PR into every request type, evidence attachment, executive policy, agent backend or phase cleanup. Document those gaps.
 
 ## Verification and release rules
 
-Reproduce the missing/broken journey first with a failing regression. Fix the owning layer, then prove it on desktop 1440×1000 and phone 390×844 using actual UI clicks and assertions. Do not use only direct global-function calls as evidence of user interaction. Cover thread reuse, correct entity deep link, return navigation, persistence and missing-entity behavior. Capture screenshots, trace, page errors and relevant event/state evidence. Add landscape/tablet/wide coverage when layout changes affect them.
+First add a failing regression for the missing behavior. Fix the owning layer. Prove phone 390×844 and desktop 1440×1000 using real UI clicks, not only direct global calls. Cover unchanged money/gate state, persistent history, exact retry behavior, stale entities/revisions, cross-app return and reload. Use the canonical five-viewports matrix for layout changes. Capture screenshots, traces, runtime errors and relevant event/state evidence even when a test fails.
 
-Use the pinned Playwright version. Run targeted tests, `npm run test:static`, `npm run build:site`, then the canonical `npm run test:rc` and `npm run test:signoff`. The canonical runner assigns `?frontieros=0` only to legacy gates; native gates retain the default shell. Do not globally force all tests into legacy mode. Preserve release blockers, the route/capture contracts, reviewed finite visual variants, performance budgets and browser/PWA/Scriptable asset parity. Never rebaseline screenshots just to make CI green.
+Replay from a starting simulation **and mailbox** snapshot with serialized commands and per-step hashes/first-divergence reporting. Do not claim general legacy simulation replay from a scoped domain harness. Preserve deterministic logical clock inputs; Mail-only rendering must not advance simulation progression.
 
-Verify deterministic replay from a snapshot/seed with serialized commands and first-divergence reporting for the added state-changing flow. If the current replay infrastructure cannot support it yet, explicitly document that gap rather than inventing a successful replay test. The manual requires no new runtime errors and relevant cross-app evidence. P0/P1 mobile issues need actual iPhone verification before final closure; emulation is not a physical-device sign-off.
+Run targeted tests, `npm run test:static`, `npm run build:site`, canonical `npm run test:rc`, and `npm run test:signoff`. The release runner assigns `?frontieros=0` only to legacy gates; native gates retain their shell. Preserve all blockers, route/capture contracts, reviewed finite screenshot variants, performance budgets, and browser/PWA/Scriptable asset parity. Never rebaseline screenshots merely to turn CI green. Include **Cross-device browser QA**, all check runs, commit statuses and latest workflow attempts when verifying the current PR revision.
 
-Work on a new branch from verified current `main`, or the existing follow-up branch only when finishing its own scope. Open a reviewable PR with the problem, behavioral changes, regression evidence and remaining limitations. Do not merge or publish just because tests passed; leave that final action to the user's requested scope. If dependencies or CI access are blocked, preserve the work and report exact unperformed checks.
+Physical iPhone touch, keyboard, scrolling and PWA sign-off remains manual. Emulation is not physical-device verification. Do not declare broad mobile/visual phases closed without their required evidence.
 
-End with: PR URL and SHAs, what changed, actual test results, deployment state, remaining manual verification, and the next single slice. Update this handoff with verified progress so another agent can resume without reconstructing everything again.
+Work on a new branch from verified current main, or finish the existing slice's branch. Open a reviewable PR documenting behavior, actual validation and limitations. Do not merge or deploy without user authorization. If dependencies or CI access are blocked, preserve the work and report exactly what remains unperformed.
+
+End with PR URL and tested SHA, changed behavior, actual checks, deployment state, remaining manual verification and the next single slice. Update this checkpoint so another agent can continue without reconstructing the work again.

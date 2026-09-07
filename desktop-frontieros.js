@@ -57,8 +57,9 @@
     const rec=windowRecord(id);if(!rec)return false;if(rec.minimized){rec.minimized=false;rec.el.hidden=false}
     if(runtime.activeApp!==id){suspendCurrent();runtime.activeApp=id}
     rec.el.style.zIndex=++runtime.z;$$('.frontieros-window',shell()).forEach(x=>x.classList.toggle('is-active',x===rec.el));
-    const payload=options.payload||((options.detail!=null)?{detail:options.detail}:{});
+    const payload=options.payload||((options.detail!=null)?{detail:options.detail}:(rec.payload||{}));
     if(relaunch){const result=await window.frontierLaunchApp?.(id,{surface:'desktop',source:options.source||'desktop-frontieros',payload,correlationId:options.correlationId});if(!result?.ok){showToast(`${window.frontierApp?.(id)?.label||id} could not be resumed.`);return false}}
+    rec.payload={...payload};
     const app=liveApp();const body=$('.frontieros-window-body',rec.el);
     // Focusing an already-active window happens on pointerdown. Replacing/rehosting
     // the live app between pointerdown and click cancels control clicks in Chromium.
@@ -71,6 +72,7 @@
     if(app.launchState!=='ready'){showToast(app.launchState==='planned'?`${app.label} is planned for a later FrontierOS phase.`:`${app.label} is locked${app.lockReason?`: ${app.lockReason}`:''}.`);window.frontierEmitEvent?.('os.desktop.app.blocked',{appId:id,status:app.launchState,reason:app.lockReason},{source:'desktop-frontieros'});return {ok:false,status:app.launchState}}
     closeStart();let rec=windowRecord(id);if(!rec)rec=makeWindow(app);
     const payload=options.payload||((options.detail!=null)?{detail:options.detail}:{});const result=await window.frontierLaunchApp?.(id,{surface:'desktop',source:options.source||'desktop-frontieros',payload,correlationId:options.correlationId});if(!result?.ok){showToast(`${app.label} could not be opened.`);return result}
+    rec.payload={...payload};
     suspendCurrent();runtime.activeApp=id;rec.minimized=false;rec.el.hidden=false;rec.el.style.zIndex=++runtime.z;$$('.frontieros-window',shell()).forEach(x=>x.classList.toggle('is-active',x===rec.el));
     const body=$('.frontieros-window-body',rec.el);const live=liveApp();if(live){body.innerHTML='';body.appendChild(live);live.hidden=false}$('[data-os-window-state]',rec.el).textContent='active';renderTasks();window.frontierEmitEvent?.('os.desktop.app.opened',{appId:id,via:result.via,detail:payload.detail??null,windowCount:runtime.windows.size},{source:'desktop-frontieros'});return result;
   }

@@ -35,4 +35,22 @@
     window.frontierEmitEvent?.('mail.advice.linked',delivered,{source:'frontier-mail-command',commandId:context.commandId,correlationId:context.correlationId});
     return {ok:true,status:'delivered',duplicate:false,...delivered};
   },{description:'Request canonical NPC incident advice in a persistent linked Mail thread',owner:'P5.3.1',replayable:true,idempotent:true});
+  window.frontierRegisterCommand?.('finance.funding.mail.request',(payload={},context={})=>{
+    if(typeof createFundingMailRequest!=='function'||typeof window.frontierMailSyncDecision!=='function')return {ok:false,status:'owner-unavailable'};
+    const result=createFundingMailRequest(String(payload.initiativeId||''),window.frontierMailNextLogicalStamp());
+    if(!result.ok){context.emit?.('finance.funding.request.denied',{initiativeId:payload.initiativeId,status:result.status});return result}
+    const mail=window.frontierMailSyncDecision(result.request);
+    context.emit?.('finance.funding.requested',{requestId:result.request.id,initiativeId:result.request.initiativeId,amountM:result.request.amountM,expectedStage:result.request.expectedStage,status:result.status,threadId:mail.threadId});
+    return {ok:true,status:result.status,requestId:result.request.id,threadId:mail.threadId};
+  },{source:'frontier-mail-command',description:'Request one Finance-owned funding tranche in Mail',replayable:true,idempotent:true});
+  window.frontierRegisterCommand?.('mail.decision.respond',(payload={},context={})=>{
+    const thread=window.frontierMailExport?.().threads.find(t=>t.id===payload.threadId),ref=thread?.decisionRequest;
+    if(ref?.type!=='finance.funding-gate'||typeof respondFundingMailRequest!=='function')return {ok:false,status:'unsupported-request'};
+    const result=respondFundingMailRequest({requestId:ref.id,action:payload.action,expectedRevision:payload.expectedRevision,delegateId:payload.delegateId});
+    if(!result.ok){context.emit?.('mail.decision.denied',{requestId:ref.id,threadId:thread.id,action:payload.action,status:result.status});return result}
+    let mailSynced=true;
+    try{window.frontierMailSyncDecision(result.request)}catch(error){mailSynced=false;context.emit?.('mail.decision.sync-failed',{requestId:ref.id,threadId:thread.id,error:String(error?.message||error)},{severity:'warn'})}
+    context.emit?.('finance.funding.responded',{requestId:ref.id,initiativeId:result.request.initiativeId,action:payload.action,status:result.status,requestRevision:result.request.revision,delegateId:result.request.delegateId});
+    return {ok:true,status:result.status,requestId:ref.id,threadId:thread.id,requestRevision:result.request.revision,mailSynced};
+  },{source:'frontier-mail-command',description:'Respond to a typed Mail request through its domain owner',replayable:true,idempotent:true});
 })();
