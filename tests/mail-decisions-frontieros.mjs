@@ -42,6 +42,7 @@ async function requestViaUi(page){
   return snap;
 }
 async function assertLayout(page,label){
+  assert.equal(await page.locator('.gameplay-bottom-nav:visible').count(),0,label+': legacy navigation overlays the native app');
   const layout=await page.locator('.fm-decision').evaluate(root=>({
     viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,
     controls:[...root.querySelectorAll('button,select')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,height:r.height}})

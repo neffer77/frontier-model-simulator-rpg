@@ -90,7 +90,7 @@
       (current.available&&!current.canApprove?'<p class="fm-decision-notice">Insufficient portfolio cash to approve. Reject and delegate remain available.</p>':'')+
       (ui.decisionError?'<p role="alert" class="fm-decision-notice">'+esc(ui.decisionError)+'</p>':'')+
       '<div class="fm-decision-actions">'+button('approve','Approve $'+r.amountM.toFixed(2)+'M',disabled||!current.canApprove?'disabled':'')+button('reject','Reject request',attr)+'</div>'+
-      '<label class="fm-decision-delegate">Committee reviewer<select data-fm-delegate '+attr+'><option value="">Choose a reviewer</option>'+current.delegates.map(e=>'<option value="'+esc(e.id)+'" '+(e.id===r.delegateId?'disabled':'')+'>'+esc(e.name)+'</option>').join('')+'</select></label>'+
+      '<label class="fm-decision-delegate">Committee reviewer<select aria-label="Committee reviewer" data-fm-delegate '+attr+'><option value="">Choose a reviewer</option>'+current.delegates.map(e=>'<option value="'+esc(e.id)+'" '+(e.id===r.delegateId?'disabled':'')+'>'+esc(e.name)+'</option>').join('')+'</select></label>'+
       button('delegate','Delegate review',attr)+'</aside>';
   }
   async function respondDecision(action,expectedRevision,delegateId){
