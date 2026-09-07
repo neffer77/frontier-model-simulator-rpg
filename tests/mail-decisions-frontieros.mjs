@@ -117,6 +117,7 @@ async function run(surface,full){
     for(const type of ['command.started','command.completed','finance.funding.requested','finance.funding.responded','mail.decision.link.opened'])assert(events.some(e=>e.type===type),label+': telemetry missing '+type);
     write(label+'-evidence.json',{events,bundle});report.evidence.push(label+'-evidence.json');
 
+    assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot())).current?.detail,'thread/'+before.thread.id,label+': window interaction erased the persisted thread route');
     await page.reload({waitUntil:'domcontentloaded'});
     await page.waitForFunction(id=>window.frontierMailSnapshot?.().threadId===id,before.thread.id);
     await waitStatus(page,'approved');
