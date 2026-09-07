@@ -17,7 +17,7 @@ const policy=JSON.parse(fs.readFileSync('release-gate-policy.json','utf8'));
 const workflow=fs.readFileSync('.github/workflows/npc-mail-frontieros.yml','utf8');
 const continuation=fs.readFileSync('docs/FRONTIEROS-CONTINUATION-PROMPT.md','utf8');
 
-for(const marker of ['SCHEMA=2','requestKey','linkedEntity','frontierMailExport','frontierMailImport','frontierMailReplaySnapshot','frontierMailFindRequest','frontierMailNextLogicalStamp','frontierMailLinkedIncidentAvailable','frontierMailOpenLinked','mail.advice.link.opened','incident-resolved','run-changed'])assert(mail.includes(marker),`Mail link/persistence contract missing ${marker}`);
+for(const marker of ['requestKey','linkedEntity','frontierMailExport','frontierMailImport','frontierMailReplaySnapshot','frontierMailFindRequest','frontierMailNextLogicalStamp','frontierMailLinkedIncidentAvailable','frontierMailOpenLinked','mail.advice.link.opened','incident-resolved','run-changed'])assert(mail.includes(marker),`Mail link/persistence contract missing ${marker}`);
 for(const marker of ['npc.advice.mail.request','askNpcDuringIncident','frontierMailFindRequest','npc.advice.mail.delivered','npc.advice.mail.reused','replayable:true','idempotent:true'])assert(adapter.includes(marker),`NPC Mail command contract missing ${marker}`);
 for(const marker of ['data-rm-ask-npc','frontierRunMonitorAskTeam','run-monitor.team.requested','frontierDispatchCommand','data-rm-return-mail','returnThreadId','frontieros://mail/thread/'])assert(run.includes(marker),`Run Monitor journey missing ${marker}`);
 assert(npc.includes('askNpcDuringIncident(id,options={})')&&npc.includes('options.inline!==false')&&npc.includes('options.render!==false'),'canonical NPC advice must support native non-legacy delivery');
@@ -32,9 +32,10 @@ assert.equal(pkg.scripts['test:npc-mail'],'node tests/npc-mail-domain.mjs && nod
 assert.equal(pkg.scripts['test:npc-mail-static'],'node tests/npc-mail-frontieros-static.mjs','NPC Mail static script missing');
 assert(pkg.scripts['test:static'].includes('tests/npc-mail-frontieros-static.mjs'),'NPC Mail static contract must be cumulative');
 assert(pkg.scripts['test:qa'].includes('tests/npc-mail-frontieros.mjs'),'NPC Mail browser journey must be cumulative');
-assert.equal(policy.version,15,'P5.3.1 must advance release policy to version 15');
+assert(policy.version>=15,'P5.3.1 requires release policy v15+');
+assert(Number(mail.match(/SCHEMA=(\d+)/)?.[1])>=2,'NPC Mail requires schema v2+');
 const gate=policy.gates.find(item=>item.id==='frontieros-npc-mail-journey');assert(gate,'release policy missing NPC Mail gate');assert.equal(gate.severity,'blocker');assert.equal(gate.script,'test:npc-mail');assert.equal(gate.evidence,'artifacts/npc-mail-frontieros/report.json');
 for(const marker of ['npm run test:npc-mail-static','npm run test:npc-mail','artifacts/npc-mail-frontieros','retention-days: 30'])assert(workflow.includes(marker),`NPC Mail workflow missing ${marker}`);
 const cache=sw.match(/CACHE='frontier-lab-v(\d+)'/);assert(cache&&Number(cache[1])>=49,`P5.3.1 requires PWA cache v49+; found ${cache?.[1]||'missing'}`);
 assert(continuation.includes('P5.3.1')&&continuation.includes('NPC → Mail'),'continuation prompt must record the completed vertical slice');
-console.log(JSON.stringify({npcMailStatic:'pass',schemaVersion:2,policyVersion:policy.version,pwaCache:`v${cache[1]}`,releaseBlocking:true},null,2));
+console.log(JSON.stringify({npcMailStatic:'pass',schemaVersion:Number(mail.match(/SCHEMA=(\d+)/)?.[1]),policyVersion:policy.version,pwaCache:`v${cache[1]}`,releaseBlocking:true},null,2));

@@ -106,7 +106,8 @@ jobs:
             artifacts/finance-frontieros/REPORT.md \
             artifacts/company-frontieros/REPORT.md \
             artifacts/knowledge-engineering-frontieros/REPORT.md \
-            artifacts/npc-mail-frontieros/REPORT.md; do
+            artifacts/npc-mail-frontieros/REPORT.md \
+            artifacts/mail-decisions/REPORT.md; do
             if [ -f "$report" ]; then
               cat "$report" >> "$GITHUB_STEP_SUMMARY"
               printf '\n' >> "$GITHUB_STEP_SUMMARY"
