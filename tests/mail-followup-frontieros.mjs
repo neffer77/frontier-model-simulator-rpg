@@ -41,7 +41,7 @@ async function run(v){
     assert.equal(after.thread.messages.at(-1).body,entry.followUp.response);assert.equal(after.thread.messages.at(-1).from,entry.followUp.reviewerName);
     assert(await page.locator('[data-fm-decision="follow-up"]').isDisabled());assert(!await page.locator('[data-fm-decision="approve"]').isDisabled());
     assert.equal(await page.locator('[data-fm-follow-up-status]').textContent(),'Explanation recorded below.');
-    await page.getByText(entry.followUp.response,{exact:true}).scrollIntoViewIfNeeded();await shot(page,name+'-response');
+    await page.locator('.fm-thread').getByText(entry.followUp.response,{exact:true}).scrollIntoViewIfNeeded();await shot(page,name+'-response');
     const payload={threadId:before.thread.id,action:'follow-up',expectedRevision:before.request.revision};
     assert.equal((await page.evaluate(p=>frontierDispatchCommand('mail.decision.respond',p),payload)).status,'reused');assert.deepEqual(await snapshot(page),after);
     const bundle=await page.evaluate(()=>frontierCreateDebugBundle({reason:'mail-followup-qa'}));
