@@ -45,11 +45,13 @@ async function assertLayout(page,label){
   assert.equal(await page.locator('.gameplay-bottom-nav:visible').count(),0,label+': legacy navigation overlays the native app');
   const layout=await page.locator('.fm-decision').evaluate(root=>({
     viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,
+    containerRight:root.closest('.frontieros-window-body')?.getBoundingClientRect().right||innerWidth,
     controls:[...root.querySelectorAll('button,select')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,height:r.height}})
   }));
   assert(layout.documentWidth<=layout.viewport+1,label+': document overflow '+JSON.stringify(layout));
   assert.equal(layout.controls.length,4,label+': missing decision controls');
   assert(layout.controls.every(r=>r.height>=44&&r.left>=-1&&r.right<=layout.viewport+1),label+': unreachable decision controls '+JSON.stringify(layout));
+  assert(layout.controls.every(r=>r.right<=layout.containerRight+1),label+': decision control escapes the desktop window');
   return layout;
 }
 async function run(surface,full){
