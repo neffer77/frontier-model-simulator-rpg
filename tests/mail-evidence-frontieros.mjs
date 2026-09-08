@@ -14,7 +14,7 @@ async function snapshot(page){return page.evaluate(()=>{
 })}
 async function shot(page,name){await page.screenshot({path:path.join(out,name+'.png'),fullPage:true});report.evidence.push(name+'.png')}
 async function layout(page,locator){
-  await locator.scrollIntoViewIfNeeded();const box=await locator.boundingBox();assert(box.height>=44);assert(box.x>=0);
+  await locator.scrollIntoViewIfNeeded();const box=await locator.boundingBox();assert(box.height>=44,'Target below 44px: '+JSON.stringify({text:await locator.textContent(),box}));assert(box.x>=0);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   assert.equal(await page.locator('.gameplay-bottom-nav:visible').count(),0);
   const bounds=await locator.evaluate(el=>({right:el.getBoundingClientRect().right,edge:el.closest('.frontieros-window-body')?.getBoundingClientRect().right||innerWidth}));
