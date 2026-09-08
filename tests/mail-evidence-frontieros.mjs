@@ -74,7 +74,9 @@ async function run(v){
     if(full){await page.reload({waitUntil:'domcontentloaded'});await page.locator('[data-a-evidence-status="available"]').waitFor({state:'visible'});assert.equal(await page.locator('[data-a-evidence-record]').textContent(),text)}
     await shot(page,name+'-historical');
     const bundle=await page.evaluate(()=>frontierCreateDebugBundle({reason:'mail-evidence-qa'}));
-    assert.deepEqual(bundle.state.investmentCommittee.mailRequests.find(r=>r.id===record.requestId).audit.find(a=>a.action==='attach-evidence').evidence,record);
+    assert.equal(bundle.state.investmentCommittee.mailRequests.find(r=>r.id===record.requestId).audit.find(a=>a.action==='attach-evidence').evidence.id,record.id);
+    assert.deepEqual(bundle.applicationState.financeEvidence.records.find(e=>e.id===record.id),record);
+    assert.deepEqual(bundle.reproduction.applicationState.financeEvidence.records.find(e=>e.id===record.id),record);
     const events=[...initialEvents,...await page.evaluate(()=>frontierEventJournal({limit:600}))];
     assert(events.some(e=>e.type==='artifacts.evidence.rendered'));assert(events.some(e=>e.type==='mail.evidence.opened'));
     write(name+'-evidence.json',{before,after,record,viewer,events,bundle});report.evidence.push(name+'-evidence.json');

@@ -35,6 +35,9 @@ try{
   assert.equal(respond(f,r,'attach-evidence',0).status,'reused');
   const exposed=f.c.fundingEvidenceSnapshot(r.requestId,e.id);exposed.initiative.name='Edited copy';exposed.scenarios[0].probability=0;
   assert.deepEqual(copy(f.c.fundingEvidenceSnapshot(r.requestId,e.id)),original,'Reader could mutate owner evidence');
+  assert.deepEqual(copy(f.c.fundingEvidenceArchive()),[original]);
+  f.c.fundingEvidenceArchive()[0].initiative.name='Changed exported copy';
+  assert.deepEqual(copy(f.c.fundingEvidenceArchive()),[original]);
   assert.equal(f.c.fundingEvidenceSnapshot('other',e.id),null);assert.equal(f.c.fundingEvidenceSnapshot(r.requestId,'other'),null);
   const delegated=fixture(),d=request(delegated);respond(delegated,d,'delegate',0,'priya');respond(delegated,d,'follow-up',1);
   assert.equal(respond(delegated,d,'attach-evidence',2).status,'delegated');assert.equal(ledger(delegated,d).delegateId,'priya');

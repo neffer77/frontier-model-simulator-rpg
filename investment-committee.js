@@ -43,6 +43,9 @@ function fundingEvidenceSnapshot(requestId,evidenceId){
   const e=r?.type===FUNDING_MAIL_TYPE?r.audit.find(a=>a.action==='attach-evidence'&&a.evidence?.id===evidenceId)?.evidence:null;
   return e?.type==='finance.funding-evidence'&&e.requestId===requestId?fundingCopy(e):null;
 }
+function fundingEvidenceArchive(){
+  return (state.investmentCommittee?.mailRequests||[]).flatMap(r=>(r.audit||[]).filter(a=>a.action==='attach-evidence'&&a.evidence).map(a=>fundingEvidenceSnapshot(r.id,a.evidence.id))).filter(Boolean);
+}
 function captureFundingEvidence(r){
   const ic=state.investmentCommittee,i=state.portfolioStrategy.initiatives.find(i=>i.id===r.initiativeId),g=ic.gates[i.id]||{stage:0,evidence:0,spentM:0};
   const initiative={id:i.id,name:i.name,theme:i.theme,status:i.status,costM:i.costM,fundedM:i.fundedM||0,risk:i.risk,upsideM:i.upsideM};
