@@ -62,4 +62,7 @@
   }
 
   window.replayCanonicalDefault=()=>({difficulty:'standard',archetype:'balanced',challenge:'generalist',perk:'none'});
+  // The prior script's animation frame can run before this script loads. Refresh
+  // its presentation after registering Balanced Lab and the canonical defaults.
+  window.replayFounderRefresh?.();
 })();
