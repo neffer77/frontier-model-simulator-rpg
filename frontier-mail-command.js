@@ -52,6 +52,7 @@
     try{window.frontierMailSyncDecision(result.request)}catch(error){mailSynced=false;context.emit?.('mail.decision.sync-failed',{requestId:ref.id,threadId:thread.id,error:String(error?.message||error)},{severity:'warn'})}
     context.emit?.('finance.funding.responded',{requestId:ref.id,initiativeId:result.request.initiativeId,action:payload.action,status:result.status,requestRevision:result.request.revision,delegateId:result.request.delegateId});
     if(payload.action==='follow-up'){const entry=result.request.audit.find(a=>a.action==='follow-up');context.emit?.('finance.funding.follow-up.recorded',{requestId:ref.id,threadId:thread.id,revision:entry.revision,reviewerId:entry.followUp.reviewerId,reused:result.status==='reused',mailSynced})}
+    if(payload.action==='attach-evidence'){const entry=result.request.audit.find(a=>a.action==='attach-evidence');context.emit?.('finance.funding.evidence.recorded',{requestId:ref.id,threadId:thread.id,revision:entry.revision,evidenceId:entry.evidence.id,reused:result.status==='reused',mailSynced})}
     return {ok:true,status:result.status,requestId:ref.id,threadId:thread.id,requestRevision:result.request.revision,mailSynced};
   },{source:'frontier-mail-command',description:'Respond to a typed Mail request through its domain owner',replayable:true,idempotent:true});
 })();

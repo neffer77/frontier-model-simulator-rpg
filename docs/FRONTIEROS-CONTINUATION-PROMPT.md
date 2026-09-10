@@ -1,4 +1,4 @@
-# FrontierOS continuation prompt — P5.3.3 Mail follow-up
+# FrontierOS continuation prompt — P5.3.4 Mail evidence
 
 Continue development of https://github.com/neffer77/frontier-model-simulator-rpg using the FrontierOS plan. Implement and validate one bounded vertical slice, preserving existing gameplay and saves. This is not `neffer77/l33t-interview-code` (Codeopolis).
 
@@ -7,7 +7,8 @@ Continue development of https://github.com/neffer77/frontier-model-simulator-rpg
 - PR #116 (native Knowledge + Engineering) and PR #117 (release-workflow repairs) are merged. Do not reopen or force-push their branches.
 - PR #118 / P5.3.1 **NPC → Mail → linked Run Monitor → same Mail thread** merged September 6, 2026. Tested PR head: `303472d999ea53301daab9de481f8f4db975256b`. Resulting `main`: `4efa51081e43dadc37ceddcc19fdb4b70b505215`. Cross-device run `34061713350` and Pages run `34061713333` passed at that main SHA.
 - PR #119 / P5.3.2 merged into `main` at `fb17096ea029cad91878762cbd0ca4d6eead73fb`. Tested PR head `8e8cd9b97fc648434ba4c50dd38faa5be45944fc` passed all 17 workflows, including release QA/sign-off. Verify the merge's Pages deployment separately.
-- P5.3.3 is implemented on `feature/frontieros-mail-followup`: one typed follow-up and deterministic committee explanation on the same funding request. Read `P5.3.3-MAIL-FOLLOWUP.md` and verify its PR/checks before treating it as merged. Mail schema v3 and committee schema v2 remain compatible; policy v17 and PWA cache v51 retain 15 apps, 190 routes and 255 captures.
+- PR #120 / P5.3.3 is merged into main at `594a0ada02fb4824a3c850c0652943d90c745f99`. Its tested head `a8a86d2009548b2fcc635297139048d80bcca89a` passed all 18 checks, including full release QA. One typed follow-up and its original committee explanation are already implemented.
+- P5.3.4 is implemented on `feature/frontieros-mail-evidence`: one immutable Finance evidence attachment and a read-only view in the existing Artifacts app. Read `P5.3.4-MAIL-EVIDENCE.md` and verify its PR/checks before treating it as merged. Mail schema v3 and committee schema v2 remain compatible; policy v18 and PWA cache v53 retain 15 apps, 190 routes and 255 captures.
 - Local browser dependency setup was blocked. The user approved GitHub Actions for remaining validation. Use pinned Playwright 1.54.2 in CI, retain failure evidence, and fix owning code/tests rather than weakening gates.
 
 ## Reconstruct live state first
@@ -26,13 +27,13 @@ The manual's phases cover telemetry, shells, Pager/Run Monitor, Mail/NPC communi
 
 Maintain a compact gap matrix: original requirement → implementation → test/evidence → remaining gap.
 
-## Next single slice after P5.3.3
+## Next single slice after P5.3.4
 
-After P5.3.3 is validated and merged, inspect the manual's evidence-attachment gap and implement **one immutable Finance evidence snapshot linked from the same Mail funding request**. Reuse existing artifact ownership and navigation if supported; first prove the remaining gap in current main. This is a proposed bounded continuation, not completion of the entire Mail phase.
+After P5.3.4 is validated and merged, inspect the remaining Mail request-triage gap and implement **one Needs decision view for Finance requests**, using canonical request availability and existing thread IDs. First confirm current main does not already support it. Pending/delegated actionable requests should be easy to find; completed or stale requests must not masquerade as actionable. Preserve ordinary inbox/archive behavior and exact request navigation. Do not add a second request ledger, notification scheduler or general workflow engine.
 
-Preserve the established owner ledger, thread identity, canonical monetary actions, revision conflicts, exact retries, recoverable Mail projection and deterministic snapshot/command replay. The attachment must capture its original evidence, remain readable after the initiative changes, and link back to the same request. No live mutable evidence masquerading as a historical snapshot. Avoid adding every attachment type, a backend, real multi-user permissions or a general workflow engine.
+P5.3.3 already saves one typed committee follow-up. P5.3.4 already saves one original Finance snapshot, projects a typed attachment into the same Mail thread, opens it read-only in Artifacts, and returns to the original request. Its historical content survives approval, changed assumptions, removed initiatives and reloads. Missing owner records remain explicitly unavailable. Do not recreate these flows or regenerate historical evidence from current data.
 
-P5.3.3 already provides a fixed typed rationale/risk question, one saved committee response per request, assigned-reviewer selection (otherwise first committee member), unchanged pending/delegated status and money, and stable question/response IDs. Do not recreate that flow or silently regenerate old explanations when reviewer/scenario data changes.
+Preserve the owner ledger, monetary actions, revision conflicts, exact retries, recoverable Mail projection and deterministic snapshot/command replay. These are bounded local-first slices, not completion of the entire Mail phase or real multi-user authentication.
 
 ## Verification and release rules
 

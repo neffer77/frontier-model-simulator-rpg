@@ -54,6 +54,9 @@
   function applicationStateSnapshot(){
     const applications={};
     try{if(typeof window.frontierMailReplaySnapshot==='function')applications.mail=window.frontierMailReplaySnapshot()}catch(error){applications.mail={error:safeText(error.message)}}
+    // Keep historical Finance inputs at a bounded, readable depth. The generic
+    // simulation summary deliberately truncates deeply nested audit objects.
+    try{if(typeof window.fundingEvidenceArchive==='function')applications.financeEvidence={schemaVersion:1,records:window.fundingEvidenceArchive()}}catch(error){applications.financeEvidence={error:safeText(error.message)}}
     return sanitize(applications);
   }
   function safeUrl(){

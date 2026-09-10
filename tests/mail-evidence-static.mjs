@@ -1,0 +1,15 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const read=f=>fs.readFileSync(f,'utf8'),owner=read('investment-committee.js'),mail=read('frontier-mail-frontieros.js'),adapter=read('command-adapters.js');
+const pkg=JSON.parse(read('package.json')),policy=JSON.parse(read('release-gate-policy.json')),workflow=read('.github/workflows/mail-evidence.yml');
+for(const token of ['fundingEvidenceSnapshot','captureFundingEvidence','evidence-already-recorded','canAttachEvidence','finance.funding-evidence'])assert(owner.includes(token));
+for(const token of ['Attach evidence','Open snapshot','data-fm-open-evidence','thread.attachments'])assert(mail.includes(token));
+for(const token of ['artifactEvidenceContext','artifactEvidenceRender','data-a-evidence-record',"status:'read-only'"])assert(adapter.includes(token));
+assert(read('frontier-mail-command.js').includes('finance.funding.evidence.recorded'));
+assert.equal(pkg.scripts['test:mail-evidence'],'node tests/mail-evidence-domain.mjs && node tests/mail-evidence-frontieros.mjs');
+assert(pkg.scripts['test:static'].includes('tests/mail-evidence-static.mjs'));assert(pkg.scripts['test:qa'].includes('tests/mail-evidence-frontieros.mjs'));
+const gate=policy.gates.find(g=>g.id==='frontieros-mail-evidence');assert(policy.version>=18);assert.equal(gate?.severity,'blocker');assert.equal(gate.script,'test:mail-evidence');assert.equal(gate.uiMode,undefined);assert.equal(gate.timeoutMs,120000);assert.equal(gate.evidence,'artifacts/mail-evidence/report.json');
+assert.equal(policy.semanticEvidence.routeCrawl.expectedVisits,190);assert.equal(policy.semanticEvidence.screenshotRegression.expectedCaptureCount,255);
+assert(mail.includes('SCHEMA=3'));assert(owner.includes('IC_VERSION=2'));assert(Number(read('sw.js').match(/CACHE='frontier-lab-v(\d+)'/)[1])>=52);
+for(const token of ['npm run test:mail-evidence-static','npm run test:mail-evidence','artifacts/mail-evidence-domain','retention-days: 30','if: always()'])assert(workflow.includes(token));
+assert(read('docs/P5.3.4-MAIL-EVIDENCE.md').includes('multi-tab'));assert(read('docs/FRONTIEROS-CONTINUATION-PROMPT.md').includes('P5.3.4'));
+console.log(JSON.stringify({mailEvidenceStatic:'pass',policyVersion:policy.version,releaseBlocking:true},null,2));

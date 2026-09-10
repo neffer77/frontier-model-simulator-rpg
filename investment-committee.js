@@ -33,7 +33,29 @@ function fundingMailStatus(id){
   let reason=!i?'initiative-missing':['approved','rejected'].includes(r.status)?'already-decided':fundingSource(i)!==r.sourceVersion?'initiative-changed':null;
   const reviewer=r.delegateId?delegates.find(e=>e.id===r.delegateId):delegates[0];
   const followUpRecorded=r.audit.some(a=>a.action==='follow-up');
-  return {available:!reason,reason,request:fundingCopy(r),delegates,canApprove:!reason&&Number.isFinite(state.cash)&&state.cash>=r.amountM*1e6,entityAvailable:!!i,canFollowUp:!reason&&!followUpRecorded&&!!reviewer,followUpRecorded,followUpReviewerId:reviewer?.id||null};
+  const evidenceRecorded=r.audit.some(a=>a.action==='attach-evidence');
+  return {available:!reason,reason,request:fundingCopy(r),delegates,canApprove:!reason&&Number.isFinite(state.cash)&&state.cash>=r.amountM*1e6,entityAvailable:!!i,canFollowUp:!reason&&!followUpRecorded&&!!reviewer,followUpRecorded,followUpReviewerId:reviewer?.id||null,canAttachEvidence:!reason&&!evidenceRecorded,evidenceRecorded};
+}
+// P5.3.4: historical records belong to Finance. Readers receive copies of the
+// original audit entry and never regenerate evidence from a live initiative.
+function fundingEvidenceSnapshot(requestId,evidenceId){
+  const r=fundingMailRequest(requestId);
+  const e=r?.type===FUNDING_MAIL_TYPE?r.audit.find(a=>a.action==='attach-evidence'&&a.evidence?.id===evidenceId)?.evidence:null;
+  return e?.type==='finance.funding-evidence'&&e.requestId===requestId?fundingCopy(e):null;
+}
+function fundingEvidenceArchive(){
+  return (state.investmentCommittee?.mailRequests||[]).flatMap(r=>(r.audit||[]).filter(a=>a.action==='attach-evidence'&&a.evidence).map(a=>fundingEvidenceSnapshot(r.id,a.evidence.id))).filter(Boolean);
+}
+function captureFundingEvidence(r){
+  const ic=state.investmentCommittee,i=state.portfolioStrategy.initiatives.find(i=>i.id===r.initiativeId),g=ic.gates[i.id]||{stage:0,evidence:0,spentM:0};
+  const initiative={id:i.id,name:i.name,theme:i.theme,status:i.status,costM:i.costM,fundedM:i.fundedM||0,risk:i.risk,upsideM:i.upsideM};
+  const gate={stage:g.stage,spentM:g.spentM,evidence:g.evidence};
+  const scenarios=Object.entries(SCENARIOS).map(([id,s])=>({id,name:s.name,probability:ic.scenarios[id]??s.prob,themeMultiplier:s.themeBoost[i.theme]||1}));
+  const estimates={scenarioEV:scenarioEV(i),optionValue:optionValue(i)};
+  const values=[r.amountM,r.expectedStage,i.costM,initiative.fundedM,i.risk,i.upsideM,...Object.values(gate),...Object.values(estimates),...scenarios.flatMap(s=>[s.probability,s.themeMultiplier])];
+  if(!values.every(Number.isFinite)||scenarios.some(s=>s.probability<0||s.probability>1))return null;
+  const revision=r.revision+1;
+  return {schemaVersion:1,type:'finance.funding-evidence',id:'EVID-'+r.id+'-'+revision,requestId:r.id,requestRevision:revision,capturedDay:state.day||1,capturedAt:r.createdAt+revision,sourceVersion:r.sourceVersion,request:{amountM:r.amountM,expectedStage:r.expectedStage,status:r.status},initiative,gate,scenarios,estimates};
 }
 function fundingExplanation(request,reviewerId){
   const i=state.portfolioStrategy.initiatives.find(i=>i.id===request.initiativeId),reviewer=state.npcEmployees.find(e=>e.id===reviewerId);
@@ -62,7 +84,7 @@ function createFundingMailRequest(initiativeId,at){
 function respondFundingMailRequest({requestId,action,expectedRevision,delegateId=null}={}){
   const r=fundingMailRequest(requestId);
   if(!r||r.type!==FUNDING_MAIL_TYPE)return {ok:false,status:'request-missing'};
-  if(!['approve','reject','delegate','follow-up'].includes(action)||!Number.isInteger(expectedRevision)||expectedRevision<0)return {ok:false,status:'invalid-response'};
+  if(!['approve','reject','delegate','follow-up','attach-evidence'].includes(action)||!Number.isInteger(expectedRevision)||expectedRevision<0)return {ok:false,status:'invalid-response'};
   delegateId=action==='delegate'?String(delegateId||''):null;
   const prior=r.audit.find(a=>a.revision===expectedRevision+1);
   if(prior&&prior.action===action&&prior.delegateId===delegateId)return {ok:true,status:'reused',request:fundingCopy(r)};
@@ -78,14 +100,20 @@ function respondFundingMailRequest({requestId,action,expectedRevision,delegateId
     try{followUp=fundingExplanation(r,live.followUpReviewerId)}catch(error){return {ok:false,status:'evidence-unavailable'}}
     if(!followUp)return {ok:false,status:'evidence-unavailable'};
   }
+  let evidence=null;
+  if(action==='attach-evidence'){
+    if(live.evidenceRecorded)return {ok:false,status:'evidence-already-recorded'};
+    try{evidence=captureFundingEvidence(r)}catch(error){return {ok:false,status:'evidence-unavailable'}}
+    if(!evidence)return {ok:false,status:'evidence-unavailable'};
+  }
   // One synchronous transaction saves the money, receipt and audit together. No
   // legacy render/ensure chain runs here: those chains advance portfolio progress.
   const previous={cash:state.cash,committee:fundingCopy(state.investmentCommittee),portfolio:fundingCopy(state.portfolioStrategy)};
   try{
     if(action==='approve'&&!gateInitiative(r.initiativeId,'fund',{native:true,deferSave:true}))return {ok:false,status:'funding-denied'};
-    r.revision++;if(action!=='follow-up')r.status=action==='approve'?'approved':action==='reject'?'rejected':'delegated';
+    r.revision++;if(!['follow-up','attach-evidence'].includes(action))r.status=action==='approve'?'approved':action==='reject'?'rejected':'delegated';
     if(action==='delegate')r.delegateId=delegateId;
-    r.audit.push({revision:r.revision,action,actor:'player',delegateId,delegateName:action==='delegate'?live.delegates.find(e=>e.id===delegateId).name:null,day:state.day||1,at:r.createdAt+r.revision,...(followUp?{followUp}:{})});
+    r.audit.push({revision:r.revision,action,actor:'player',delegateId,delegateName:action==='delegate'?live.delegates.find(e=>e.id===delegateId).name:null,day:state.day||1,at:r.createdAt+r.revision,...(followUp?{followUp}:{}),...(evidence?{evidence}:{})});
     if(action==='approve')Object.assign(state.investmentCommittee.decisions.at(-1),{requestId:r.id,requestRevision:r.revision});
     save();return {ok:true,status:r.status,request:fundingCopy(r)};
   }catch(error){state.cash=previous.cash;state.investmentCommittee=previous.committee;state.portfolioStrategy=previous.portfolio;throw error}
