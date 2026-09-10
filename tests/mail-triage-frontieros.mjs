@@ -34,7 +34,7 @@ async function run(v){
    state.portfolioStrategy.initiatives.find(i=>i.id===id+'-stale').risk+=.1;
    state.investmentCommittee.mailRequests=state.investmentCommittee.mailRequests.filter(r=>r.id!==results.missing.requestId);evaluatePortfolioStrategy();save();return results;
   },id);
-  await page.getByRole('button',{name:'Archive',exact:true}).click();await page.getByRole('button',{name:'Back to message list',exact:true}).click();
+  await page.getByRole('button',{name:'Archive',exact:true}).click();assert.equal((await page.evaluate(()=>frontierMailSnapshot())).threadId,null,'Archiving from Inbox returns to the list');
   const before=await finance(page),triage=page.locator('[data-fm-folder="needs-decision"]');await target(page,triage);await triage.click();
   await page.waitForFunction(()=>frontierOsSessionSnapshot().current.detail==='needs-decision');
   const snap=await page.evaluate(()=>frontierMailSnapshot());assert.equal(snap.counts['needs-decision'],2);assert.deepEqual(new Set(snap.visibleThreadIds),new Set([original.threadId,fixtures.delegated.threadId]));assert.deepEqual(await finance(page),before);
