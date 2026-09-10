@@ -3,3 +3,5 @@
 .frontieros-window .frontier-mail{grid-template-columns:140px minmax(200px,260px) minmax(0,1fr)}.fm-detail .fm-linked button{flex-shrink:0}
 .fm-follow-up{margin-top:16px;padding-top:14px;border-top:1px solid #42667b}.fm-follow-up p{margin-bottom:0}
 .fm-detail .fm-attachment button{min-height:44px}.fm-attachment>div{min-width:0;overflow-wrap:anywhere}
+.frontier-mail .fm-sidebar button{min-height:44px;gap:8px;white-space:normal}.fm-sidebar button span{min-width:0}.fm-triage-help{margin:0;color:#9db0c7;font:13px/1.5 system-ui,sans-serif}
+@media(max-width:1100px){.frontieros-mobile-app-open .frontier-mail{align-content:start}}

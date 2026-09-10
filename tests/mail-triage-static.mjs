@@ -1,0 +1,11 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const read=f=>fs.readFileSync(f,'utf8'),pkg=JSON.parse(read('package.json')),policy=JSON.parse(read('release-gate-policy.json'));
+assert.equal(pkg.scripts['test:mail-triage'],'node tests/mail-triage-domain.mjs && node tests/mail-triage-frontieros.mjs');
+assert(pkg.scripts['test:static'].includes('tests/mail-triage-static.mjs'));assert(pkg.scripts['test:qa'].includes('tests/mail-triage-frontieros.mjs'));
+const gate=policy.gates.find(g=>g.id==='frontieros-mail-triage');assert(policy.version>=19);assert.equal(gate?.severity,'blocker');assert.equal(gate.script,'test:mail-triage');assert.equal(gate.uiMode,undefined);assert.equal(gate.timeoutMs,120000);assert.equal(gate.evidence,'artifacts/mail-triage/report.json');
+assert.equal(policy.semanticEvidence.routeCrawl.expectedVisits,190);assert.equal(policy.semanticEvidence.screenshotRegression.expectedCaptureCount,255);
+const workflow=read('.github/workflows/mail-triage.yml');for(const token of ['npm run test:mail-triage-static','npm run test:mail-triage','artifacts/mail-triage-domain','retention-days: 30','if: always()'])assert(workflow.includes(token));
+assert(read('.github/workflows/browser-qa.yml').includes('artifacts/mail-triage/REPORT.md'));
+assert(Number(read('sw.js').match(/CACHE='frontier-lab-v(\d+)'/)[1])>=54);
+assert(read('docs/P5.3.5-MAIL-TRIAGE.md').includes('archived'));assert(read('docs/FRONTIEROS-CONTINUATION-PROMPT.md').includes('P5.3.5'));
+console.log(JSON.stringify({mailTriageStatic:'pass',policyVersion:policy.version,releaseBlocking:true},null,2));

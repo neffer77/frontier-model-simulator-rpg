@@ -1,4 +1,4 @@
-# FrontierOS continuation prompt — P5.3.4 Mail evidence
+# FrontierOS continuation prompt — P5.3.5 Mail triage
 
 Continue development of https://github.com/neffer77/frontier-model-simulator-rpg using the FrontierOS plan. Implement and validate one bounded vertical slice, preserving existing gameplay and saves. This is not `neffer77/l33t-interview-code` (Codeopolis).
 
@@ -8,7 +8,8 @@ Continue development of https://github.com/neffer77/frontier-model-simulator-rpg
 - PR #118 / P5.3.1 **NPC → Mail → linked Run Monitor → same Mail thread** merged September 6, 2026. Tested PR head: `303472d999ea53301daab9de481f8f4db975256b`. Resulting `main`: `4efa51081e43dadc37ceddcc19fdb4b70b505215`. Cross-device run `34061713350` and Pages run `34061713333` passed at that main SHA.
 - PR #119 / P5.3.2 merged into `main` at `fb17096ea029cad91878762cbd0ca4d6eead73fb`. Tested PR head `8e8cd9b97fc648434ba4c50dd38faa5be45944fc` passed all 17 workflows, including release QA/sign-off. Verify the merge's Pages deployment separately.
 - PR #120 / P5.3.3 is merged into main at `594a0ada02fb4824a3c850c0652943d90c745f99`. Its tested head `a8a86d2009548b2fcc635297139048d80bcca89a` passed all 18 checks, including full release QA. One typed follow-up and its original committee explanation are already implemented.
-- P5.3.4 is implemented on `feature/frontieros-mail-evidence`: one immutable Finance evidence attachment and a read-only view in the existing Artifacts app. Read `P5.3.4-MAIL-EVIDENCE.md` and verify its PR/checks before treating it as merged. Mail schema v3 and committee schema v2 remain compatible; policy v18 and PWA cache v53 retain 15 apps, 190 routes and 255 captures.
+- PR #121 / P5.3.4 merged at `03644df18544a349bd956f3d1c458cb8b630f0e0`. Tested head `20e1990c624334160c8c6f357bd9dbbc577c4ec9` passed all 19 workflows, 190 routes, 255 screenshots and release sign-off. Its immutable Finance evidence and founder initialization fix are implemented. Verify the merge deployment independently.
+- P5.3.5 is implemented on `feature/frontieros-mail-triage`: a canonical Needs decision Mail view, including archived actionable requests, search and exact-thread navigation. Read `P5.3.5-MAIL-TRIAGE.md` and verify its PR/checks before treating it as merged. Policy v19 and PWA cache v55 retain 15 apps, 190 routes and 255 captures; Mail v3 and committee v2 remain compatible.
 - Local browser dependency setup was blocked. The user approved GitHub Actions for remaining validation. Use pinned Playwright 1.54.2 in CI, retain failure evidence, and fix owning code/tests rather than weakening gates.
 
 ## Reconstruct live state first
@@ -27,9 +28,9 @@ The manual's phases cover telemetry, shells, Pager/Run Monitor, Mail/NPC communi
 
 Maintain a compact gap matrix: original requirement → implementation → test/evidence → remaining gap.
 
-## Next single slice after P5.3.4
+## Next single slice after P5.3.5
 
-After P5.3.4 is validated and merged, inspect the remaining Mail request-triage gap and implement **one Needs decision view for Finance requests**, using canonical request availability and existing thread IDs. First confirm current main does not already support it. Pending/delegated actionable requests should be easy to find; completed or stale requests must not masquerade as actionable. Preserve ordinary inbox/archive behavior and exact request navigation. Do not add a second request ledger, notification scheduler or general workflow engine.
+After P5.3.5 is validated and merged, inspect Needs decision rows and add **canonical decision status and assigned-reviewer context**. Pending/delegated requests already appear in the triage view using Finance availability; archived requests remain archived, and stale/closed requests are excluded. Do not recreate that view. The next slice should help distinguish awaiting-founder decisions from delegated review without opening every thread. Read the Finance owner for status/reviewer identity; preserve missing-reviewer handling, current availability, existing IDs, search, historical evidence and monetary invariants. Do not add row-level approvals, a second ledger, notifications or a general workflow engine.
 
 P5.3.3 already saves one typed committee follow-up. P5.3.4 already saves one original Finance snapshot, projects a typed attachment into the same Mail thread, opens it read-only in Artifacts, and returns to the original request. Its historical content survives approval, changed assumptions, removed initiatives and reloads. Missing owner records remain explicitly unavailable. Do not recreate these flows or regenerate historical evidence from current data.
 
