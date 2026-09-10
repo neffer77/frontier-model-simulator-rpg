@@ -31,3 +31,5 @@ body:has(.gameplay-bottom-nav){padding-bottom:calc(var(--gameplay-nav-h) + 28px)
 }
 
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.gameplay-bottom-nav button,.gameplay-objective button{transition:none!important}}
+/* Session restoration can leave an earlier legacy navigation frame mounted. */
+body:has(#app [data-frontieros-native-app]) > .gameplay-bottom-nav,body:has(#app [data-frontieros-native-app]) > .gameplay-more-sheet{display:none!important}
