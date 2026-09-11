@@ -4,4 +4,5 @@
 .fm-follow-up{margin-top:16px;padding-top:14px;border-top:1px solid #42667b}.fm-follow-up p{margin-bottom:0}
 .fm-detail .fm-attachment button{min-height:44px}.fm-attachment>div{min-width:0;overflow-wrap:anywhere}
 .frontier-mail .fm-sidebar button{min-height:44px;gap:8px;white-space:normal}.fm-sidebar button span{min-width:0}.fm-triage-help{margin:0;color:#9db0c7;font:13px/1.5 system-ui,sans-serif}
+.fm-row-decision{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-top:8px;min-width:0;white-space:normal;overflow-wrap:anywhere}.fm-row-decision-label{max-width:100%;box-sizing:border-box;border:1px solid #355c78;border-radius:5px;padding:3px 6px;background:#102c42;color:#b8e6ff;font:600 11px/1.4 system-ui,sans-serif}.fm-row-decision[data-fm-row-status="delegated"] .fm-row-decision-label{border-color:#63507e;background:#251d39;color:#e0cef8}.fm-row-reviewer{max-width:100%;color:#b4c7db;font:12px/1.5 system-ui,sans-serif}.fm-row-reviewer[data-fm-reviewer-status="unavailable"]{color:#f6d79c}
 @media(max-width:1100px){.frontieros-mobile-app-open .frontier-mail{align-content:start}}
