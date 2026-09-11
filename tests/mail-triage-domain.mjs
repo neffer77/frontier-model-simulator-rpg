@@ -21,22 +21,52 @@ try{
   const start=copy(c.state),mail=copy(c.frontierMailExport());
   assert.equal(c.frontierMailFolder('needs-decision'),true,'Missing Needs decision Mail view');
   const snap=c.frontierMailSnapshot();assert.equal(snap.counts['needs-decision'],2);
+  const summary=id=>copy(c.frontierMailSnapshot().threads.find(t=>t.id===id)?.decisionSummary??null);
+  assert.deepEqual(summary(pending.threadId),{status:'pending',label:'Awaiting your decision',reviewer:null},'Pending rows must expose canonical decision context');
+  assert.deepEqual(summary(delegated.threadId),{status:'delegated',label:'Delegated review',reviewer:{id:'maya',name:'Maya Chen',available:true}});
+  for(const r of [approved,rejected,stale,missing,orphan])assert.equal(summary(r.threadId),null,'Unavailable rows must not advertise an actionable decision');
+  assert.equal(summary('unsupported'),null);
   assert.deepEqual(new Set(snap.visibleThreadIds),new Set([pending.threadId,delegated.threadId]));
   assert.equal(snap.counts.archive,2,'Triage must preserve archive membership');
   assert.deepEqual(copy(c.state),start,'Reading triage changed Finance');assert.deepEqual(copy(c.frontierMailExport()),mail,'Reading triage rewrote Mail');
   c.state.cash=0;assert.equal(c.frontierMailSnapshot().counts['needs-decision'],2,'Reject remains actionable without approval cash');
+  assert.equal(summary(pending.threadId).label,'Awaiting your decision');
+  const originalNames=copy(c.state.npcEmployees),committeeIds=copy(c.state.investmentCommittee.committeeIds);
+  c.state.npcEmployees.find(e=>e.id==='maya').name='Maya <b>Current name</b>';
+  const renamedState=copy(c.state);assert.equal(summary(delegated.threadId).reviewer.name,'Maya <b>Current name</b>');
+  assert.deepEqual(copy(c.state),renamedState,'Reading the current reviewer mutated Finance or People');
+  assert.deepEqual(copy(c.frontierMailExport()),mail,'A renamed reviewer rewrote historical messages');
+  c.state.investmentCommittee.committeeIds=['priya'];
+  assert.deepEqual(summary(delegated.threadId).reviewer,{id:'maya',name:null,available:false});
+  assert.equal(c.frontierMailSnapshot().counts['needs-decision'],2,'A missing reviewer must not hide an otherwise actionable request');
+  c.state.investmentCommittee.committeeIds=committeeIds;
+  c.state.npcEmployees=c.state.npcEmployees.filter(e=>e.id!=='maya');
+  assert.equal(summary(delegated.threadId).reviewer.available,false,'A removed employee must be unavailable even if the committee still references the ID');
+  c.state.npcEmployees=originalNames;
+  const reassignment={threadId:delegated.threadId,action:'delegate',expectedRevision:1,delegateId:'priya'};
+  c.failMail=true;const reassigned=call('mail.decision.respond',reassignment);c.failMail=false;
+  assert(reassigned.ok&&!reassigned.mailSynced,'Fixture must leave the owner saved and Mail projection unsynced');
+  const afterReassignment=copy(c.state),unsyncedMail=copy(c.frontierMailExport());
+  assert.deepEqual(summary(delegated.threadId).reviewer,{id:'priya',name:'Priya Rao',available:true},'Rows must read the owner even when Mail still contains the previous assignment');
+  assert.deepEqual(copy(c.state),afterReassignment);assert.deepEqual(copy(c.frontierMailExport()),unsyncedMail);
+  assert.equal(call('mail.decision.respond',reassignment).status,'reused');
+  assert.deepEqual(copy(c.state),afterReassignment,'Projection recovery must not repeat the delegation');
+  report.reviewerContext={canonical:true,currentNames:true,missingReviewer:true,projectionRecovery:true,pureReads:true};
   c.frontierMailOpen({detail:'thread/'+delegated.threadId+'/from/needs-decision'});
   assert.equal(c.frontierMailSnapshot().threadId,delegated.threadId);assert.equal(c.frontierMailSnapshot().folder,'needs-decision');
   assert.equal(c.frontierMailExport().threads.find(t=>t.id===delegated.threadId).archived,true);
   c.frontierMailFolder('inbox');assert(!c.frontierMailSnapshot().visibleThreadIds.includes(delegated.threadId));
   c.frontierMailFolder('archive');assert(c.frontierMailSnapshot().visibleThreadIds.includes(delegated.threadId));
   const baseline={state:copy(c.state),mail:copy(c.frontierMailExport())};
-  const sequence=[{name:'mail.open',payload:{detail:'needs-decision'}},{name:'mail.decision.respond',payload:{threadId:pending.threadId,action:'reject',expectedRevision:0}},{name:'mail.open',payload:{detail:'needs-decision'}},{name:'mail.decision.respond',payload:{threadId:pending.threadId,action:'reject',expectedRevision:0}}];
-  function replay(){const f=fixture();f.c.state=copy(baseline.state);f.c.frontierMailImport(copy(baseline.mail));return sequence.map((step,index)=>{const result=f.commands.get(step.name)(step.payload,{emit(){}});return {index,...step,result:copy(result),hash:hash({state:f.c.state,mail:f.c.frontierMailExport(),triage:f.c.frontierMailSnapshot()})}})}
+  const delegateStep={name:'mail.decision.respond',payload:{threadId:pending.threadId,action:'delegate',delegateId:'priya',expectedRevision:0}};
+  const rejectStep={name:'mail.decision.respond',payload:{threadId:pending.threadId,action:'reject',expectedRevision:1}};
+  const sequence=[{name:'mail.open',payload:{detail:'needs-decision'}},delegateStep,{name:'mail.open',payload:{detail:'needs-decision'}},delegateStep,rejectStep,{name:'mail.open',payload:{detail:'needs-decision'}},rejectStep];
+  function replay(){const f=fixture();f.c.state=copy(baseline.state);f.c.frontierMailImport(copy(baseline.mail));return sequence.map((step,index)=>{const result=f.commands.get(step.name)(step.payload,{emit(){}}),triage=f.c.frontierMailSnapshot();return {index,...step,result:copy(result),context:copy(triage.threads.find(t=>t.id===pending.threadId).decisionSummary),hash:hash({state:f.c.state,mail:f.c.frontierMailExport(),triage})}})}
   const a=replay(),b=replay();report.hashes=a;report.firstDivergence=a.findIndex((x,i)=>x.hash!==b[i].hash);if(report.firstDivergence===-1)report.firstDivergence=null;assert.equal(report.firstDivergence,null);assert.equal(a.at(-1).result.status,'reused');assert.equal(a.at(-1).hash,a.at(-2).hash);
+  assert.equal(a[1].context.status,'delegated');assert.equal(a[1].context.reviewer.id,'priya');assert.equal(a[3].hash,a[2].hash);assert.equal(a.at(-1).context,null);
   assert(respond(pending,'reject').ok);assert.equal(c.frontierMailSnapshot().counts['needs-decision'],1);
   c.state.investmentCommittee.mailRequests.find(r=>r.id===delegated.requestId).status='cancelled';assert.equal(c.frontierMailSnapshot().counts['needs-decision'],0);
   c.fundingMailStatus=undefined;c.frontierMailFolder('needs-decision');assert.equal(c.frontierMailSnapshot().visibleThreadIds.length,0,'Missing owner must not offer decisions');
-  report.status='pass';console.log('Mail triage: canonical availability, archived requests, missing/stale guards, pure reads and deterministic replay passed');
+  report.status='pass';console.log('Mail triage: canonical availability, decision/reviewer context, archived requests, missing/stale guards, pure reads and deterministic replay passed');
 }catch(error){report.status='fail';report.error=String(error.stack||error);throw error}
 finally{fs.writeFileSync(out+'/report.json',JSON.stringify(report,null,2)+'\n')}
