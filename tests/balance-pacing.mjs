@@ -1,13 +1,13 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
+import {foundLabAndDismissIntro} from './helpers/founder-story.mjs';
 
 const url=process.env.TEST_URL||'http://127.0.0.1:4173/';
 const browser=await chromium.launch({headless:true});
 const page=await browser.newPage({viewport:{width:1280,height:900}});
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(url,{waitUntil:'networkidle'});
-const found=page.getByRole('button',{name:/found the lab/i});if(await found.count())await found.click();
-for(let i=0;i<8&&await page.locator('.story-overlay').count();i++){const next=page.locator('.story-overlay button.primary');if(await next.count())await next.click();else break;await page.waitForTimeout(30)}
+await foundLabAndDismissIntro(page);
 
 const initial=await page.evaluate(()=>balanceReport());
 assert(initial.resources.monthlyBurnM>0,'monthly burn must be positive');
