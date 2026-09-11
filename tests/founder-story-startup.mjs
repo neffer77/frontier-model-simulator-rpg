@@ -9,7 +9,8 @@ fs.mkdirSync(out,{recursive:true});
 const cases=[
   {name:'desktop',width:1280,height:900,delayMs:0},
   {name:'desktop-delayed',width:1280,height:900,delayMs:150},
-  {name:'phone-delayed',width:390,height:844,delayMs:150},
+  // Native phone Home is an app launcher, not the legacy founder screen.
+  {name:'phone-legacy-delayed',width:390,height:844,delayMs:150,uiMode:'legacy'},
   {name:'blocked-skip',width:1280,height:900,delayMs:150,blockSkip:true}
 ];
 const browser=await chromium.launch({headless:true}),results=[];
@@ -17,7 +18,7 @@ try{
   for(const scenario of cases){
     const context=await browser.newContext({viewport:{width:scenario.width,height:scenario.height},isMobile:scenario.width<500,hasTouch:scenario.width<500});
     await context.tracing.start({screenshots:true,snapshots:true,sources:true});
-    const page=await context.newPage(),errors=[],result={name:scenario.name,delayMs:scenario.delayMs,pass:false};
+    const page=await context.newPage(),errors=[],result={name:scenario.name,uiMode:scenario.uiMode||'default',delayMs:scenario.delayMs,pass:false};
     page.on('pageerror',error=>errors.push(error.message));
     await page.addInitScript(({delayMs,blockSkip})=>{
       const probe=window.__storyStartup={pendingFrames:0,delayedFrames:0,skipClicks:0,before:null};
@@ -34,7 +35,9 @@ try{
       };
     },scenario);
     try{
-      await page.goto(url,{waitUntil:'networkidle'});
+      const scenarioUrl=new URL(url);
+      if(scenario.uiMode==='legacy')scenarioUrl.searchParams.set('frontieros','0');
+      await page.goto(scenarioUrl.href,{waitUntil:'networkidle'});
       if(scenario.blockSkip){
         await assert.rejects(foundLabAndDismissIntro(page,{timeout:2000}),error=>error.name==='TimeoutError','an unclosed story must fail startup');
       }else await foundLabAndDismissIntro(page);
