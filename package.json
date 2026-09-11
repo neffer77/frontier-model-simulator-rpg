@@ -7,7 +7,7 @@
     "setup:browser":"playwright install chromium",
     "test:browser":"node tests/browser-smoke.mjs",
     "test:balance":"node tests/balance-pacing.mjs",
-    "test:realism":"node tests/technical-realism.mjs",
+    "test:realism":"node tests/founder-story-startup.mjs && node tests/technical-realism.mjs",
     "test:replay":"node tests/replay-founder-startup.mjs && node tests/replayability.mjs",
     "test:theme":"node tests/theme-tokens.mjs",
     "test:firewall":"node tests/browser-default-firewall.mjs",
