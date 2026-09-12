@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {fixture} from './helpers/mail-decision-fixture.mjs';
 const copy=x=>JSON.parse(JSON.stringify(x));
@@ -80,6 +81,19 @@ try{
     assert.deepEqual({state:copy(f.c.state),mail:copy(f.c.frontierMailExport())},saved,'Cross-app navigation changed simulation or Mail history');
   }
   report.returnFolders={routes,pureReads:true};
+  const p=fixture();p.c.ensureProgramLearning=()=>{};
+  vm.runInContext(fs.readFileSync('portfolio-strategy.js','utf8'),p.c,{filename:'portfolio-strategy.js'});
+  Object.assign(p.c.state.portfolioStrategy,{theme:'balanced',history:[],reviewScore:.6});
+  Object.assign(p.c.state.portfolioStrategy.initiatives[0],{status:'funded',fundedM:.6,progress:10});
+  const savedPortfolio=copy(p.c.state);
+  for(let n=0;n<3;n++){p.c.ensurePortfolioStrategy();p.c.render()}
+  assert.deepEqual(copy(p.c.state),savedPortfolio,'Portfolio initialization/render must not advance a saved initiative');
+  p.c.state=copy(savedPortfolio);p.c.ensurePortfolioStrategy();assert.deepEqual(copy(p.c.state),savedPortfolio,'Restoring a save must not advance the portfolio');
+  p.c.reviewInitiative('IN-001','continue');
+  assert(p.c.state.portfolioStrategy.initiatives[0].progress>savedPortfolio.portfolioStrategy.initiatives[0].progress,'Explicit Continue must still progress the initiative');
+  assert.equal(p.c.state.portfolioStrategy.history.at(-1).type,'initiative.continue');assert.equal(p.c.state.cash,savedPortfolio.cash);
+  const afterContinue=copy(p.c.state);p.c.render();assert.deepEqual(copy(p.c.state),afterContinue);
+  report.portfolioReads={savedStatePreserved:true,explicitContinue:true};
   report.status='pass';console.log('Mail triage: canonical context, folder return routes, pure reads and deterministic replay passed');
 }catch(error){report.status='fail';report.error=String(error.stack||error);throw error}
 finally{fs.writeFileSync(out+'/report.json',JSON.stringify(report,null,2)+'\n')}

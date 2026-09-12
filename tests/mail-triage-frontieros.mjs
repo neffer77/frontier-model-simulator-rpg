@@ -108,6 +108,7 @@ async function run(v){
   assert.equal((await page.evaluate(()=>frontierMailSnapshot())).threadId,original.threadId,'Decision must not switch to another request');
   assert.equal((await page.evaluate(()=>frontierMailSnapshot())).counts['needs-decision'],1);
   assert.equal((await finance(page)).cash,before.cash-600000);await shot(page,v.id+'-decided');
+  await returnAfterReload(page,'Open Finance',original.threadId,'needs-decision');
   await returnAfterReload(page,'Open snapshot',original.threadId,'needs-decision');
   assert.equal((await page.evaluate(()=>frontierMailSnapshot())).counts['needs-decision'],1,'Returning to a closed request must not restore it to triage');
   await page.getByRole('button',{name:'Back to message list',exact:true}).click();

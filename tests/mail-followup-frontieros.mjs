@@ -52,7 +52,7 @@ async function run(v){
     if(full){
       await page.getByRole('button',{name:'Open Finance',exact:true}).click();await page.getByRole('button',{name:'← Back to request',exact:true}).click();
       assert.equal((await snapshot(page)).thread.id,after.thread.id);
-      assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot())).current.detail,'thread/'+after.thread.id);
+      assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot())).current.detail,'thread/'+after.thread.id+'/from/inbox');
       await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(id=>window.frontierMailSnapshot?.().threadId===id,after.thread.id);
       assert.equal((await snapshot(page)).thread.messages.at(-1).body,entry.followUp.response);assert(await page.locator('[data-fm-decision="follow-up"]').isDisabled());
       await page.getByRole('button',{name:'Approve $0.60M',exact:true}).click();await page.locator('[data-fm-decision-status="approved"]').waitFor({state:'visible'});
