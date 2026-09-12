@@ -23,6 +23,40 @@ f.context.ensureNpcTeam();const beforeInvalid=JSON.stringify(f.context.state);as
 const first=request();assert.equal(first.ok,true);const before=JSON.stringify(f.context.state);const second=request();assert.equal(second.threadId,first.threadId);assert.equal(JSON.stringify(f.context.state),before,'Retry changed NPC state');
 let box=f.context.frontierMailExport();let thread=box.threads.find(t=>t.id===first.threadId);assert.equal(thread.messages.length,1);assert.equal(thread.linkedEntity.incidentRecordId,'INC-0001');assert.equal(thread.linkedEntity.view,'data');assert.equal(f.context.state.npcEmployees[0].incidentsHelped,1);assert.equal(f.context.state.workstation.npcSubview,undefined);
 assert.equal(f.context.frontierMailLinkedIncidentAvailable(first.threadId),true);
+// Navigation must carry folder context without changing simulation or saved advice.
+const routes=[];f.context.frontierOsNavigate=(app,options)=>{routes.push({app,...options});return{ok:true}};
+for(const folder of ['inbox','needs-decision','unread','starred','archive']){
+ f.context.frontierMailOpen({detail:`thread/${first.threadId}/from/${folder}`});
+ const saved=JSON.stringify({state:f.context.state,mail:f.context.frontierMailExport()});
+ await f.context.frontierMailOpenLinked(first.threadId);
+ assert.equal(routes.at(-1).detail,`nan/data/return/${first.threadId}/from/${folder}`,'Run route lost originating folder');
+ assert.equal(JSON.stringify({state:f.context.state,mail:f.context.frontierMailExport()}),saved,'Link navigation mutated saved state');
+}
+// Exercise the actual Run Monitor parser and Back control, including old links.
+f.context.WORKSTATION_CASES={nan:{}};
+let click;
+f.context.document.getElementById=()=>({innerHTML:'',querySelector:()=>({addEventListener:(type,handler)=>{click=handler}})});
+vm.runInContext(fs.readFileSync('run-monitor-frontieros.js','utf8'),f.context);
+const savedRun=JSON.stringify(f.context.state);
+for(const folder of ['inbox','needs-decision','unread','starred','archive']){
+ f.context.frontierRunMonitorOpen({detail:`nan/data/return/${first.threadId}/from/${folder}`});
+ const run=f.context.frontierRunMonitorSnapshot();assert.equal(run.returnFolder,folder);assert.equal(run.incidentId,'nan');assert.equal(run.view,'data');
+ await click({target:{closest:selector=>selector==='[data-rm-return-mail]'?{dataset:{rmReturnMail:first.threadId}}:null}});
+ assert.equal(routes.at(-1).app,`frontieros://mail/thread/${first.threadId}/from/${folder}`);
+}
+f.context.frontierRunMonitorOpen({detail:`nan/data/return/${first.threadId}`});
+assert.equal(f.context.frontierRunMonitorSnapshot().returnFolder,null,'Legacy link retained unrelated folder');
+await click({target:{closest:()=>({dataset:{rmReturnMail:first.threadId}})}});
+assert.equal(routes.at(-1).app,`frontieros://mail/thread/${first.threadId}`);
+f.context.frontierRunMonitorOpen({detail:'nan/data/return/thread%2Fwith%20space/from/archive'});
+assert.equal(f.context.frontierRunMonitorSnapshot().returnThreadId,'thread/with space');
+await click({target:{closest:()=>({dataset:{rmReturnMail:'thread/with space'}})}});
+assert.equal(routes.at(-1).app,'frontieros://mail/thread/thread%2Fwith%20space/from/archive');
+for(const detail of ['nan/data','%invalid']){
+ f.context.frontierRunMonitorOpen({detail});assert.equal(f.context.frontierRunMonitorSnapshot().returnThreadId,null);assert.equal(f.context.frontierRunMonitorSnapshot().returnFolder,null);
+}
+assert.equal(JSON.stringify(f.context.state),savedRun,'Run navigation mutated canonical state');
+f.context.document.getElementById=()=>null;
 f.context.state.activeRun.name='DIFFERENT-RUN';assert.equal(f.context.frontierMailLinkedIncidentAvailable(first.threadId),false);f.context.state.activeRun.name='NOVA-1';
 f.context.state.organization.incidents[0].status='resolved';assert.equal(f.context.frontierMailLinkedIncidentAvailable(first.threadId),false);f.context.state.organization.incidents[0].status='open';
 f.context.state.organization.incidents=[];assert.equal(f.context.frontierMailLinkedIncidentAvailable(first.threadId),false);
