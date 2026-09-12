@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 const out=path.resolve('artifacts/mail-triage');fs.mkdirSync(out,{recursive:true});
-const report={version:2,item:'P5.3.6',status:'running',surfaces:{},pageErrors:[]};
+const report={version:3,item:'P5.3.7',status:'running',surfaces:{},pageErrors:[]};
 const write=(name,data)=>fs.writeFileSync(path.join(out,name),JSON.stringify(data,null,2)+'\n');
 const matrix=JSON.parse(fs.readFileSync('visual-qa/responsive-matrix.json','utf8')).viewports;
 const shot=(page,name)=>page.screenshot({path:path.join(out,name+'.png'),fullPage:true});
@@ -24,6 +24,16 @@ async function rowContext(page,id,status,name=null){
  return row;
 }
 let browser;
+async function returnAfterReload(page,button,threadId,folder){
+ const before=await finance(page),mail=await page.evaluate(()=>frontierMailExport());
+ await page.getByRole('button',{name:button,exact:true}).click();
+ await page.getByRole('button',{name:'← Back to request',exact:true}).waitFor({state:'visible'});
+ assert((await page.evaluate(()=>frontierOsSessionSnapshot().current.detail)).endsWith('/from/'+folder),'Cross-app route lost Mail origin');
+ await page.reload({waitUntil:'domcontentloaded'});
+ const back=page.getByRole('button',{name:'← Back to request',exact:true});await back.waitFor({state:'visible'});await target(page,back);await back.click();
+ await page.waitForFunction(({threadId,folder})=>frontierMailSnapshot().threadId===threadId&&frontierMailSnapshot().folder===folder,{threadId,folder});
+ assert.deepEqual(await finance(page),before,'Reload/return changed Finance');assert.deepEqual(await page.evaluate(()=>frontierMailExport()),mail,'Reload/return changed Mail history');
+}
 async function run(v){
  const context=await browser.newContext({viewport:{width:v.width,height:v.height},isMobile:v.isMobile,hasTouch:v.hasTouch});
  await context.tracing.start({screenshots:true,snapshots:true,sources:true});const page=await context.newPage();page.setDefaultTimeout(12000);
@@ -82,26 +92,38 @@ async function run(v){
   await page.waitForFunction(id=>frontierOsSessionSnapshot().current.detail==='thread/'+id+'/from/needs-decision',original.threadId);
   await page.reload({waitUntil:'domcontentloaded'});await page.locator('[data-fm-decision-status="pending"]').waitFor({state:'visible'});
   assert.equal((await page.evaluate(()=>frontierMailSnapshot())).folder,'needs-decision');
-  await page.getByRole('button',{name:'Open Finance',exact:true}).click();await page.getByRole('button',{name:'← Back to request',exact:true}).click();
+  await returnAfterReload(page,'Open Finance',original.threadId,'needs-decision');
   assert.equal((await page.evaluate(()=>frontierMailSnapshot())).threadId,original.threadId);
-  await page.getByRole('button',{name:'Open snapshot',exact:true}).click();await page.locator('[data-a-evidence-status="available"]').waitFor({state:'visible'});await page.getByRole('button',{name:'← Back to request',exact:true}).click();
+  await returnAfterReload(page,'Open snapshot',original.threadId,'needs-decision');
+  await page.getByRole('button',{name:'Back to message list',exact:true}).click();assert.equal((await page.evaluate(()=>frontierMailSnapshot())).folder,'needs-decision');await row.click();
+  const legacy=await page.evaluate(()=>{const t=frontierMailExport().threads.find(t=>t.id===frontierMailSnapshot().threadId),a=t.attachments[0];return [{app:'finance',detail:['initiative',t.linkedEntity.initiativeId,'return',t.id].map(encodeURIComponent).join('/')},{app:'artifacts',detail:['finance-evidence',a.requestId,a.id,'return',t.id].map(encodeURIComponent).join('/')} ]});
+  for(const route of legacy){
+   await page.evaluate(({app,detail})=>frontierOsNavigate(app,{detail}),route);await page.getByRole('button',{name:'← Back to request',exact:true}).waitFor({state:'visible'});
+   await page.reload({waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'← Back to request',exact:true}).click();
+   await page.waitForFunction(id=>frontierMailSnapshot().threadId===id,original.threadId);assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot().current.detail)),'thread/'+original.threadId,'Legacy links retain the plain-thread route');
+  }
+  await page.getByRole('button',{name:'Back to message list',exact:true}).click();await triage.click();await row.click();
   assert.deepEqual(await finance(page),before,'Triage and cross-app reads changed Finance');
   const approve=page.getByRole('button',{name:'Approve $0.60M',exact:true});await target(page,approve);await approve.click();await page.locator('[data-fm-decision-status="approved"]').waitFor({state:'visible'});
   assert.equal((await page.evaluate(()=>frontierMailSnapshot())).threadId,original.threadId,'Decision must not switch to another request');
   assert.equal((await page.evaluate(()=>frontierMailSnapshot())).counts['needs-decision'],1);
   assert.equal((await finance(page)).cash,before.cash-600000);await shot(page,v.id+'-decided');
+  await returnAfterReload(page,'Open snapshot',original.threadId,'needs-decision');
+  assert.equal((await page.evaluate(()=>frontierMailSnapshot())).counts['needs-decision'],1,'Returning to a closed request must not restore it to triage');
   await page.getByRole('button',{name:'Back to message list',exact:true}).click();
   await page.locator('[data-fm-thread="'+fixtures.delegated.threadId+'"]').click();await page.locator('[data-fm-decision-status="delegated"]').waitFor({state:'visible'});
   await page.getByRole('button',{name:'Reject request',exact:true}).click();await page.locator('[data-fm-decision-status="rejected"]').waitFor({state:'visible'});
   await page.getByRole('button',{name:'Back to message list',exact:true}).click();assert.equal(await page.locator('[data-fm-thread]').count(),0);assert((await page.locator('.fm-empty').textContent()).includes('No Finance requests need a decision'));await shot(page,v.id+'-empty');
   const archive=page.locator('[data-fm-folder="archive"]');await target(page,archive);await archive.click();assert.equal(await page.locator('[data-fm-row-status]').count(),0);await page.locator('[data-fm-thread="'+original.threadId+'"]').click();
   assert.equal((await page.evaluate(()=>frontierMailSnapshot())).threadId,original.threadId);assert(await page.getByRole('button',{name:'Move to inbox',exact:true}).isVisible());assert(await page.getByRole('button',{name:'Open snapshot',exact:true}).isVisible());
+  await returnAfterReload(page,'Open snapshot',original.threadId,'archive');await page.getByRole('button',{name:'Back to message list',exact:true}).click();
+  assert.equal((await page.evaluate(()=>frontierMailSnapshot())).folder,'archive');assert(await page.locator('[data-fm-thread="'+original.threadId+'"]').isVisible());await shot(page,v.id+'-archive-return');
   const evidence=await page.evaluate(()=>({mail:frontierMailExport(),view:frontierMailSnapshot(),state,events:frontierEventJournal({limit:600}),bundle:frontierCreateDebugBundle({reason:'mail-triage-qa'})}));write(v.id+'-evidence.json',evidence);
-  report.surfaces[v.id]={status:'pass',canonicalFiltering:true,canonicalReviewer:true,reassignment:true,currentNameEscaping:true,longNameWrapping:true,missingReviewer:true,archivedRequestVisible:true,search:true,reload:true,crossAppReturn:true,closedSelectionPreserved:true,historyPreserved:true};
+  report.surfaces[v.id]={status:'pass',canonicalFiltering:true,canonicalReviewer:true,reassignment:true,currentNameEscaping:true,longNameWrapping:true,missingReviewer:true,archivedRequestVisible:true,search:true,reload:true,crossAppReturn:true,crossAppReloadFolder:true,legacyReturnLinks:true,archiveReturn:true,closedSelectionPreserved:true,historyPreserved:true};
  }catch(error){report.surfaces[v.id]={status:'fail',error:String(error.stack||error)};await shot(page,v.id+'-failure').catch(()=>{});write(v.id+'-failure.json',await page.evaluate(()=>({state,mail:window.frontierMailExport?.(),view:window.frontierMailSnapshot?.(),events:window.frontierEventJournal?.({limit:600})})).catch(()=>({unavailable:true})));fs.writeFileSync(path.join(out,v.id+'-failure.html'),await page.content().catch(()=>''));throw error}
  finally{await context.tracing.stop({path:path.join(out,v.id+'-trace.zip')});await context.close()}
 }
 try{browser=await chromium.launch({headless:true});for(const v of matrix)await run(v);assert.equal(report.pageErrors.length,0,report.pageErrors.join(' | '));report.status='pass'}
 catch(error){report.status='fail';report.error=String(error.stack||error);throw error}
-finally{await browser?.close();write('report.json',report);fs.writeFileSync(path.join(out,'REPORT.md'),'# P5.3.6 Mail decision and reviewer context\n\nStatus: **'+report.status.toUpperCase()+'**\n\nFive canonical viewports: actual triage, search, archive, request, reassignment, decision and cross-app return clicks; canonical reviewer labels, missing reviewers, escaped long names, reload and unchanged historical evidence. Screenshots, traces and state/events retained on failure and success.\n\nPhysical iPhone/PWA verification remains manual.\n'+(report.error||''))}
+finally{await browser?.close();write('report.json',report);fs.writeFileSync(path.join(out,'REPORT.md'),'# P5.3.7 Mail folder context across app reloads\n\nStatus: **'+report.status.toUpperCase()+'**\n\nFive canonical viewports: actual triage, search, archive, request, reassignment, decision and cross-app return clicks; Finance/Artifacts reloads retain the original thread and folder, including closed requests and Archive. Legacy return links remain supported. Canonical reviewer labels, missing reviewers, escaped long names and unchanged historical evidence remain checked. Screenshots, traces and state/events retained on failure and success.\n\nPhysical iPhone/PWA verification remains manual.\n'+(report.error||''))}
 console.log('Mail triage cross-device journeys passed');
