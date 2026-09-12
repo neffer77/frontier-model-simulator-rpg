@@ -66,3 +66,18 @@ const invoke=x=>x.commands.get('npc.advice.mail.request')(JSON.parse(JSON.string
 assert.equal(invoke(a).threadId,invoke(b).threadId);assert.equal(JSON.stringify(a.context.state),JSON.stringify(b.context.state),'Simulation diverged on command 1');assert.equal(JSON.stringify(a.context.frontierMailExport()),JSON.stringify(b.context.frontierMailExport()),'Mailbox diverged on command 1');
 const migrated=fixture();migrated.storage.set('frontier.os.mail.v1',JSON.stringify({schemaVersion:1,nextId:2,threads:[{id:'m1',from:'Legacy',subject:'Preserve me',updatedAt:10,messages:[{id:'old',from:'Legacy',at:10,body:'Still here'}]}]}));const migratedBox=migrated.context.frontierMailExport();assert.equal(migratedBox.schemaVersion,3);assert.equal(migratedBox.threads[0].messages[0].body,'Still here');assert.equal(migratedBox.threads[0].linkedEntity,null);
 console.log('NPC Mail domain: delivery, idempotency, stale links and deterministic replay passed');
+
+// Career workload is a projection of the canonical workload, not a feedback loop.
+const career=fixture();vm.runInContext(fs.readFileSync('career.js','utf8').replace(/\nrender\(\);\s*$/, ''),career.context);
+career.context.ensureCareerState();const employee=career.context.state.npcEmployees[0];
+employee.workload=35;career.context.updateWorkloadState(employee);
+assert.equal(employee.workload,35,'Career projection rewrote canonical workload');
+const careerSaved=JSON.stringify(career.context.state);
+for(let n=0;n<3;n++)career.context.ensureCareerState();
+assert.equal(JSON.stringify(career.context.state),careerSaved,'Career initialization compounded workload');
+const consult=career.commands.get('npc.advice.mail.request');consult(payload,{emit(){}});
+assert.equal(employee.workload,39,'Advice must add its workload exactly once');
+const afterConsult=JSON.stringify(career.context.state);career.context.ensureCareerState();
+assert.equal(JSON.stringify(career.context.state),afterConsult,'Reload changed consultation workload');
+consult(payload,{emit(){}});assert.equal(JSON.stringify(career.context.state),afterConsult,'Retry changed consultation workload');
+console.log('Career workload projection and advice reload/retry preservation passed');

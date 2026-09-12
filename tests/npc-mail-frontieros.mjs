@@ -44,7 +44,7 @@ async function runJourney(surface,viewport,device={}){
   await page.evaluate(()=>{localStorage.clear();sessionStorage.clear()});
   await page.reload({waitUntil:'networkidle'});
   await page.evaluate(()=>{
-    state.started=true;state.day=8;state.activeRun={name:'NOVA-LINK',tier:'7b',progress:44,phase:'pretraining',physics:{steps:1000,batch:1048576,tokens:1048576000,flops:1.2e20,gpuHours:240},startedDay:8,loss:1.928,incident:'nan'};state.selectedIncident='nan';state.workstation=newWorkstation('nan');ensureIncidentRecord('nan');save();
+    state.started=true;state.cash=30000000;state.day=8;state.activeRun={name:'NOVA-LINK',tier:'7b',progress:44,phase:'pretraining',physics:{steps:1000,batch:1048576,tokens:1048576000,flops:1.2e20,gpuHours:240},startedDay:8,loss:1.928,incident:'nan'};state.selectedIncident='nan';state.workstation=newWorkstation('nan');ensureIncidentRecord('nan');modelLabCaptureActiveRun();save();
   });
   const opened=await page.evaluate(()=>frontierOsNavigate('training',{detail:'nan/data',source:'npc-mail-qa'}));
   assert.equal(opened.ok,true,`${surface}: Run Monitor did not open`);
