@@ -63,7 +63,7 @@ async function run(v){
     }
     await back.click();await page.getByRole('button',{name:'Open snapshot',exact:true}).waitFor({state:'visible'});
     assert.equal((await snapshot(page)).thread.id,after.thread.id);
-    assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot())).current.detail,'thread/'+after.thread.id);
+    assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot())).current.detail,'thread/'+after.thread.id+'/from/inbox');
     await page.getByRole('button',{name:full?'Approve $0.60M':'Reject request',exact:true}).click();
     await page.locator('[data-fm-decision-status="'+(full?'approved':'rejected')+'"]').waitFor({state:'visible'});
     const decided=await snapshot(page);assert.equal(decided.cash,after.cash-(full?600000:0));assert.equal(decided.request.audit.filter(a=>a.action==='attach-evidence').length,1);
