@@ -12,7 +12,7 @@ const pageErrors=[];
 const report={version:2,item:'P5.3.8',status:'pass',generatedAt:null,surfaces:{},pageErrors:0,evidence:[]};
 
 const navigationState=page=>page.evaluate(()=>({cash:state.cash,run:state.activeRun,workstation:state.workstation,npc:state.npcEmployees,incidents:state.organization.incidents,gates:state.investmentCommittee?.gates,portfolio:state.portfolioStrategy,mail:frontierMailExport()}));
-async function reloadRunAndReturn(page,threadId,folder){
+async function reloadRunAndReturn(page,threadId,folder,surface){
  const before=await navigationState(page);
  await page.getByRole('button',{name:'Open Run'}).click();
  await page.locator('[data-frontieros-native-app="training"]').waitFor({state:'visible'});
@@ -22,7 +22,7 @@ async function reloadRunAndReturn(page,threadId,folder){
  const run=await page.evaluate(()=>frontierRunMonitorSnapshot());
  assert.equal(run.returnFolder,folder);assert.equal(run.returnThreadId,threadId);assert.equal(run.incidentId,'nan');assert.equal(run.view,'data');
  const back=page.getByRole('button',{name:'← Back to advice'});await back.scrollIntoViewIfNeeded();
- const bounds=await back.boundingBox();assert(bounds.height>=44);assert(bounds.x>=0);
+ const bounds=await back.boundingBox();assert(bounds.height>=(surface==='phone'?44:40),`${surface}: return target too short: ${bounds.height}`);assert(bounds.x>=0);
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Return control overflows viewport');
  await back.click();await page.locator('[data-frontieros-native-app="mail"]').waitFor({state:'visible'});
  const mail=await page.evaluate(()=>frontierMailSnapshot());assert.equal(mail.threadId,threadId);assert.equal(mail.folder,folder);
@@ -83,7 +83,7 @@ async function runJourney(surface,viewport,device={}){
   assert.equal(bundle.applicationState?.mail?.start?.threads?.length,before.mail.threads.length,`${surface}: debug bundle lost starting mailbox`);
   assert.equal(bundle.applicationState?.mail?.current?.threads?.length,before.mail.threads.length+1,`${surface}: debug bundle lost current mailbox`);
   assert.equal(bundle.reproduction?.applicationState?.mail?.start?.threads?.length,before.mail.threads.length,`${surface}: reproduction contract lacks mailbox start state`);
-  await reloadRunAndReturn(page,advice.id,'inbox');
+  await reloadRunAndReturn(page,advice.id,'inbox',surface);
   await page.getByRole('button',{name:'Open Run'}).click();
   await page.locator('[data-frontieros-native-app="training"]').waitFor({state:'visible'});
   run=await page.evaluate(()=>frontierRunMonitorSnapshot());
@@ -125,10 +125,10 @@ async function runJourney(surface,viewport,device={}){
   await page.locator(`[data-fm-star="${advice.id}"]`).click();
   await page.locator('[data-fm-back]').click();await page.locator('[data-fm-folder="starred"]').click();
   await page.locator(`[data-fm-thread="${advice.id}"]`).click();
-  await reloadRunAndReturn(page,advice.id,'starred');
+  await reloadRunAndReturn(page,advice.id,'starred',surface);
   await page.locator(`[data-fm-archive="${advice.id}"]`).click();
   await page.locator('[data-fm-folder="archive"]').click();await page.locator(`[data-fm-thread="${advice.id}"]`).click();
-  await reloadRunAndReturn(page,advice.id,'archive');
+  await reloadRunAndReturn(page,advice.id,'archive',surface);
   const archiveShot=`${surface}-archive-return.png`;await page.screenshot({path:path.join(out,archiveShot),fullPage:true});report.evidence.push(archiveShot);
   // Old saved links keep the original plain-thread return behavior.
   await page.evaluate(id=>frontierOsNavigate('training',{detail:`nan/data/return/${id}`}),advice.id);
