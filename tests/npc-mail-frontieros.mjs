@@ -9,19 +9,42 @@ fs.rmSync(out,{recursive:true,force:true});
 fs.mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
 const pageErrors=[];
-const report={version:1,item:'P5.3.1',status:'pass',generatedAt:null,surfaces:{},pageErrors:0,evidence:[]};
+const report={version:2,item:'P5.3.8',status:'pass',generatedAt:null,surfaces:{},pageErrors:0,evidence:[]};
+
+const navigationState=page=>page.evaluate(()=>({cash:state.cash,run:state.activeRun,workstation:state.workstation,npc:state.npcEmployees,incidents:state.organization.incidents,gates:state.investmentCommittee?.gates,portfolio:state.portfolioStrategy,mail:frontierMailExport()}));
+async function reloadRunAndReturn(page,threadId,folder,surface){
+ const before=await navigationState(page);
+ await page.getByRole('button',{name:'Open Run'}).click();
+ await page.locator('[data-frontieros-native-app="training"]').waitFor({state:'visible'});
+ assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot())).current.detail,`nan/data/return/${threadId}/from/${folder}`);
+ await page.reload({waitUntil:'networkidle'});
+ await page.locator('[data-frontieros-native-app="training"]').waitFor({state:'visible'});
+ const run=await page.evaluate(()=>frontierRunMonitorSnapshot());
+ assert.equal(run.returnFolder,folder);assert.equal(run.returnThreadId,threadId);assert.equal(run.incidentId,'nan');assert.equal(run.view,'data');
+ const back=page.getByRole('button',{name:'← Back to advice'});await back.scrollIntoViewIfNeeded();
+ const bounds=await back.boundingBox();assert(bounds.height>=(surface==='phone'?44:40),`${surface}: return target too short: ${bounds.height}`);assert(bounds.x>=0);
+ assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Return control overflows viewport');
+ await back.click();await page.locator('[data-frontieros-native-app="mail"]').waitFor({state:'visible'});
+ const mail=await page.evaluate(()=>frontierMailSnapshot());assert.equal(mail.threadId,threadId);assert.equal(mail.folder,folder);
+ assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot())).current.detail,`thread/${threadId}/from/${folder}`);
+ assert.deepEqual(await navigationState(page),before,'Run reload/return changed saved simulation or advice');
+ await page.locator('[data-fm-back]').click();
+ assert.equal((await page.evaluate(()=>frontierMailSnapshot())).folder,folder);
+ await page.locator(`[data-fm-thread="${threadId}"]`).click();
+}
 
 async function runJourney(surface,viewport,device={}){
   const context=await browser.newContext({viewport,...device});
   await context.tracing.start({screenshots:true,snapshots:true,sources:true});
   const page=await context.newPage();
   page.on('pageerror',error=>pageErrors.push(`${surface}: ${String(error?.stack||error)}`));
+  try{
   const query=surface==='phone'?'?frontieros=1':'?frontieros=desktop';
   await page.goto(`${base}${query}`,{waitUntil:'networkidle'});
   await page.evaluate(()=>{localStorage.clear();sessionStorage.clear()});
   await page.reload({waitUntil:'networkidle'});
   await page.evaluate(()=>{
-    state.started=true;state.day=8;state.activeRun={name:'NOVA-LINK',tier:'7b',progress:44,phase:'pretraining',physics:{steps:1000,batch:1048576,tokens:1048576000,flops:1.2e20,gpuHours:240},startedDay:8,loss:1.928,incident:'nan'};state.selectedIncident='nan';state.workstation=newWorkstation('nan');ensureIncidentRecord('nan');save();
+    state.started=true;state.cash=30000000;state.day=8;state.activeRun={name:'NOVA-LINK',tier:'7b',progress:44,phase:'pretraining',physics:{steps:1000,batch:1048576,tokens:1048576000,flops:1.2e20,gpuHours:240},startedDay:8,loss:1.928,incident:'nan'};state.selectedIncident='nan';state.workstation=newWorkstation('nan');ensureIncidentRecord('nan');modelLabCaptureActiveRun();save();
   });
   const opened=await page.evaluate(()=>frontierOsNavigate('training',{detail:'nan/data',source:'npc-mail-qa'}));
   assert.equal(opened.ok,true,`${surface}: Run Monitor did not open`);
@@ -60,6 +83,7 @@ async function runJourney(surface,viewport,device={}){
   assert.equal(bundle.applicationState?.mail?.start?.threads?.length,before.mail.threads.length,`${surface}: debug bundle lost starting mailbox`);
   assert.equal(bundle.applicationState?.mail?.current?.threads?.length,before.mail.threads.length+1,`${surface}: debug bundle lost current mailbox`);
   assert.equal(bundle.reproduction?.applicationState?.mail?.start?.threads?.length,before.mail.threads.length,`${surface}: reproduction contract lacks mailbox start state`);
+  await reloadRunAndReturn(page,advice.id,'inbox',surface);
   await page.getByRole('button',{name:'Open Run'}).click();
   await page.locator('[data-frontieros-native-app="training"]').waitFor({state:'visible'});
   run=await page.evaluate(()=>frontierRunMonitorSnapshot());
@@ -97,14 +121,38 @@ async function runJourney(surface,viewport,device={}){
   const afterReload=await page.evaluate(()=>frontierMailSnapshot());
   assert.equal(afterReload.threadId,advice.id,`${surface}: reload lost selected advice thread`);
   assert.equal(afterReload.threads.find(thread=>thread.id===advice.id)?.messageCount,1,`${surface}: reload lost or duplicated advice`);
+  // A starred and then archived thread must survive destination reloads in place.
+  await page.locator(`[data-fm-star="${advice.id}"]`).click();
+  await page.locator('[data-fm-back]').click();await page.locator('[data-fm-folder="starred"]').click();
+  await page.locator(`[data-fm-thread="${advice.id}"]`).click();
+  await reloadRunAndReturn(page,advice.id,'starred',surface);
+  await page.locator(`[data-fm-archive="${advice.id}"]`).click();
+  await page.locator('[data-fm-folder="archive"]').click();await page.locator(`[data-fm-thread="${advice.id}"]`).click();
+  await reloadRunAndReturn(page,advice.id,'archive',surface);
+  const archiveShot=`${surface}-archive-return.png`;await page.screenshot({path:path.join(out,archiveShot),fullPage:true});report.evidence.push(archiveShot);
+  // Old saved links keep the original plain-thread return behavior.
+  await page.evaluate(id=>frontierOsNavigate('training',{detail:`nan/data/return/${id}`}),advice.id);
+  await page.reload({waitUntil:'networkidle'});await page.locator('[data-frontieros-native-app="training"]').waitFor({state:'visible'});
+  assert.equal((await page.evaluate(()=>frontierRunMonitorSnapshot())).returnFolder,null);
+  await page.getByRole('button',{name:'← Back to advice'}).click();await page.locator('[data-frontieros-native-app="mail"]').waitFor({state:'visible'});
+  assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot())).current.detail,`thread/${advice.id}`);
+  assert.equal((await page.evaluate(()=>frontierMailSnapshot())).threadId,advice.id);
+  assert.equal((await page.evaluate(()=>frontierMailSnapshot())).threads.find(thread=>thread.id===advice.id).archived,true);
   await page.evaluate(()=>{state.activeRun.name='NOVA-OTHER';save();frontierMailOpenThread(frontierMailSnapshot().threadId)});
   assert.equal(await page.locator('[data-fm-linked-status="stale"]').count(),1,`${surface}: stale link warning missing`);
   assert.equal(await page.getByRole('button',{name:'Run unavailable'}).isDisabled(),true,`${surface}: stale link remained actionable`);
   const staleShot=`${surface}-stale-advice.png`;
   await page.screenshot({path:path.join(out,staleShot),fullPage:true});report.evidence.push(staleShot);
   const trace=`${surface}-trace.zip`;await context.tracing.stop({path:path.join(out,trace)});report.evidence.push(trace);
-  report.surfaces[surface]={threadId:advice.id,requestKey:advice.requestKey,incidentRecordId:advice.linkedEntity.incidentRecordId,view:advice.linkedEntity.view,messageCount:retried.messageCount,reloadRestored:true,staleGuard:true};
-  await context.close();
+  report.surfaces[surface]={threadId:advice.id,requestKey:advice.requestKey,incidentRecordId:advice.linkedEntity.incidentRecordId,view:advice.linkedEntity.view,messageCount:retried.messageCount,reloadRestored:true,returnFolders:['inbox','starred','archive'],legacyLink:true,unchangedNavigationState:true,staleGuard:true};
+  }catch(error){
+   report.status='fail';report.failure=String(error.stack||error);report.pageErrors=pageErrors.length;
+   await page.screenshot({path:path.join(out,`${surface}-failure.png`),fullPage:true}).catch(()=>{});
+   const state=await page.evaluate(()=>({simulation:typeof state==='undefined'?null:state,mail:window.frontierMailExport?.(),run:window.frontierRunMonitorSnapshot?.(),session:window.frontierOsSessionSnapshot?.(),events:window.frontierEventJournal?.({limit:300})})).catch(()=>null);
+   fs.writeFileSync(path.join(out,`${surface}-failure.json`),JSON.stringify(state,null,2));
+   fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
+   await context.tracing.stop({path:path.join(out,`${surface}-failure-trace.zip`)}).catch(()=>{});throw error;
+  }finally{await context.close()}
 }
 
 await runJourney('phone',{width:390,height:844},{isMobile:true,hasTouch:true});
@@ -126,5 +174,5 @@ await browser.close();
 assert.equal(pageErrors.length,0,`runtime page errors: ${pageErrors.join(' | ')}`);
 report.generatedAt=new Date().toISOString();report.pageErrors=pageErrors.length;
 fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
-fs.writeFileSync(path.join(out,'REPORT.md'),`# P5.3.1 NPC → Mail Journey\n\n- Status: **PASS**\n- Phone end-to-end journey: **PASS**\n- Desktop end-to-end journey: **PASS**\n- Landscape/tablet/wide layout checks: **PASS**\n- Canonical NPC mutation + incident history: **PASS**\n- Retry idempotency: **PASS**\n- Linked Run Monitor return path: **PASS**\n- Reload/session persistence: **PASS**\n- Stale-link guard: **PASS**\n- Debug/reproduction mailbox snapshots: **PASS**\n- Runtime page errors: **0**\n- Screenshots and traces: **captured**\n`);
-console.log('P5.3.1 NPC → Mail cross-device journey passed');
+fs.writeFileSync(path.join(out,'REPORT.md'),`# P5.3.8 NPC → Mail Journey\n\n- Status: **PASS**\n- Phone end-to-end journey: **PASS**\n- Desktop end-to-end journey: **PASS**\n- Landscape/tablet/wide layout checks: **PASS**\n- Canonical NPC mutation + incident history: **PASS**\n- Retry idempotency: **PASS**\n- Linked Run Monitor return path: **PASS**\n- Reload/session persistence: **PASS**\n- Stale-link guard: **PASS**\n- Debug/reproduction mailbox snapshots: **PASS**\n- Runtime page errors: **0**\n- Screenshots and traces: **captured**\n`);
+console.log('P5.3.8 NPC → Mail cross-device journey passed');

@@ -1,4 +1,4 @@
-# FrontierOS continuation prompt — P5.3.7 Mail return folders
+# FrontierOS continuation prompt — P5.3.8 Run Monitor return folders
 
 Continue development of https://github.com/neffer77/frontier-model-simulator-rpg using the FrontierOS plan. Implement and validate one bounded vertical slice, preserving existing gameplay and saves. This is not `neffer77/l33t-interview-code` (Codeopolis).
 
@@ -33,9 +33,13 @@ The manual's phases cover telemetry, shells, Pager/Run Monitor, Mail/NPC communi
 
 Maintain a compact gap matrix: original requirement → implementation → test/evidence → remaining gap.
 
-## Next single slice after P5.3.7
+## Next single slice after P5.3.8
 
-After P5.3.7 is validated and merged, preserve **the originating Mail folder across a linked Run Monitor reload before returning to the exact NPC advice thread**. The existing incident advice path still uses a return thread without a folder suffix. Confirm with actual Mail → advice → Open Run → reload → Back to advice → message list clicks. Apply the existing folder-route pattern to the Run Monitor owner while retaining old advice links, original incident/thread IDs, unavailable-incident guards, saved history and unchanged simulation on navigation. Do not add a new navigation store or rebuild the implemented Finance/Artifacts flow. Search text and scroll restoration are separate gaps.
+PR #125 / P5.3.7 merged September 12, 2026 at `e850c792199b2570a41a216214f9b0e5c5acc609`, with the same tree as tested head `b4f005cbd72570198c4a2c9f105a7dd35d53d84f`. All 19 PR checks passed, including 45 blockers, 190 routes and 255 screenshots. Verify post-merge QA and Pages independently.
+
+P5.3.8 on `feature/frontieros-mail-run-folder` carries the originating Mail folder through the linked Run Monitor route and destination reload, preserving the original advice thread. Old links remain supported. The existing native render reconciliation preserves return context too. See `docs/P5.3.8-RUN-MONITOR-RETURN-FOLDER.md` and the PR for actual validation. The reload regression also caught career workload projection overwriting its own canonical input; the owner now derives display workload without compounding it, and advice refreshes the projection after its explicit mutation. Keep repeated-init and consultation/retry regressions. Cache v58; no schema or release-policy change. Finish and verify this slice before starting another.
+
+After it is validated and merged, preserve the selected Run Monitor view across a reload following an in-app tab change. Currently `setView` updates presentation but the session detail can still name the earlier view. Use the existing session owner; retain incident, advice thread and folder context. Prove actual tab clicks → reload → same view → Back to advice on phone and desktop, unchanged simulation and old-route compatibility. Search text and scroll restoration remain separate gaps.
 
 P5.3.5 already filters pending/delegated requests using canonical Finance availability, including archived actionable threads. P5.3.6 adds **Awaiting your decision**, **Delegated review**, current reviewer names and **Reviewer unavailable** in those rows. Preserve read purity, missing/stale/closed exclusions, current reviewer identity, existing IDs and conversation search. Do not add row-level approvals, a second ledger, notifications or a general workflow engine.
 
