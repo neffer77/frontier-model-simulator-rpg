@@ -1,0 +1,34 @@
+name: PR126 workload visual comparison
+on:
+  push:
+    branches: [diagnostics/pr126-workload-visuals]
+permissions:
+  contents: read
+jobs:
+  before:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: e850c792199b2570a41a216214f9b0e5c5acc609
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-1.54.2
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build:site
+      - name: Capture exact base for visual review only
+        run: |
+          python3 -m http.server 4173 --directory _site >/tmp/visual-review-server.log 2>&1 &
+          TEST_URL='http://127.0.0.1:4173/?frontieros=0' node tests/screenshot-regression.mjs --update
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr126-before-e850c79
+          path: artifacts/screenshot-regression
+          retention-days: 30
