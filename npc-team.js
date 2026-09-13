@@ -63,6 +63,7 @@ function askNpcDuringIncident(id,options={}){
   ensureNpcTeam();const incidentId=options.incidentId||state.selectedIncident;const e=npcById(id),inc=INCIDENTS.find(x=>x.id===incidentId);if(!e||!inc)return null;
   const confidence=npcConfidence(e,inc),advice=npcAdviceText(e,inc);
   e.incidentsHelped++;e.workload=Math.min(100,e.workload+4);e.trust=Math.min(100,e.trust+1);
+  if(typeof updateWorkloadState==='function')updateWorkloadState(e);
   npcRemember(e,`You asked for help on ${inc.title}. I advised: ${advice}`,inc.id);
   state.npcTeam.advice={employeeId:id,incidentId:inc.id,confidence,advice};
   if(options.inline!==false&&state.workstation&&state.workstation.incidentId===inc.id)state.workstation.npcSubview="advice";

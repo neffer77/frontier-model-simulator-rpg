@@ -1,0 +1,2100 @@
+{
+  "item": "P5.3.8",
+  "reviewedBy": "Codex",
+  "reviewedAt": "2026-09-13",
+  "reason": "Career workload projection no longer feeds derived workload back into its canonical input. Workload, operations coverage/outage risk and dependent reliability coverage now reflect the saved workload instead of converging to 1% on render.",
+  "baseSha": "e850c792199b2570a41a216214f9b0e5c5acc609",
+  "runtimeSha": "7ce820385606785b08e26a846e61089fe1382173",
+  "beforeEvidence": "https://github.com/neffer77/frontier-model-simulator-rpg/actions/runs/34733064142/artifacts/10309918378",
+  "afterEvidence": "https://github.com/neffer77/frontier-model-simulator-rpg/actions/runs/34701917805/artifacts/10300394814",
+  "baseReproduced": 255,
+  "reviewedChangedCaptures": 65,
+  "preservedCaptures": 190,
+  "rasterVariantPolicy": "Existing accepted-delta file and its finite variants unchanged.",
+  "comparison": "Reviewed all changed pixel bands across five viewports; full side-by-side phone Career comparison for its 15px wrapping increase. Before image hashes match accepted baselines.",
+  "captures": [
+    {
+      "key": "phone-portrait/story-intro",
+      "expected": {
+        "sha256": "8becbcc4ab4ad64e951ed7217d36c37466004de19ed146eb455121f26f18007a",
+        "sha256AnyOf": [
+          "8becbcc4ab4ad64e951ed7217d36c37466004de19ed146eb455121f26f18007a"
+        ],
+        "width": 390,
+        "height": 9014
+      },
+      "reviewed": {
+        "sha256": "7b72bc252761894e97b61d0527a0fbc00e66d528229b0ea680b95d51e148c219",
+        "width": 390,
+        "height": 9014,
+        "bytes": 1178265
+      },
+      "comparison": {
+        "key": "phone-portrait/story-intro",
+        "changedPixels": 155,
+        "fraction": 4.409095822452823e-05,
+        "bands": [
+          [
+            3792,
+            3803
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/company-early",
+      "expected": {
+        "sha256": "79c8e35b2e7dc4d3f1588dff39f34f8776684e24f385001847c63db39641bd78",
+        "sha256AnyOf": [
+          "79c8e35b2e7dc4d3f1588dff39f34f8776684e24f385001847c63db39641bd78"
+        ],
+        "width": 390,
+        "height": 8622
+      },
+      "reviewed": {
+        "sha256": "70f526181147074b3e33f6a4958554a152bce489c405c4e120c85271505ce8d9",
+        "width": 390,
+        "height": 8622,
+        "bytes": 1055841
+      },
+      "comparison": {
+        "key": "phone-portrait/company-early",
+        "changedPixels": 106,
+        "fraction": 3.152341356934259e-05,
+        "bands": [
+          [
+            1742,
+            1750
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/more-locked",
+      "expected": {
+        "sha256": "98e0329630cd10137977c0f8b67500f251e63d296ba314a007d8b2ab360b365a",
+        "sha256AnyOf": [
+          "98e0329630cd10137977c0f8b67500f251e63d296ba314a007d8b2ab360b365a"
+        ],
+        "width": 390,
+        "height": 8622
+      },
+      "reviewed": {
+        "sha256": "d37628471d608ba0627f49f3a4a9b0cf6b9b70a5216c1e0abb3958b1f00e6b11",
+        "width": 390,
+        "height": 8622,
+        "bytes": 1112469
+      },
+      "comparison": {
+        "key": "phone-portrait/more-locked",
+        "changedPixels": 106,
+        "fraction": 3.152341356934259e-05,
+        "bands": [
+          [
+            1742,
+            1750
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/training-empty",
+      "expected": {
+        "sha256": "79c8e35b2e7dc4d3f1588dff39f34f8776684e24f385001847c63db39641bd78",
+        "sha256AnyOf": [
+          "79c8e35b2e7dc4d3f1588dff39f34f8776684e24f385001847c63db39641bd78"
+        ],
+        "width": 390,
+        "height": 8622
+      },
+      "reviewed": {
+        "sha256": "70f526181147074b3e33f6a4958554a152bce489c405c4e120c85271505ce8d9",
+        "width": 390,
+        "height": 8622,
+        "bytes": 1055841
+      },
+      "comparison": {
+        "key": "phone-portrait/training-empty",
+        "changedPixels": 106,
+        "fraction": 3.152341356934259e-05,
+        "bands": [
+          [
+            1742,
+            1750
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/more-unlocked",
+      "expected": {
+        "sha256": "fb71ae6a256978ce5b8fa17d2ff95f4973884674ea2a2c06cd65e1dd74179888",
+        "sha256AnyOf": [
+          "fb71ae6a256978ce5b8fa17d2ff95f4973884674ea2a2c06cd65e1dd74179888"
+        ],
+        "width": 390,
+        "height": 8100
+      },
+      "reviewed": {
+        "sha256": "90dfba94aed4cce4ea3a1ee3ffb3fbf65f900ad52c8f9f59ce0792690239df82",
+        "width": 390,
+        "height": 8100,
+        "bytes": 1023869
+      },
+      "comparison": {
+        "key": "phone-portrait/more-unlocked",
+        "changedPixels": 106,
+        "fraction": 3.3554922443811335e-05,
+        "bands": [
+          [
+            1684,
+            1692
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/route-company-home",
+      "expected": {
+        "sha256": "5486bdf4b900659a516483cdc4871568463c49d209bb656e25d5a23554ebc0a8",
+        "sha256AnyOf": [
+          "5486bdf4b900659a516483cdc4871568463c49d209bb656e25d5a23554ebc0a8"
+        ],
+        "width": 390,
+        "height": 8100
+      },
+      "reviewed": {
+        "sha256": "05fc1fe619b90b30fe38859b023032e2993244a29f5a3d547f06598108df7fd9",
+        "width": 390,
+        "height": 8100,
+        "bytes": 1015175
+      },
+      "comparison": {
+        "key": "phone-portrait/route-company-home",
+        "changedPixels": 106,
+        "fraction": 3.3554922443811335e-05,
+        "bands": [
+          [
+            1684,
+            1692
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/route-training",
+      "expected": {
+        "sha256": "25b128891b73c7f294539f15a564ab95d62c1827e7f3b4b08aa476544a790e30",
+        "sha256AnyOf": [
+          "25b128891b73c7f294539f15a564ab95d62c1827e7f3b4b08aa476544a790e30"
+        ],
+        "width": 390,
+        "height": 8100
+      },
+      "reviewed": {
+        "sha256": "6fec909472b89f19361b258792c442576802b9c0afbaeb23159e081254c6291c",
+        "width": 390,
+        "height": 8100,
+        "bytes": 1015007
+      },
+      "comparison": {
+        "key": "phone-portrait/route-training",
+        "changedPixels": 106,
+        "fraction": 3.3554922443811335e-05,
+        "bands": [
+          [
+            1684,
+            1692
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/route-workstation",
+      "expected": {
+        "sha256": "dcc4e2cdacba081d6beb415789fadf7f4f0450e8db6245e59ffb9a0e51d90b0b",
+        "sha256AnyOf": [
+          "dcc4e2cdacba081d6beb415789fadf7f4f0450e8db6245e59ffb9a0e51d90b0b"
+        ],
+        "width": 390,
+        "height": 8100
+      },
+      "reviewed": {
+        "sha256": "f4d49b2ed5e10a4aad23b1532ab61313c068e61e560925801056346ea7a49566",
+        "width": 390,
+        "height": 8100,
+        "bytes": 1047990
+      },
+      "comparison": {
+        "key": "phone-portrait/route-workstation",
+        "changedPixels": 106,
+        "fraction": 3.3554922443811335e-05,
+        "bands": [
+          [
+            1684,
+            1692
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/route-career",
+      "expected": {
+        "sha256": "0af12208c933be33b50b3fc6d03a29527518e154947b7362be730d94587cbf6c",
+        "sha256AnyOf": [
+          "0af12208c933be33b50b3fc6d03a29527518e154947b7362be730d94587cbf6c"
+        ],
+        "width": 390,
+        "height": 3040
+      },
+      "reviewed": {
+        "sha256": "040cb1d10fb976413aa83558388fea696387cb39e94bf6f85f00a9092dafb1e0",
+        "width": 390,
+        "height": 3055,
+        "bytes": 293213
+      },
+      "comparison": {
+        "key": "phone-portrait/route-career",
+        "before": [
+          390,
+          3040
+        ],
+        "after": [
+          390,
+          3055
+        ],
+        "fullComparison": "phone-portrait-route-career.png"
+      }
+    },
+    {
+      "key": "phone-portrait/route-operations",
+      "expected": {
+        "sha256": "e15423d6c2adea60a1366a020c5313214915e6161624e9f48b5d4e002c6e7b3f",
+        "sha256AnyOf": [
+          "e15423d6c2adea60a1366a020c5313214915e6161624e9f48b5d4e002c6e7b3f"
+        ],
+        "width": 390,
+        "height": 3975
+      },
+      "reviewed": {
+        "sha256": "3e39acf9fe6ac6526823aebf25be671a9be2ca11056f2098784ae96df538c388",
+        "width": 390,
+        "height": 3975,
+        "bytes": 334059
+      },
+      "comparison": {
+        "key": "phone-portrait/route-operations",
+        "changedPixels": 5091,
+        "fraction": 0.0032839864537977746,
+        "bands": [
+          [
+            1426,
+            1437
+          ],
+          [
+            1750,
+            1761
+          ],
+          [
+            2075,
+            2112
+          ],
+          [
+            2399,
+            2410
+          ],
+          [
+            2724,
+            2761
+          ],
+          [
+            3048,
+            3059
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/route-reliability",
+      "expected": {
+        "sha256": "36435d9fd4d7950a364f873685653dd1639dbbc393a7c96dc7821174f8ec51f9",
+        "sha256AnyOf": [
+          "36435d9fd4d7950a364f873685653dd1639dbbc393a7c96dc7821174f8ec51f9"
+        ],
+        "width": 390,
+        "height": 5413
+      },
+      "reviewed": {
+        "sha256": "55261b99dfac2796764b10c5c2f46ffb10a65b7b9ac50856f5ada33fb01fad69",
+        "width": 390,
+        "height": 5413,
+        "bytes": 446683
+      },
+      "comparison": {
+        "key": "phone-portrait/route-reliability",
+        "changedPixels": 2755,
+        "fraction": 0.0013050254136527922,
+        "bands": [
+          [
+            995,
+            1006
+          ],
+          [
+            1615,
+            1626
+          ],
+          [
+            2236,
+            2247
+          ],
+          [
+            2856,
+            2867
+          ],
+          [
+            3476,
+            3487
+          ],
+          [
+            4096,
+            4107
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/company-populated",
+      "expected": {
+        "sha256": "2a71f0b2673bf5891ec485ce8a0fc05cca538681a165d1a85b1d875e31f0c522",
+        "sha256AnyOf": [
+          "2a71f0b2673bf5891ec485ce8a0fc05cca538681a165d1a85b1d875e31f0c522"
+        ],
+        "width": 390,
+        "height": 8065
+      },
+      "reviewed": {
+        "sha256": "f2eba4a3f09d1892a4429e45a8a95639929ed4010485dd20f92b0677bee4aa2f",
+        "width": 390,
+        "height": 8065,
+        "bytes": 1042715
+      },
+      "comparison": {
+        "key": "phone-portrait/company-populated",
+        "changedPixels": 106,
+        "fraction": 3.37005420700399e-05,
+        "bands": [
+          [
+            1684,
+            1692
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/training-incident",
+      "expected": {
+        "sha256": "d09d42a77ac59f2dff53dd2d0777bed4a8bbdf045c2fdd2bc5f96f565f635969",
+        "sha256AnyOf": [
+          "d09d42a77ac59f2dff53dd2d0777bed4a8bbdf045c2fdd2bc5f96f565f635969"
+        ],
+        "width": 390,
+        "height": 7672
+      },
+      "reviewed": {
+        "sha256": "f24ab3b6c28af025264dced9b4c1900c26ade6ba8aaa627efe17608b8f7978a6",
+        "width": 390,
+        "height": 7672,
+        "bytes": 970356
+      },
+      "comparison": {
+        "key": "phone-portrait/training-incident",
+        "changedPixels": 106,
+        "fraction": 3.5426860244378494e-05,
+        "bands": [
+          [
+            1719,
+            1727
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/technical-explainer",
+      "expected": {
+        "sha256": "464e2ee763325110b37a58c323c484589794c53eb563eb1ad8b0715b3614f296",
+        "sha256AnyOf": [
+          "464e2ee763325110b37a58c323c484589794c53eb563eb1ad8b0715b3614f296"
+        ],
+        "width": 390,
+        "height": 8065
+      },
+      "reviewed": {
+        "sha256": "3e90c2a4928edf77af4c4ff6787bc19f9eae621aeec747f6e981d3b8b77fe716",
+        "width": 390,
+        "height": 8065,
+        "bytes": 1029584
+      },
+      "comparison": {
+        "key": "phone-portrait/technical-explainer",
+        "changedPixels": 106,
+        "fraction": 3.37005420700399e-05,
+        "bands": [
+          [
+            1684,
+            1692
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/milestone",
+      "expected": {
+        "sha256": "dd0aa08830e0b601a325c54c197f1b4882a8dbe82b2cffedae4b8f76918b4a47",
+        "sha256AnyOf": [
+          "dd0aa08830e0b601a325c54c197f1b4882a8dbe82b2cffedae4b8f76918b4a47"
+        ],
+        "width": 390,
+        "height": 8065
+      },
+      "reviewed": {
+        "sha256": "9cd2312aef845ba311946bb7ac13db5db5c74b32fcb14e925e75c020c75e577e",
+        "width": 390,
+        "height": 8065,
+        "bytes": 1005648
+      },
+      "comparison": {
+        "key": "phone-portrait/milestone",
+        "changedPixels": 106,
+        "fraction": 3.37005420700399e-05,
+        "bands": [
+          [
+            1684,
+            1692
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-portrait/company-priority",
+      "expected": {
+        "sha256": "a43458dcb19d676f6992782022be04fe04ab0f4f5faac001197828f9270d4252",
+        "sha256AnyOf": [
+          "a43458dcb19d676f6992782022be04fe04ab0f4f5faac001197828f9270d4252"
+        ],
+        "width": 390,
+        "height": 8065
+      },
+      "reviewed": {
+        "sha256": "2be75b82906aacb4908920aaf6402c8cd2e3e37e05db212ffbce16b326477ea5",
+        "width": 390,
+        "height": 8065,
+        "bytes": 1032436
+      },
+      "comparison": {
+        "key": "phone-portrait/company-priority",
+        "changedPixels": 106,
+        "fraction": 3.37005420700399e-05,
+        "bands": [
+          [
+            1684,
+            1692
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/story-intro",
+      "expected": {
+        "sha256": "bcae95a86b047fd80f2490eb2550aef7b5e828ba1520e02e2b0b21967ac6ce89",
+        "sha256AnyOf": [
+          "bcae95a86b047fd80f2490eb2550aef7b5e828ba1520e02e2b0b21967ac6ce89"
+        ],
+        "width": 844,
+        "height": 7313
+      },
+      "reviewed": {
+        "sha256": "253b9ebd90c36744b6c41a5e197f457e9e063dd601b1c8cf970ab9a19437e666",
+        "width": 844,
+        "height": 7313,
+        "bytes": 1785356
+      },
+      "comparison": {
+        "key": "phone-landscape/story-intro",
+        "changedPixels": 155,
+        "fraction": 2.511271558861289e-05,
+        "bands": [
+          [
+            3412,
+            3423
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/company-early",
+      "expected": {
+        "sha256": "d36b5493bbbae5588970e89cb7087acdf823680b80a9a910dadf4869cc48797f",
+        "sha256AnyOf": [
+          "d36b5493bbbae5588970e89cb7087acdf823680b80a9a910dadf4869cc48797f"
+        ],
+        "width": 844,
+        "height": 5373
+      },
+      "reviewed": {
+        "sha256": "ae0c975e9a06121d66da23f799bab516016c04b2081ce335614cb6f90a16a6ed",
+        "width": 844,
+        "height": 5373,
+        "bytes": 1468392
+      },
+      "comparison": {
+        "key": "phone-landscape/company-early",
+        "changedPixels": 106,
+        "fraction": 2.3374728654682927e-05,
+        "bands": [
+          [
+            787,
+            795
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/more-locked",
+      "expected": {
+        "sha256": "857633723575601c6426c3a817c0646f0e94040e638b7779d373b4e5d4d874b5",
+        "sha256AnyOf": [
+          "857633723575601c6426c3a817c0646f0e94040e638b7779d373b4e5d4d874b5"
+        ],
+        "width": 844,
+        "height": 5373
+      },
+      "reviewed": {
+        "sha256": "bffdf4296e1629e665c2af36caea7a8ddcb716f16430b220b326934d5c711b70",
+        "width": 844,
+        "height": 5373,
+        "bytes": 1550409
+      },
+      "comparison": {
+        "key": "phone-landscape/more-locked",
+        "changedPixels": 106,
+        "fraction": 2.3374728654682927e-05,
+        "bands": [
+          [
+            787,
+            795
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/training-empty",
+      "expected": {
+        "sha256": "d36b5493bbbae5588970e89cb7087acdf823680b80a9a910dadf4869cc48797f",
+        "sha256AnyOf": [
+          "d36b5493bbbae5588970e89cb7087acdf823680b80a9a910dadf4869cc48797f"
+        ],
+        "width": 844,
+        "height": 5373
+      },
+      "reviewed": {
+        "sha256": "ae0c975e9a06121d66da23f799bab516016c04b2081ce335614cb6f90a16a6ed",
+        "width": 844,
+        "height": 5373,
+        "bytes": 1468392
+      },
+      "comparison": {
+        "key": "phone-landscape/training-empty",
+        "changedPixels": 106,
+        "fraction": 2.3374728654682927e-05,
+        "bands": [
+          [
+            787,
+            795
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/more-unlocked",
+      "expected": {
+        "sha256": "8a05ecd807d613acdf4e54eb6b778cb514efa5ec54d2b7681ee8d53617fd0b0e",
+        "sha256AnyOf": [
+          "8a05ecd807d613acdf4e54eb6b778cb514efa5ec54d2b7681ee8d53617fd0b0e",
+          "54644a28aeb68ec1b1595599101bd85bb9291d126105b1a35a30105652098c15"
+        ],
+        "width": 844,
+        "height": 5181
+      },
+      "reviewed": {
+        "sha256": "d2758835e78ec6edcd0a0bd405a7343573c9624f40973a8c433d0dcea64c3838",
+        "width": 844,
+        "height": 5181,
+        "bytes": 1714361
+      },
+      "comparison": {
+        "key": "phone-landscape/more-unlocked",
+        "changedPixels": 106,
+        "fraction": 2.4240960637253692e-05,
+        "bands": [
+          [
+            788,
+            796
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/route-company-home",
+      "expected": {
+        "sha256": "c7b9b574625e4188f081da8f04bf452fc0f352058459bda39ae926dee012fecb",
+        "sha256AnyOf": [
+          "c7b9b574625e4188f081da8f04bf452fc0f352058459bda39ae926dee012fecb"
+        ],
+        "width": 844,
+        "height": 5181
+      },
+      "reviewed": {
+        "sha256": "9e6b69c5ec3444311b9d724947db1647a1c0e2ca7134803a6ff11fec945901b4",
+        "width": 844,
+        "height": 5181,
+        "bytes": 1691685
+      },
+      "comparison": {
+        "key": "phone-landscape/route-company-home",
+        "changedPixels": 106,
+        "fraction": 2.4240960637253692e-05,
+        "bands": [
+          [
+            788,
+            796
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/route-training",
+      "expected": {
+        "sha256": "c71c5c6998387826cf011ec59b0092b9165a21e29b819fcc3c39f5dd3f4d50ea",
+        "sha256AnyOf": [
+          "c71c5c6998387826cf011ec59b0092b9165a21e29b819fcc3c39f5dd3f4d50ea"
+        ],
+        "width": 844,
+        "height": 5181
+      },
+      "reviewed": {
+        "sha256": "aeaa62d633f0b8a6c397b6b975905ee61302ab358eb753ab6f4886867eec5e9f",
+        "width": 844,
+        "height": 5181,
+        "bytes": 1691695
+      },
+      "comparison": {
+        "key": "phone-landscape/route-training",
+        "changedPixels": 106,
+        "fraction": 2.4240960637253692e-05,
+        "bands": [
+          [
+            788,
+            796
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/route-workstation",
+      "expected": {
+        "sha256": "dbddd129e77e94a80b1dd8908572fc97f03e75e4c26ded3ca4f928e1291fadd9",
+        "sha256AnyOf": [
+          "dbddd129e77e94a80b1dd8908572fc97f03e75e4c26ded3ca4f928e1291fadd9"
+        ],
+        "width": 844,
+        "height": 5181
+      },
+      "reviewed": {
+        "sha256": "80480ee3afda8cdb47c1edc62488532d67a047d5917b6568360422d7fba3d8e7",
+        "width": 844,
+        "height": 5181,
+        "bytes": 1714544
+      },
+      "comparison": {
+        "key": "phone-landscape/route-workstation",
+        "changedPixels": 106,
+        "fraction": 2.4240960637253692e-05,
+        "bands": [
+          [
+            788,
+            796
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/route-career",
+      "expected": {
+        "sha256": "854ac18be66bdd0404e34733aaad4ad0a728d5249f25fd751ddba1e573cde5a7",
+        "sha256AnyOf": [
+          "854ac18be66bdd0404e34733aaad4ad0a728d5249f25fd751ddba1e573cde5a7"
+        ],
+        "width": 844,
+        "height": 1748
+      },
+      "reviewed": {
+        "sha256": "579ccb07444aace3b3b0c5dec054f15397571b4eae52f301e111e649f1766c46",
+        "width": 844,
+        "height": 1748,
+        "bytes": 328822
+      },
+      "comparison": {
+        "key": "phone-landscape/route-career",
+        "changedPixels": 32995,
+        "fraction": 0.02236476080991682,
+        "bands": [
+          [
+            601,
+            638
+          ],
+          [
+            663,
+            700
+          ],
+          [
+            725,
+            824
+          ],
+          [
+            849,
+            886
+          ],
+          [
+            911,
+            948
+          ],
+          [
+            973,
+            1010
+          ],
+          [
+            1035,
+            1072
+          ],
+          [
+            1097,
+            1134
+          ],
+          [
+            1159,
+            1196
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/route-operations",
+      "expected": {
+        "sha256": "5ab8166bdf01eb9551e820df9d058d7f8e175e2be40bff7f486bb653b5b7463f",
+        "sha256AnyOf": [
+          "5ab8166bdf01eb9551e820df9d058d7f8e175e2be40bff7f486bb653b5b7463f"
+        ],
+        "width": 844,
+        "height": 2868
+      },
+      "reviewed": {
+        "sha256": "02e4405738b84f3871961f541648a01885eddf80aa92c9b333d41996a16c9773",
+        "width": 844,
+        "height": 2868,
+        "bytes": 346928
+      },
+      "comparison": {
+        "key": "phone-landscape/route-operations",
+        "changedPixels": 2095,
+        "fraction": 0.0008654907559803553,
+        "bands": [
+          [
+            788,
+            799
+          ],
+          [
+            1071,
+            1082
+          ],
+          [
+            1354,
+            1368
+          ],
+          [
+            1638,
+            1649
+          ],
+          [
+            1921,
+            1935
+          ],
+          [
+            2205,
+            2216
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/route-reliability",
+      "expected": {
+        "sha256": "c755fd628f60456a5d56c562f1453b69e83593137f48e2909cfa9a41d70d617f",
+        "sha256AnyOf": [
+          "c755fd628f60456a5d56c562f1453b69e83593137f48e2909cfa9a41d70d617f"
+        ],
+        "width": 844,
+        "height": 3552
+      },
+      "reviewed": {
+        "sha256": "ff6236dffcaa9a461a63257a4e8d6bc17a6e642eb2982e1d021c43fb4a195006",
+        "width": 844,
+        "height": 3552,
+        "bytes": 468983
+      },
+      "comparison": {
+        "key": "phone-landscape/route-reliability",
+        "changedPixels": 2755,
+        "fraction": 0.0009189802954613381,
+        "bands": [
+          [
+            609,
+            620
+          ],
+          [
+            989,
+            1000
+          ],
+          [
+            1370,
+            1381
+          ],
+          [
+            1751,
+            1762
+          ],
+          [
+            2131,
+            2142
+          ],
+          [
+            2512,
+            2523
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/company-populated",
+      "expected": {
+        "sha256": "7bcf5969966d6f657b0dacfe92a134d1a0adb1804f1f3f54726f61eb29b63b92",
+        "sha256AnyOf": [
+          "7bcf5969966d6f657b0dacfe92a134d1a0adb1804f1f3f54726f61eb29b63b92"
+        ],
+        "width": 844,
+        "height": 5152
+      },
+      "reviewed": {
+        "sha256": "546cca551e058d50511fa6dc126bd87d37354c2e392a18ddd3d8a7661741ed04",
+        "width": 844,
+        "height": 5152,
+        "bytes": 1712472
+      },
+      "comparison": {
+        "key": "phone-landscape/company-populated",
+        "changedPixels": 106,
+        "fraction": 2.4377410143946306e-05,
+        "bands": [
+          [
+            788,
+            796
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/training-incident",
+      "expected": {
+        "sha256": "1f53b035882d0507cbe44c82e0c24bdf2e11ad3fcf7c7e62dc016e094fc80b10",
+        "sha256AnyOf": [
+          "1f53b035882d0507cbe44c82e0c24bdf2e11ad3fcf7c7e62dc016e094fc80b10"
+        ],
+        "width": 844,
+        "height": 5056
+      },
+      "reviewed": {
+        "sha256": "13b1d13f26ea11705bf152d6ac7316cbc9cbf11c4335541abf3b212a198d30c2",
+        "width": 844,
+        "height": 5056,
+        "bytes": 1651567
+      },
+      "comparison": {
+        "key": "phone-landscape/training-incident",
+        "changedPixels": 106,
+        "fraction": 2.4840272361869338e-05,
+        "bands": [
+          [
+            811,
+            819
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/technical-explainer",
+      "expected": {
+        "sha256": "e5bda19d73826feee0a5dd71c1087dc8dbecf33c86626c61185ea00d45eff832",
+        "sha256AnyOf": [
+          "e5bda19d73826feee0a5dd71c1087dc8dbecf33c86626c61185ea00d45eff832"
+        ],
+        "width": 844,
+        "height": 5152
+      },
+      "reviewed": {
+        "sha256": "fa55ee61b22957cf43fa612fc50f8c482a64c9f657c728732118421b7c3a260e",
+        "width": 844,
+        "height": 5152,
+        "bytes": 1757821
+      },
+      "comparison": {
+        "key": "phone-landscape/technical-explainer",
+        "changedPixels": 106,
+        "fraction": 2.4377410143946306e-05,
+        "bands": [
+          [
+            788,
+            796
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/milestone",
+      "expected": {
+        "sha256": "bc02df3954fe0738312ded0e0955b10c51b3295b6cba396b8da2edd036268d7d",
+        "sha256AnyOf": [
+          "bc02df3954fe0738312ded0e0955b10c51b3295b6cba396b8da2edd036268d7d"
+        ],
+        "width": 844,
+        "height": 5152
+      },
+      "reviewed": {
+        "sha256": "38d324f5255c9b9afc7e14c13455db4ab1ea4d95216a183757317800020221aa",
+        "width": 844,
+        "height": 5152,
+        "bytes": 1731904
+      },
+      "comparison": {
+        "key": "phone-landscape/milestone",
+        "changedPixels": 106,
+        "fraction": 2.4377410143946306e-05,
+        "bands": [
+          [
+            788,
+            796
+          ]
+        ]
+      }
+    },
+    {
+      "key": "phone-landscape/company-priority",
+      "expected": {
+        "sha256": "2ec5f728b91b72ad8c4f407287d2dd10aaa14fac33495b5930aff5c761b6fab7",
+        "sha256AnyOf": [
+          "2ec5f728b91b72ad8c4f407287d2dd10aaa14fac33495b5930aff5c761b6fab7"
+        ],
+        "width": 844,
+        "height": 5152
+      },
+      "reviewed": {
+        "sha256": "4fa4ca2121703257e6c61073845cb6282dfa7333b02f8abfac9ace67ae55c88b",
+        "width": 844,
+        "height": 5152,
+        "bytes": 1753795
+      },
+      "comparison": {
+        "key": "phone-landscape/company-priority",
+        "changedPixels": 106,
+        "fraction": 2.4377410143946306e-05,
+        "bands": [
+          [
+            788,
+            796
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/story-intro",
+      "expected": {
+        "sha256": "afdbf1b860ee0c3a5f3b095dae292b5c993adb263da0abbfc7263e651e7c1296",
+        "sha256AnyOf": [
+          "afdbf1b860ee0c3a5f3b095dae292b5c993adb263da0abbfc7263e651e7c1296"
+        ],
+        "width": 834,
+        "height": 7454
+      },
+      "reviewed": {
+        "sha256": "613673cb25c31c70bb87c0df57b9137e85a8702722d6b57ba080811d4687550d",
+        "width": 834,
+        "height": 7454,
+        "bytes": 1719306
+      },
+      "comparison": {
+        "key": "tablet/story-intro",
+        "changedPixels": 155,
+        "fraction": 2.4933098865688775e-05,
+        "bands": [
+          [
+            3504,
+            3515
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/company-early",
+      "expected": {
+        "sha256": "9fc85067c4bf65e4347e872731e9d80c2730fc11d124ff8ddf9214b2d25ab34b",
+        "sha256AnyOf": [
+          "9fc85067c4bf65e4347e872731e9d80c2730fc11d124ff8ddf9214b2d25ab34b"
+        ],
+        "width": 834,
+        "height": 5530
+      },
+      "reviewed": {
+        "sha256": "44b72b3e3639ad4cc2bcc1e06052412639f2ab2d19d28b9b1b7c141592df1d31",
+        "width": 834,
+        "height": 5530,
+        "bytes": 1492459
+      },
+      "comparison": {
+        "key": "tablet/company-early",
+        "changedPixels": 106,
+        "fraction": 2.2983421580999216e-05,
+        "bands": [
+          [
+            893,
+            901
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/training-empty",
+      "expected": {
+        "sha256": "da5c64495c7a32005489502f64cd2e12e1eff7846feb9fcf9c1adc664ce2c6cd",
+        "sha256AnyOf": [
+          "da5c64495c7a32005489502f64cd2e12e1eff7846feb9fcf9c1adc664ce2c6cd"
+        ],
+        "width": 834,
+        "height": 5530
+      },
+      "reviewed": {
+        "sha256": "401406eec23a02bf6c81f2a1733fbd980d1e5dd79fece52da50f407adb593cc9",
+        "width": 834,
+        "height": 5530,
+        "bytes": 1492411
+      },
+      "comparison": {
+        "key": "tablet/training-empty",
+        "changedPixels": 106,
+        "fraction": 2.2983421580999216e-05,
+        "bands": [
+          [
+            893,
+            901
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/route-company-home",
+      "expected": {
+        "sha256": "6a55853b13ccf008a475be084abf19f12833c5df155efb02f492190abeafd0ab",
+        "sha256AnyOf": [
+          "6a55853b13ccf008a475be084abf19f12833c5df155efb02f492190abeafd0ab"
+        ],
+        "width": 834,
+        "height": 5337
+      },
+      "reviewed": {
+        "sha256": "cf9ac483e5171180d534a0afa1845e017bd2c588985120142b8c2f9aad81c4ae",
+        "width": 834,
+        "height": 5337,
+        "bytes": 1697956
+      },
+      "comparison": {
+        "key": "tablet/route-company-home",
+        "changedPixels": 106,
+        "fraction": 2.381456273991487e-05,
+        "bands": [
+          [
+            895,
+            903
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/route-training",
+      "expected": {
+        "sha256": "6049b9fcc116393672ab5770a1125f4d6c7dffddbd40580a0cae90c4840b261d",
+        "sha256AnyOf": [
+          "6049b9fcc116393672ab5770a1125f4d6c7dffddbd40580a0cae90c4840b261d"
+        ],
+        "width": 834,
+        "height": 5337
+      },
+      "reviewed": {
+        "sha256": "1c80df66133439c05f68519b4658ffcdc4faebbd6a03696eba775baa6a1f4103",
+        "width": 834,
+        "height": 5337,
+        "bytes": 1697942
+      },
+      "comparison": {
+        "key": "tablet/route-training",
+        "changedPixels": 106,
+        "fraction": 2.381456273991487e-05,
+        "bands": [
+          [
+            895,
+            903
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/route-career",
+      "expected": {
+        "sha256": "ad8beb767133c80344b3a11d9c32daa47a2db030ac10986c9462df916046a833",
+        "sha256AnyOf": [
+          "ad8beb767133c80344b3a11d9c32daa47a2db030ac10986c9462df916046a833"
+        ],
+        "width": 834,
+        "height": 1890
+      },
+      "reviewed": {
+        "sha256": "5f17238235ce8be65dc7076fa329af4716ffec65618f9f714b9e3b98d74e8b45",
+        "width": 834,
+        "height": 1890,
+        "bytes": 363990
+      },
+      "comparison": {
+        "key": "tablet/route-career",
+        "changedPixels": 32771,
+        "fraction": 0.02079035184550772,
+        "bands": [
+          [
+            679,
+            716
+          ],
+          [
+            741,
+            778
+          ],
+          [
+            803,
+            902
+          ],
+          [
+            927,
+            964
+          ],
+          [
+            989,
+            1150
+          ],
+          [
+            1175,
+            1212
+          ],
+          [
+            1237,
+            1274
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/route-operations",
+      "expected": {
+        "sha256": "d7577b32d88ad7e68655704aaccb67a164e1a4d06072a5434bfe6c40db759eab",
+        "sha256AnyOf": [
+          "d7577b32d88ad7e68655704aaccb67a164e1a4d06072a5434bfe6c40db759eab"
+        ],
+        "width": 834,
+        "height": 2988
+      },
+      "reviewed": {
+        "sha256": "ca5a3b68d4922f0bdbf3a540d98cb7345ce89873da2d77c5cf8dbe96701ae1e9",
+        "width": 834,
+        "height": 2988,
+        "bytes": 358467
+      },
+      "comparison": {
+        "key": "tablet/route-operations",
+        "changedPixels": 2095,
+        "fraction": 0.0008406929075213725,
+        "bands": [
+          [
+            868,
+            879
+          ],
+          [
+            1151,
+            1162
+          ],
+          [
+            1435,
+            1449
+          ],
+          [
+            1718,
+            1729
+          ],
+          [
+            2001,
+            2015
+          ],
+          [
+            2285,
+            2296
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/route-reliability",
+      "expected": {
+        "sha256": "45f96d653269f833e30d10b8cdf7ecfc5ef6d1890a8a37d16fd7474c262e0822",
+        "sha256AnyOf": [
+          "45f96d653269f833e30d10b8cdf7ecfc5ef6d1890a8a37d16fd7474c262e0822"
+        ],
+        "width": 834,
+        "height": 3672
+      },
+      "reviewed": {
+        "sha256": "ce8505e07d82855b89b8483fca759ede085f3d73812159d3c793062845c21135",
+        "width": 834,
+        "height": 3672,
+        "bytes": 490902
+      },
+      "comparison": {
+        "key": "tablet/route-reliability",
+        "changedPixels": 4471,
+        "fraction": 0.0014599431565858424,
+        "bands": [
+          [
+            689,
+            700
+          ],
+          [
+            1040,
+            1098
+          ],
+          [
+            1450,
+            1461
+          ],
+          [
+            1831,
+            1842
+          ],
+          [
+            2211,
+            2222
+          ],
+          [
+            2592,
+            2603
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/technical-explainer",
+      "expected": {
+        "sha256": "968db204bb0159292962467f8235d79fce76c1f33fcfb10e376793c60dd6c3b8",
+        "sha256AnyOf": [
+          "968db204bb0159292962467f8235d79fce76c1f33fcfb10e376793c60dd6c3b8"
+        ],
+        "width": 834,
+        "height": 5286
+      },
+      "reviewed": {
+        "sha256": "55750a0fc3d5c8276e3e3f6c423d58cf3cac1b0487d5d5a8409ed6e9acf00836",
+        "width": 834,
+        "height": 5286,
+        "bytes": 1584192
+      },
+      "comparison": {
+        "key": "tablet/technical-explainer",
+        "changedPixels": 66,
+        "fraction": 1.4970997095626563e-05,
+        "bands": [
+          [
+            853,
+            915
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/milestone",
+      "expected": {
+        "sha256": "a869615750f2711f086ee434ecd0e15327cc9966adf0c7ee7b08e0422e21e262",
+        "sha256AnyOf": [
+          "a869615750f2711f086ee434ecd0e15327cc9966adf0c7ee7b08e0422e21e262"
+        ],
+        "width": 834,
+        "height": 5286
+      },
+      "reviewed": {
+        "sha256": "0a5f967e890d8a23a73a5cc262443a5c777cd1ee415284f75cf0fb818300c900",
+        "width": 834,
+        "height": 5286,
+        "bytes": 1553779
+      },
+      "comparison": {
+        "key": "tablet/milestone",
+        "changedPixels": 66,
+        "fraction": 1.4970997095626563e-05,
+        "bands": [
+          [
+            853,
+            915
+          ]
+        ]
+      }
+    },
+    {
+      "key": "tablet/company-priority",
+      "expected": {
+        "sha256": "6e04ccf099acd2bba83ae5bdad8876851c1c1fe4935ff826bc8085df295987fb",
+        "sha256AnyOf": [
+          "6e04ccf099acd2bba83ae5bdad8876851c1c1fe4935ff826bc8085df295987fb"
+        ],
+        "width": 834,
+        "height": 5286
+      },
+      "reviewed": {
+        "sha256": "97a2a3b5de1dfa201e86205285180947d6cd20ef0dd5b0ee30f33a34f49d7493",
+        "width": 834,
+        "height": 5286,
+        "bytes": 1577353
+      },
+      "comparison": {
+        "key": "tablet/company-priority",
+        "changedPixels": 89,
+        "fraction": 2.0188162750163092e-05,
+        "bands": [
+          [
+            854,
+            903
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/story-intro",
+      "expected": {
+        "sha256": "50ea38c7bf5649fae6db88735dc87627e4643198dc9e543d6bf2b903536a0a3a",
+        "sha256AnyOf": [
+          "50ea38c7bf5649fae6db88735dc87627e4643198dc9e543d6bf2b903536a0a3a"
+        ],
+        "width": 1440,
+        "height": 6379
+      },
+      "reviewed": {
+        "sha256": "4d7987a7573c06ce8831e045d4f97ff94587585e15e948c9acf374a8540be58c",
+        "width": 1440,
+        "height": 6379,
+        "bytes": 2002899
+      },
+      "comparison": {
+        "key": "desktop/story-intro",
+        "changedPixels": 155,
+        "fraction": 1.6873944017696956e-05,
+        "bands": [
+          [
+            3351,
+            3362
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/company-early",
+      "expected": {
+        "sha256": "ba820435a09ca8fe034d3111e7f033854ad6c03c4b2ba1080e1983816f3bd84f",
+        "sha256AnyOf": [
+          "ba820435a09ca8fe034d3111e7f033854ad6c03c4b2ba1080e1983816f3bd84f"
+        ],
+        "width": 1440,
+        "height": 3698
+      },
+      "reviewed": {
+        "sha256": "7e8674fb64cf517a51d1171dda7a6ba436847f16cedc490107b907487a514d2d",
+        "width": 1440,
+        "height": 3698,
+        "bytes": 1647448
+      },
+      "comparison": {
+        "key": "desktop/company-early",
+        "changedPixels": 106,
+        "fraction": 1.9905654708250708e-05,
+        "bands": [
+          [
+            780,
+            788
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/training-empty",
+      "expected": {
+        "sha256": "029e3c745d3f9770b93acd5fd5a1e650ce83abcfc19752816cc7f15f2d71a9ae",
+        "sha256AnyOf": [
+          "029e3c745d3f9770b93acd5fd5a1e650ce83abcfc19752816cc7f15f2d71a9ae"
+        ],
+        "width": 1440,
+        "height": 3698
+      },
+      "reviewed": {
+        "sha256": "2b385cc2b5935fce9fee2311a04264c730d6d44d2f5873fc3895d03278aade87",
+        "width": 1440,
+        "height": 3698,
+        "bytes": 1647481
+      },
+      "comparison": {
+        "key": "desktop/training-empty",
+        "changedPixels": 106,
+        "fraction": 1.9905654708250708e-05,
+        "bands": [
+          [
+            780,
+            788
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/route-company-home",
+      "expected": {
+        "sha256": "2f6551ffdc497de26584f7967146290c87454ee998beea20eb76c8799a125db8",
+        "sha256AnyOf": [
+          "2f6551ffdc497de26584f7967146290c87454ee998beea20eb76c8799a125db8"
+        ],
+        "width": 1440,
+        "height": 3578
+      },
+      "reviewed": {
+        "sha256": "bbe68c027f93875ef8b87bdc755a061c72950f8e96f5daa3bccecb259de266ad",
+        "width": 1440,
+        "height": 3578,
+        "bytes": 1849103
+      },
+      "comparison": {
+        "key": "desktop/route-company-home",
+        "changedPixels": 128,
+        "fraction": 2.4843177442394883e-05,
+        "bands": [
+          [
+            783,
+            791
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/route-training",
+      "expected": {
+        "sha256": "ffd1f726e899136635a7cae92219e8ee9750d41107fb161afdd04e3dbb9ecbe3",
+        "sha256AnyOf": [
+          "ffd1f726e899136635a7cae92219e8ee9750d41107fb161afdd04e3dbb9ecbe3"
+        ],
+        "width": 1440,
+        "height": 3578
+      },
+      "reviewed": {
+        "sha256": "ceff877d6b2e2557e0ad43c188e98b7db2982c87bea7aab28e377b74d542bf61",
+        "width": 1440,
+        "height": 3578,
+        "bytes": 1849103
+      },
+      "comparison": {
+        "key": "desktop/route-training",
+        "changedPixels": 128,
+        "fraction": 2.4843177442394883e-05,
+        "bands": [
+          [
+            783,
+            791
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/route-career",
+      "expected": {
+        "sha256": "e92f29fd8536ac8e04c612a7e0010a1a194b40d8be9ad608aa494b8cca580fa0",
+        "sha256AnyOf": [
+          "e92f29fd8536ac8e04c612a7e0010a1a194b40d8be9ad608aa494b8cca580fa0"
+        ],
+        "width": 1440,
+        "height": 1653
+      },
+      "reviewed": {
+        "sha256": "c841d76055ae503086b0817236dc490ca076e0ea63f7915b417dca7270e0958c",
+        "width": 1440,
+        "height": 1653,
+        "bytes": 387527
+      },
+      "comparison": {
+        "key": "desktop/route-career",
+        "changedPixels": 32983,
+        "fraction": 0.01385654029710291,
+        "bands": [
+          [
+            558,
+            595
+          ],
+          [
+            620,
+            657
+          ],
+          [
+            682,
+            719
+          ],
+          [
+            744,
+            781
+          ],
+          [
+            806,
+            843
+          ],
+          [
+            868,
+            905
+          ],
+          [
+            930,
+            967
+          ],
+          [
+            992,
+            1029
+          ],
+          [
+            1054,
+            1091
+          ],
+          [
+            1116,
+            1153
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/route-operations",
+      "expected": {
+        "sha256": "b110c5ee94262a3967a15f7c5e2a5641f67fb96e549c23275b902a817e9ca378",
+        "sha256AnyOf": [
+          "b110c5ee94262a3967a15f7c5e2a5641f67fb96e549c23275b902a817e9ca378"
+        ],
+        "width": 1440,
+        "height": 1785
+      },
+      "reviewed": {
+        "sha256": "168353d49ec1e390857f8ed2345255ecb4732046742be54231fd8e0269fe123c",
+        "width": 1440,
+        "height": 1785,
+        "bytes": 346445
+      },
+      "comparison": {
+        "key": "desktop/route-operations",
+        "changedPixels": 5502,
+        "fraction": 0.0021405228758169933,
+        "bands": [
+          [
+            725,
+            785
+          ],
+          [
+            1055,
+            1089
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/route-reliability",
+      "expected": {
+        "sha256": "374f5d0e202c551819d0261f365f5aa10bbc1c36c13668ef646eed9d1d1fec28",
+        "sha256AnyOf": [
+          "374f5d0e202c551819d0261f365f5aa10bbc1c36c13668ef646eed9d1d1fec28"
+        ],
+        "width": 1440,
+        "height": 2329
+      },
+      "reviewed": {
+        "sha256": "68553505f40fed1c07794fc716942b8d36d5681c890cb311db6d000b92fc30da",
+        "width": 1440,
+        "height": 2329,
+        "bytes": 541978
+      },
+      "comparison": {
+        "key": "desktop/route-reliability",
+        "changedPixels": 2762,
+        "fraction": 0.0008235532655884738,
+        "bands": [
+          [
+            661,
+            672
+          ],
+          [
+            1157,
+            1168
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/technical-explainer",
+      "expected": {
+        "sha256": "2abdee6e0f1eb343977bab46f7bccb70eb07f374a5ea617f01efc7a1a57eb481",
+        "sha256AnyOf": [
+          "2abdee6e0f1eb343977bab46f7bccb70eb07f374a5ea617f01efc7a1a57eb481"
+        ],
+        "width": 1440,
+        "height": 3578
+      },
+      "reviewed": {
+        "sha256": "beaa6b273a2147817df3bed6a8ed8f9790ba2027a0a5130fc47d992fa818ddf1",
+        "width": 1440,
+        "height": 3578,
+        "bytes": 1634470
+      },
+      "comparison": {
+        "key": "desktop/technical-explainer",
+        "changedPixels": 91,
+        "fraction": 1.766194646295261e-05,
+        "bands": [
+          [
+            754,
+            816
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/milestone",
+      "expected": {
+        "sha256": "c334ed9b97a2f2a9f363eb7f07c683b90e72b4b79f1be23f4f6d1bdbbec6f0dd",
+        "sha256AnyOf": [
+          "c334ed9b97a2f2a9f363eb7f07c683b90e72b4b79f1be23f4f6d1bdbbec6f0dd"
+        ],
+        "width": 1440,
+        "height": 3578
+      },
+      "reviewed": {
+        "sha256": "9becc59e1c278b1088d55e68c08b7603c69559549f076485aa7cda3deca34d52",
+        "width": 1440,
+        "height": 3578,
+        "bytes": 1602734
+      },
+      "comparison": {
+        "key": "desktop/milestone",
+        "changedPixels": 93,
+        "fraction": 1.8050121110490033e-05,
+        "bands": [
+          [
+            764,
+            816
+          ]
+        ]
+      }
+    },
+    {
+      "key": "desktop/company-priority",
+      "expected": {
+        "sha256": "de2eed7d07abb5928c66ce2603ac126cf97cf88ea73cfc82a77d48768b675989",
+        "sha256AnyOf": [
+          "de2eed7d07abb5928c66ce2603ac126cf97cf88ea73cfc82a77d48768b675989"
+        ],
+        "width": 1440,
+        "height": 3578
+      },
+      "reviewed": {
+        "sha256": "209d22731c96ddaae290cabba9f626af97fff5cc8819786319c85601eed41e95",
+        "width": 1440,
+        "height": 3578,
+        "bytes": 1637656
+      },
+      "comparison": {
+        "key": "desktop/company-priority",
+        "changedPixels": 66,
+        "fraction": 1.2809763368734861e-05,
+        "bands": [
+          [
+            766,
+            812
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/story-intro",
+      "expected": {
+        "sha256": "5161aa2031e1bff9f89ce31c4113f35a3daaa23d9d3fac0a12191db3005f3c76",
+        "sha256AnyOf": [
+          "5161aa2031e1bff9f89ce31c4113f35a3daaa23d9d3fac0a12191db3005f3c76"
+        ],
+        "width": 1920,
+        "height": 6356
+      },
+      "reviewed": {
+        "sha256": "b3eeb236a30b9e2697155524811d0b714cf7c0c4613ba557854be8832adb950c",
+        "width": 1920,
+        "height": 6356,
+        "bytes": 2203499
+      },
+      "comparison": {
+        "key": "wide/story-intro",
+        "changedPixels": 155,
+        "fraction": 1.2701253408852527e-05,
+        "bands": [
+          [
+            3351,
+            3362
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/company-early",
+      "expected": {
+        "sha256": "0944abadba5d9c07a1b7f1ad2128acd9e17234e60dcf1c2a9c2f6f38a1aebec0",
+        "sha256AnyOf": [
+          "0944abadba5d9c07a1b7f1ad2128acd9e17234e60dcf1c2a9c2f6f38a1aebec0",
+          "159c980a1503275e9d84a252d77e59a6dc2cb8e2c21c2926f1bc3e0c33aba36d"
+        ],
+        "width": 1920,
+        "height": 3377
+      },
+      "reviewed": {
+        "sha256": "953b3178e7b1cd70af6d2e878bc0969dcd77df7bc10aaceb720c9b84e2613dbc",
+        "width": 1920,
+        "height": 3377,
+        "bytes": 1874477
+      },
+      "comparison": {
+        "key": "wide/company-early",
+        "changedPixels": 106,
+        "fraction": 1.63483367880762e-05,
+        "bands": [
+          [
+            780,
+            788
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/training-empty",
+      "expected": {
+        "sha256": "159c980a1503275e9d84a252d77e59a6dc2cb8e2c21c2926f1bc3e0c33aba36d",
+        "sha256AnyOf": [
+          "159c980a1503275e9d84a252d77e59a6dc2cb8e2c21c2926f1bc3e0c33aba36d"
+        ],
+        "width": 1920,
+        "height": 3377
+      },
+      "reviewed": {
+        "sha256": "953b3178e7b1cd70af6d2e878bc0969dcd77df7bc10aaceb720c9b84e2613dbc",
+        "width": 1920,
+        "height": 3377,
+        "bytes": 1874477
+      },
+      "comparison": {
+        "key": "wide/training-empty",
+        "changedPixels": 106,
+        "fraction": 1.63483367880762e-05,
+        "bands": [
+          [
+            780,
+            788
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/route-company-home",
+      "expected": {
+        "sha256": "82a63ebada6ca77b6bd7cda9dbc422ee90b60c781dd444f896fd1dedf10eb251",
+        "sha256AnyOf": [
+          "82a63ebada6ca77b6bd7cda9dbc422ee90b60c781dd444f896fd1dedf10eb251"
+        ],
+        "width": 1920,
+        "height": 3267
+      },
+      "reviewed": {
+        "sha256": "1bc4d8d2010b5c68caead135f10075b5f94193215f5b1211725e0edd488b359b",
+        "width": 1920,
+        "height": 3267,
+        "bytes": 2038502
+      },
+      "comparison": {
+        "key": "wide/route-company-home",
+        "changedPixels": 128,
+        "fraction": 2.0406081012141617e-05,
+        "bands": [
+          [
+            785,
+            793
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/route-training",
+      "expected": {
+        "sha256": "58a9b5f72b15a7d1dc2beba7177befab7827095b5740ffa415e80f5db7300600",
+        "sha256AnyOf": [
+          "58a9b5f72b15a7d1dc2beba7177befab7827095b5740ffa415e80f5db7300600"
+        ],
+        "width": 1920,
+        "height": 3267
+      },
+      "reviewed": {
+        "sha256": "17838f3694e18f541ce8b6b180653e692169427d286cc5e80e717ba182528a53",
+        "width": 1920,
+        "height": 3267,
+        "bytes": 2038483
+      },
+      "comparison": {
+        "key": "wide/route-training",
+        "changedPixels": 128,
+        "fraction": 2.0406081012141617e-05,
+        "bands": [
+          [
+            785,
+            793
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/route-career",
+      "expected": {
+        "sha256": "f9bc3d38a7221d0fe220c635f3fb1896fdea87ac71f7614cd53280e83b8bbdbe",
+        "sha256AnyOf": [
+          "f9bc3d38a7221d0fe220c635f3fb1896fdea87ac71f7614cd53280e83b8bbdbe"
+        ],
+        "width": 1920,
+        "height": 1653
+      },
+      "reviewed": {
+        "sha256": "9a082f5e80409a4a74510868551430e4b6a3e7a49ffc5033f3822a54d3a62e0f",
+        "width": 1920,
+        "height": 1653,
+        "bytes": 496468
+      },
+      "comparison": {
+        "key": "wide/route-career",
+        "changedPixels": 32983,
+        "fraction": 0.010392405222827182,
+        "bands": [
+          [
+            558,
+            595
+          ],
+          [
+            620,
+            657
+          ],
+          [
+            682,
+            719
+          ],
+          [
+            744,
+            781
+          ],
+          [
+            806,
+            843
+          ],
+          [
+            868,
+            905
+          ],
+          [
+            930,
+            967
+          ],
+          [
+            992,
+            1029
+          ],
+          [
+            1054,
+            1091
+          ],
+          [
+            1116,
+            1153
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/route-operations",
+      "expected": {
+        "sha256": "00eb07313746827cce0421cd575757bb0a83bb84048f2c27a01f11dadefc7265",
+        "sha256AnyOf": [
+          "00eb07313746827cce0421cd575757bb0a83bb84048f2c27a01f11dadefc7265"
+        ],
+        "width": 1920,
+        "height": 1497
+      },
+      "reviewed": {
+        "sha256": "c9391aad49e280f89ae2b7b8c301d8e44d8d78d778b53038f9bcb0858423dcec",
+        "width": 1920,
+        "height": 1497,
+        "bytes": 395154
+      },
+      "comparison": {
+        "key": "wide/route-operations",
+        "changedPixels": 5508,
+        "fraction": 0.0019163326653306614,
+        "bands": [
+          [
+            725,
+            785
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/route-reliability",
+      "expected": {
+        "sha256": "8bb1bed44098a8a777072d78d8cc7353d18007ffa973a0aae54967e5cca8d344",
+        "sha256AnyOf": [
+          "8bb1bed44098a8a777072d78d8cc7353d18007ffa973a0aae54967e5cca8d344"
+        ],
+        "width": 1920,
+        "height": 2352
+      },
+      "reviewed": {
+        "sha256": "a4f5672a0e3d6b066a14ea501e2025c7e767fd17915601733171d780eab33490",
+        "width": 1920,
+        "height": 2352,
+        "bytes": 716349
+      },
+      "comparison": {
+        "key": "wide/route-reliability",
+        "changedPixels": 2754,
+        "fraction": 0.0006098533163265307,
+        "bands": [
+          [
+            661,
+            695
+          ],
+          [
+            1180,
+            1191
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/technical-explainer",
+      "expected": {
+        "sha256": "b1df811b6213a44aff5f41c9db9913b7492577551632335b387c9a3e87ac96f3",
+        "sha256AnyOf": [
+          "b1df811b6213a44aff5f41c9db9913b7492577551632335b387c9a3e87ac96f3"
+        ],
+        "width": 1920,
+        "height": 3267
+      },
+      "reviewed": {
+        "sha256": "c5a5584fea4eb41177ab809b82ca2c5e2dd5c1f527a0b6fb75b33a00b7eb3bf3",
+        "width": 1920,
+        "height": 3267,
+        "bytes": 1602398
+      },
+      "comparison": {
+        "key": "wide/technical-explainer",
+        "changedPixels": 44,
+        "fraction": 7.014590347923681e-06,
+        "bands": [
+          [
+            759,
+            827
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/milestone",
+      "expected": {
+        "sha256": "e762f84becadbe0eadd558819dae34f03894c25f856782f29a0ee5764e3b3a37",
+        "sha256AnyOf": [
+          "e762f84becadbe0eadd558819dae34f03894c25f856782f29a0ee5764e3b3a37"
+        ],
+        "width": 1920,
+        "height": 3267
+      },
+      "reviewed": {
+        "sha256": "35eb283a16c80046136505ac9eb7d761bebb78e94a106489d46e3284f60d1cfb",
+        "width": 1920,
+        "height": 3267,
+        "bytes": 1572599
+      },
+      "comparison": {
+        "key": "wide/milestone",
+        "changedPixels": 98,
+        "fraction": 1.5623405774920927e-05,
+        "bands": [
+          [
+            754,
+            829
+          ]
+        ]
+      }
+    },
+    {
+      "key": "wide/company-priority",
+      "expected": {
+        "sha256": "945b06cbb9999d89ad893ae1a393d0fdd1d0b6dd8aa23881699d70af772f852f",
+        "sha256AnyOf": [
+          "945b06cbb9999d89ad893ae1a393d0fdd1d0b6dd8aa23881699d70af772f852f"
+        ],
+        "width": 1920,
+        "height": 3267
+      },
+      "reviewed": {
+        "sha256": "4fedc0e2ef1e50a52a0906ab239112af079a34d2fba6d28c1af241ead65fd809",
+        "width": 1920,
+        "height": 3267,
+        "bytes": 1607170
+      },
+      "comparison": {
+        "key": "wide/company-priority",
+        "changedPixels": 63,
+        "fraction": 1.0043617998163452e-05,
+        "bands": [
+          [
+            779,
+            818
+          ]
+        ]
+      }
+    }
+  ]
+}
