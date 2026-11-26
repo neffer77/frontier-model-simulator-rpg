@@ -40,8 +40,8 @@
     reconciling=true;
     try{
       const snap=window.frontierRunMonitorSnapshot?.();
-      await window.frontierRunMonitorOpen?.({incidentId:snap?.incidentId||undefined,view:snap?.view||'overview'});
-      window.frontierEmitEvent?.('run-monitor.render.reconciled',{incidentId:snap?.incidentId||null,view:snap?.view||'overview'},{source:'run-monitor-frontieros'});
+      await window.frontierRunMonitorOpen?.({incidentId:snap?.incidentId||undefined,view:snap?.view||'overview',returnThreadId:snap?.returnThreadId||null,returnFolder:snap?.returnFolder||null});
+      window.frontierEmitEvent?.('run-monitor.render.reconciled',{incidentId:snap?.incidentId||null,view:snap?.view||'overview',returnThreadId:snap?.returnThreadId||null,returnFolder:snap?.returnFolder||null},{source:'run-monitor-frontieros'});
     }catch(error){window.frontierEmitEvent?.('run-monitor.render.reconcile-failed',{error:String(error?.message||error)},{source:'run-monitor-frontieros',severity:'error'});}
     finally{reconciling=false}
   }
