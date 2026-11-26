@@ -1,9 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {spawn,spawnSync} from 'node:child_process';
+import {plan,checkPlan,collectParts,buildFingerprint,sha256} from './release-shard-plan.mjs';
 
 const policy=JSON.parse(fs.readFileSync('release-gate-policy.json','utf8'));
-const outRoot=path.resolve(process.env.RELEASE_GATE_DIR||'artifacts/release-gate');
+const partition=process.env.RELEASE_GATE_PART||'all';
+const partial=Object.hasOwn(plan,partition);
+if(!partial&&!['all','aggregate'].includes(partition))throw Error('Unknown release partition: '+partition);
+checkPlan(policy);
+const outRoot=path.resolve(process.env.RELEASE_GATE_DIR||(partial?'release-part':'artifacts/release-gate'));
 const serverUrl=process.env.RELEASE_GATE_URL||'http://127.0.0.1:4173/';
 const externalServer=Boolean(process.env.RELEASE_GATE_URL);
 const maxBuffer=64*1024*1024;
@@ -17,6 +22,9 @@ const report={
   environment:{node:process.version,platform:process.platform,arch:process.arch,ci:Boolean(process.env.CI),githubSha:process.env.GITHUB_SHA||null,githubRef:process.env.GITHUB_REF||null,githubEventName:process.env.GITHUB_EVENT_NAME||null},
   timeouts:{phaseDefaultsMs:phaseTimeouts},gates:[],blockers:[],advisories:[],evidence:{},releaseDecision:'pending'
 };
+report.partition=partition;
+report.runId=process.env.GITHUB_RUN_ID||null;
+report.policyHash=sha256('release-gate-policy.json');
 const blocker=(type,details={})=>report.blockers.push({type,...details});
 const advisory=(type,details={})=>report.advisories.push({type,...details});
 const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,100);
@@ -35,6 +43,7 @@ function runCommandGate(gate,env={}){
   if(timedOut){const details={gate:gate.id,script:gate.script,timeoutMs,durationMs:row.durationMs,error:row.error};gate.severity==='blocker'?blocker('gate-command-timeout',details):advisory('advisory-command-timeout',details)}
   else if(exitCode!==0){const details={gate:gate.id,script:gate.script,exitCode,error:row.error};gate.severity==='blocker'?blocker('gate-command-failed',details):advisory('advisory-command-failed',details)}
   if(gate.evidence&&!fs.existsSync(gate.evidence)){const details={gate:gate.id,path:gate.evidence};gate.severity==='blocker'?blocker('required-evidence-missing',details):advisory('advisory-evidence-missing',details)}
+  console.log(`=== FINISHED ${gate.id}: ${status} in ${row.durationMs}ms ===`);
   return row;
 }
 function recordBlockedGate(gate,reason){const row={id:gate.id,label:gate.label,script:gate.script,severity:gate.severity,phase:gate.phase,uiMode:gate.uiMode||'default',status:'blocked',exitCode:null,durationMs:0,evidence:gate.evidence||null,reason};report.gates.push(row);const details={gate:gate.id,reason};gate.severity==='blocker'?blocker('gate-not-executed',details):advisory('advisory-not-executed',details)}
@@ -50,12 +59,63 @@ function evaluateSemanticEvidence(){
 }
 function writeReport(){report.releaseDecision=report.blockers.length?'block':'pass';fs.writeFileSync(path.join(outRoot,'report.json'),JSON.stringify(report,null,2)+'\n');const lines=['# Item 13.16 release gate','',`- Decision: **${report.releaseDecision.toUpperCase()}**`,`- Blockers: **${report.blockers.length}**`,`- Advisories: **${report.advisories.length}**`,`- Policy version: **${report.policyVersion}**`,`- Commit: **${report.environment.githubSha||'local'}**`,'','## Gate execution','','| Gate | UI mode | Severity | Status | Exit | Duration / Timeout |','| --- | --- | --- | --- | ---: | --- |'];for(const gate of report.gates)lines.push(`| ${gate.label} | ${gate.uiMode||'default'} | ${gate.severity} | ${gate.status} | ${gate.exitCode??'—'} | ${gate.durationMs} / ${gate.timeoutMs??'—'} ms |`);lines.push('','## Blockers','');if(report.blockers.length)for(const x of report.blockers)lines.push(`- **${x.type}** — \`${JSON.stringify(x)}\``);else lines.push('- None.');lines.push('','## Advisories','');if(report.advisories.length)for(const x of report.advisories)lines.push(`- **${x.type}** — \`${JSON.stringify(x)}\``);else lines.push('- None.');lines.push('','## Evidence summary','', '```json',JSON.stringify(report.evidence,null,2),'```','','## Environment','', '```json',JSON.stringify(report.environment,null,2),'```','');fs.writeFileSync(path.join(outRoot,'REPORT.md'),lines.join('\n')+'\n')}
 
+
+// Artifact directories are isolated per runner. Reject collisions rather than silently
+// overwriting evidence; retain original bundles even if aggregation fails.
+function copyTree(source,dest){
+  if(!fs.existsSync(source))return;
+  for(const entry of fs.readdirSync(source,{withFileTypes:true})){
+    const from=path.join(source,entry.name),to=path.join(dest,entry.name);
+    if(entry.isDirectory())copyTree(from,to);
+    else if(entry.isFile()){
+      if(fs.existsSync(to)){blocker('duplicate-evidence-file',{path:to});continue}
+      fs.mkdirSync(path.dirname(to),{recursive:true});fs.copyFileSync(from,to);
+    }else blocker('unexpected-evidence-entry',{path:from});
+  }
+}
+function aggregate(){
+  const root=process.env.RELEASE_PARTS_DIR||'release-parts';
+  const parts=[];
+  for(const key of Object.keys(plan)){
+    const dir=path.join(root,'release-part-'+key);
+    const part=readJsonEvidence(path.join(dir,'release-part','report.json'),'blocker','partition-report-invalid');
+    if(!part)continue;
+    if(part.partition!==key){blocker('partition-name-mismatch',{expected:key,actual:part.partition});continue}
+    parts.push(part);
+    for(const issue of part.blockers||[])report.blockers.push({...issue,partition:key});
+    for(const issue of part.advisories||[])report.advisories.push({...issue,partition:key});
+    copyTree(path.join(dir,'artifacts'),'artifacts');
+    copyTree(path.join(dir,'release-part','logs'),path.join(outRoot,'logs'));
+    for(const gate of policy.gates.filter(g=>plan[key].includes(g.id)&&g.evidence)){
+      const file=path.join(dir,gate.evidence);
+      const matches=fs.existsSync(file)&&part.evidenceHashes?.[gate.id]===sha256(file);
+      if(!matches){const details={gate:gate.id,partition:key,path:gate.evidence};gate.severity==='blocker'?blocker('partition-evidence-missing-or-changed',details):advisory('partition-evidence-missing-or-changed',details)}
+    }
+  }
+  const result=collectParts(policy,parts,{policyHash:report.policyHash,githubSha:report.environment.githubSha,runId:report.runId,buildHash:buildFingerprint()});
+  report.gates=result.gates;
+  report.blockers.push(...result.errors);
+  for(const [name,value] of [['prepare',process.env.RELEASE_PREPARE_RESULT],['shards',process.env.RELEASE_SHARDS_RESULT]])if(value!=='success')blocker('partition-job-not-successful',{name,result:value||null});
+  evaluateSemanticEvidence();
+}
 let server=null,serverLogFd=null,serverReady=externalServer;
 try{
-  for(const gate of policy.gates.filter(g=>g.phase==='preflight'))runCommandGate(gate);
-  const buildGates=policy.gates.filter(g=>g.phase==='build');let buildPassed=true;for(const gate of buildGates){const row=runCommandGate(gate);if(gate.severity==='blocker'&&row.status!=='pass')buildPassed=false}
-  if(buildPassed){if(externalServer)serverReady=await waitForServer(serverUrl,null,10000);else{serverLogFd=fs.openSync(path.join(outRoot,'server.log'),'a');server=spawn('python3',['-m','http.server','4173','--directory','_site'],{cwd:process.cwd(),stdio:['ignore',serverLogFd,serverLogFd]});serverReady=await waitForServer(serverUrl,server,15000)}}if(!serverReady)blocker('release-server-unavailable',{url:serverUrl,buildPassed});
-  for(const gate of policy.gates.filter(g=>g.phase==='browser')){if(!serverReady){recordBlockedGate(gate,'production release server unavailable');continue}runCommandGate(gate,{TEST_URL:gateTestUrl(gate)})}
-  evaluateSemanticEvidence();
-}catch(error){blocker('release-gate-runner-error',{error:String(error?.stack||error)})}finally{if(server&&server.exitCode===null)server.kill('SIGTERM');if(serverLogFd!==null)try{fs.closeSync(serverLogFd)}catch{}writeReport()}
-console.log(JSON.stringify({releaseGate:report.releaseDecision,blockers:report.blockers.length,advisories:report.advisories.length,report:path.join(outRoot,'REPORT.md')},null,2));if(report.releaseDecision!=='pass')process.exit(1);
+  if(partition==='aggregate')aggregate();
+  else{
+    const selected=policy.gates.filter(g=>!partial||plan[partition].includes(g.id));
+    for(const gate of selected.filter(g=>g.phase==='preflight'))runCommandGate(gate);
+    const buildGates=selected.filter(g=>g.phase==='build');let buildPassed=true;
+    for(const gate of buildGates){const row=runCommandGate(gate);if(gate.severity==='blocker'&&row.status!=='pass')buildPassed=false}
+    if(partition!=='prepare'){
+      if(partial&&!buildFingerprint())buildPassed=false;
+      if(buildPassed){if(externalServer)serverReady=await waitForServer(serverUrl,null,10000);else{serverLogFd=fs.openSync(path.join(outRoot,'server.log'),'a');server=spawn('python3',['-m','http.server','4173','--directory','_site'],{cwd:process.cwd(),stdio:['ignore',serverLogFd,serverLogFd]});serverReady=await waitForServer(serverUrl,server,15000)}}if(!serverReady)blocker('release-server-unavailable',{url:serverUrl,buildPassed});
+      for(const gate of selected.filter(g=>g.phase==='browser')){if(!serverReady){recordBlockedGate(gate,'production release server unavailable');continue}runCommandGate(gate,{TEST_URL:gateTestUrl(gate)})}
+    }
+    if(!partial)evaluateSemanticEvidence();
+    if(partial){
+      report.evidenceHashes={};
+      for(const gate of selected)if(gate.evidence&&fs.existsSync(gate.evidence))report.evidenceHashes[gate.id]=sha256(gate.evidence);
+    }
+  }
+}catch(error){blocker('release-gate-runner-error',{error:String(error?.stack||error)})}finally{if(server&&server.exitCode===null)server.kill('SIGTERM');if(serverLogFd!==null)try{fs.closeSync(serverLogFd)}catch{}try{report.buildHash=buildFingerprint()}catch(error){blocker('build-fingerprint-error',{error:String(error)})}writeReport()}
+console.log(JSON.stringify({releaseGate:report.releaseDecision,partition,blockers:report.blockers.length,advisories:report.advisories.length,report:path.join(outRoot,'REPORT.md')},null,2));if(report.releaseDecision!=='pass')process.exit(1);

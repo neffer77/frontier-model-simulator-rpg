@@ -15,9 +15,59 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release-candidate:
+  release-prepare:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
+    outputs:
+      build-ready: ${{ steps.bundle.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Execute preflight and production build
+        env:
+          RELEASE_GATE_PART: prepare
+        run: npm run test:rc
+      - name: Package tested build
+        id: bundle
+        if: always()
+        run: |
+          if node -e "const r=require('./release-part/report.json');process.exit(r.gates.some(g=>g.id==='production-build'&&g.status==='pass')?0:1)" && test -f _site/build-info.json; then
+            tar -czf release-site.tar.gz _site
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.bundle.outputs.ready == 'true'
+        with:
+          name: release-tested-site
+          path: release-site.tar.gz
+          overwrite: true
+          retention-days: 30
+      - name: Package preflight evidence
+        if: always()
+        run: |
+          mkdir -p release-part artifacts
+          tar -czf release-part.tar.gz release-part artifacts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-part-prepare
+          path: release-part.tar.gz
+          overwrite: true
+          retention-days: 30
+
+  release-shards:
+    needs: release-prepare
+    if: ${{ !cancelled() && needs.release-prepare.outputs.build-ready == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [native-core, mail-journeys, legacy-gameplay, legacy-ui, responsive, routes, screenshots, inventory]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,8 +96,60 @@ jobs:
       - name: Report Playwright cache
         run: |
           echo "Playwright Chromium cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-tested-site
+      - name: Restore tested production build
+        run: tar -xzf release-site.tar.gz
+      - name: Execute assigned canonical release gates
+        env:
+          RELEASE_GATE_PART: ${{ matrix.shard }}
+        run: npm run test:rc
+      - name: Package shard evidence
+        if: always()
+        run: |
+          mkdir -p release-part artifacts
+          tar -czf release-part.tar.gz release-part artifacts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-part-${{ matrix.shard }}
+          path: release-part.tar.gz
+          overwrite: true
+          retention-days: 30
+
+  release-candidate:
+    needs: [release-prepare, release-shards]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: release-tested-site
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: release-part-*
+          path: release-parts
+      - name: Restore build and isolated shard evidence
+        continue-on-error: true
+        run: |
+          if test -f release-site.tar.gz; then tar -xzf release-site.tar.gz; fi
+          for bundle in release-parts/*/release-part.tar.gz; do
+            if test -f "$bundle"; then tar -xzf "$bundle" -C "$(dirname "$bundle")"; fi
+          done
       - name: Execute canonical Item 13.16 release gate
         id: release-gate
+        env:
+          RELEASE_GATE_PART: aggregate
+          RELEASE_PREPARE_RESULT: ${{ needs.release-prepare.result }}
+          RELEASE_SHARDS_RESULT: ${{ needs.release-shards.result }}
         run: npm run test:rc
       - name: Finalize Item 13.17 release sign-off
         if: always() && steps.release-gate.outcome != 'skipped' && steps.release-gate.outcome != 'cancelled'

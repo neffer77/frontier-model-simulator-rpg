@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {spawnSync} from 'node:child_process';
+import {buildFingerprint} from './release-shard-plan.mjs';
 
 const outRoot=path.resolve(process.env.RELEASE_SIGNOFF_DIR||'artifacts/release-signoff');
 fs.rmSync(outRoot,{recursive:true,force:true});
@@ -33,6 +34,12 @@ else {
   if(gate.item!=='13.16')fail('wrong-release-gate-item',{actual:gate.item});
   if(gate.releaseDecision!=='pass')fail('release-gate-not-pass',{decision:gate.releaseDecision,blockers:(gate.blockers||[]).length});
   if((gate.blockers||[]).length)fail('release-gate-blockers-present',{count:gate.blockers.length});
+  if(gate.environment?.githubSha!== (process.env.GITHUB_SHA||null))fail('release-gate-commit-mismatch');
+  if(gate.policyVersion!==policy?.version||gate.policyHash!==sha256File(policyPath))fail('release-gate-policy-mismatch');
+  if(!gate.buildHash||gate.buildHash!==buildFingerprint())fail('release-gate-build-mismatch');
+  if(gate.runId!==(process.env.GITHUB_RUN_ID||null))fail('release-gate-run-mismatch');
+  const allIds=(gate.gates||[]).map(x=>x.id), expectedIds=(policy?.gates||[]).map(x=>x.id);
+  if(allIds.length!==expectedIds.length||new Set(allIds).size!==allIds.length||expectedIds.some(id=>!allIds.includes(id)))fail('release-gate-incomplete-or-duplicate');
   const blockerGates=(policy?.gates||[]).filter(x=>x.severity==='blocker');
   const execution=new Map((gate.gates||[]).map(x=>[x.id,x]));
   for(const expected of blockerGates){
