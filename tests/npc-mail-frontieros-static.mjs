@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 const mail=fs.readFileSync('frontier-mail-frontieros.js','utf8');
 const adapter=fs.readFileSync('frontier-mail-command.js','utf8');
 const run=fs.readFileSync('run-monitor-frontieros.js','utf8');
+const session=fs.readFileSync('frontieros-session.js','utf8');
 const npc=fs.readFileSync('npc-team.js','utf8');
 const history=fs.readFileSync('postmortems.js','utf8');
 const desktop=fs.readFileSync('desktop-frontieros.js','utf8');
@@ -19,7 +20,8 @@ const continuation=fs.readFileSync('docs/FRONTIEROS-CONTINUATION-PROMPT.md','utf
 
 for(const marker of ['requestKey','linkedEntity','frontierMailExport','frontierMailImport','frontierMailReplaySnapshot','frontierMailFindRequest','frontierMailNextLogicalStamp','frontierMailLinkedIncidentAvailable','frontierMailOpenLinked','mail.advice.link.opened','incident-resolved','run-changed'])assert(mail.includes(marker),`Mail link/persistence contract missing ${marker}`);
 for(const marker of ['npc.advice.mail.request','askNpcDuringIncident','frontierMailFindRequest','npc.advice.mail.delivered','npc.advice.mail.reused','replayable:true','idempotent:true'])assert(adapter.includes(marker),`NPC Mail command contract missing ${marker}`);
-for(const marker of ['data-rm-ask-npc','frontierRunMonitorAskTeam','run-monitor.team.requested','frontierDispatchCommand','data-rm-return-mail','returnThreadId','frontieros://mail/thread/'])assert(run.includes(marker),`Run Monitor journey missing ${marker}`);
+for(const marker of ['data-rm-ask-npc','frontierRunMonitorAskTeam','run-monitor.team.requested','frontierDispatchCommand','data-rm-return-mail','returnThreadId','frontieros://mail/thread/','sessionDetail','frontierOsSessionUpdateCurrentDetail'])assert(run.includes(marker),`Run Monitor journey missing ${marker}`);
+assert(session.includes('frontierOsSessionUpdateCurrentDetail')&&session.includes('os.navigation.detail-updated'),'P5.3.9 requires in-place session detail ownership');
 assert(npc.includes('askNpcDuringIncident(id,options={})')&&npc.includes('options.inline!==false')&&npc.includes('options.render!==false'),'canonical NPC advice must support native non-legacy delivery');
 assert(history.includes('askNpcDuringIncident=function(id,options={})')&&history.includes('orgAsk(id,options)'),'incident-history wrapper must preserve native delivery options');
 assert(desktop.includes('async function openApp(id,options={})')&&desktop.includes('payload=options.payload'),'desktop app launch must preserve deep-link payloads');

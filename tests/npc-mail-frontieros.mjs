@@ -9,18 +9,23 @@ fs.rmSync(out,{recursive:true,force:true});
 fs.mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
 const pageErrors=[];
-const report={version:2,item:'P5.3.8',status:'pass',generatedAt:null,surfaces:{},pageErrors:0,evidence:[]};
+const report={version:3,item:'P5.3.9',status:'pass',generatedAt:null,surfaces:{},pageErrors:0,evidence:[]};
 
 const navigationState=page=>page.evaluate(()=>({cash:state.cash,run:state.activeRun,workstation:state.workstation,npc:state.npcEmployees,incidents:state.organization.incidents,gates:state.investmentCommittee?.gates,portfolio:state.portfolioStrategy,mail:frontierMailExport()}));
 async function reloadRunAndReturn(page,threadId,folder,surface){
  const before=await navigationState(page);
  await page.getByRole('button',{name:'Open Run'}).click();
  await page.locator('[data-frontieros-native-app="training"]').waitFor({state:'visible'});
- assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot())).current.detail,`nan/data/return/${threadId}/from/${folder}`);
+ const beforeTab=await page.evaluate(()=>frontierOsSessionSnapshot());
+ assert.equal(beforeTab.current.detail,`nan/data/return/${threadId}/from/${folder}`);
+ await page.getByRole('button',{name:'Metrics',exact:true}).click();
+ const afterTab=await page.evaluate(()=>frontierOsSessionSnapshot());
+ assert.equal(afterTab.current.detail,`nan/metrics/return/${threadId}/from/${folder}`,`${surface}: Run Monitor tab change did not update session detail`);
+ assert.equal(afterTab.history.length,beforeTab.history.length,`${surface}: Run Monitor tab change created a navigation history entry`);
  await page.reload({waitUntil:'networkidle'});
  await page.locator('[data-frontieros-native-app="training"]').waitFor({state:'visible'});
  const run=await page.evaluate(()=>frontierRunMonitorSnapshot());
- assert.equal(run.returnFolder,folder);assert.equal(run.returnThreadId,threadId);assert.equal(run.incidentId,'nan');assert.equal(run.view,'data');
+ assert.equal(run.returnFolder,folder);assert.equal(run.returnThreadId,threadId);assert.equal(run.incidentId,'nan');assert.equal(run.view,'metrics');
  const back=page.getByRole('button',{name:'← Back to advice'});await back.scrollIntoViewIfNeeded();
  const bounds=await back.boundingBox();assert(bounds.height>=(surface==='phone'?44:40),`${surface}: return target too short: ${bounds.height}`);assert(bounds.x>=0);
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Return control overflows viewport');
@@ -144,7 +149,7 @@ async function runJourney(surface,viewport,device={}){
   const staleShot=`${surface}-stale-advice.png`;
   await page.screenshot({path:path.join(out,staleShot),fullPage:true});report.evidence.push(staleShot);
   const trace=`${surface}-trace.zip`;await context.tracing.stop({path:path.join(out,trace)});report.evidence.push(trace);
-  report.surfaces[surface]={threadId:advice.id,requestKey:advice.requestKey,incidentRecordId:advice.linkedEntity.incidentRecordId,view:advice.linkedEntity.view,messageCount:retried.messageCount,reloadRestored:true,returnFolders:['inbox','starred','archive'],legacyLink:true,unchangedNavigationState:true,staleGuard:true};
+  report.surfaces[surface]={threadId:advice.id,requestKey:advice.requestKey,incidentRecordId:advice.linkedEntity.incidentRecordId,view:advice.linkedEntity.view,reloadedView:'metrics',messageCount:retried.messageCount,reloadRestored:true,returnFolders:['inbox','starred','archive'],legacyLink:true,unchangedNavigationState:true,staleGuard:true};
   }catch(error){
    report.status='fail';report.failure=String(error.stack||error);report.pageErrors=pageErrors.length;
    await page.screenshot({path:path.join(out,`${surface}-failure.png`),fullPage:true}).catch(()=>{});
@@ -174,5 +179,5 @@ await browser.close();
 assert.equal(pageErrors.length,0,`runtime page errors: ${pageErrors.join(' | ')}`);
 report.generatedAt=new Date().toISOString();report.pageErrors=pageErrors.length;
 fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
-fs.writeFileSync(path.join(out,'REPORT.md'),`# P5.3.8 NPC → Mail Journey\n\n- Status: **PASS**\n- Phone end-to-end journey: **PASS**\n- Desktop end-to-end journey: **PASS**\n- Landscape/tablet/wide layout checks: **PASS**\n- Canonical NPC mutation + incident history: **PASS**\n- Retry idempotency: **PASS**\n- Linked Run Monitor return path: **PASS**\n- Reload/session persistence: **PASS**\n- Stale-link guard: **PASS**\n- Debug/reproduction mailbox snapshots: **PASS**\n- Runtime page errors: **0**\n- Screenshots and traces: **captured**\n`);
-console.log('P5.3.8 NPC → Mail cross-device journey passed');
+fs.writeFileSync(path.join(out,'REPORT.md'),`# P5.3.9 Run Monitor view persistence\n\n- Status: **PASS**\n- Phone end-to-end journey: **PASS**\n- Desktop end-to-end journey: **PASS**\n- Landscape/tablet/wide layout checks: **PASS**\n- Canonical NPC mutation + incident history: **PASS**\n- Retry idempotency: **PASS**\n- Linked Run Monitor return path: **PASS**\n- Run Monitor tab → session detail → reload persistence: **PASS**\n- Reload/session persistence: **PASS**\n- Stale-link guard: **PASS**\n- Debug/reproduction mailbox snapshots: **PASS**\n- Runtime page errors: **0**\n- Screenshots and traces: **captured**\n`);
+console.log('P5.3.9 Run Monitor view persistence journey passed');

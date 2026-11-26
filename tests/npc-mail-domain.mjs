@@ -24,7 +24,7 @@ const first=request();assert.equal(first.ok,true);const before=JSON.stringify(f.
 let box=f.context.frontierMailExport();let thread=box.threads.find(t=>t.id===first.threadId);assert.equal(thread.messages.length,1);assert.equal(thread.linkedEntity.incidentRecordId,'INC-0001');assert.equal(thread.linkedEntity.view,'data');assert.equal(f.context.state.npcEmployees[0].incidentsHelped,1);assert.equal(f.context.state.workstation.npcSubview,undefined);
 assert.equal(f.context.frontierMailLinkedIncidentAvailable(first.threadId),true);
 // Navigation must carry folder context without changing simulation or saved advice.
-const routes=[];f.context.frontierOsNavigate=(app,options)=>{routes.push({app,...options});return{ok:true}};
+const routes=[],sessionDetails=[];f.context.frontierOsNavigate=(app,options)=>{routes.push({app,...options});return{ok:true}};f.context.frontierOsSessionUpdateCurrentDetail=(appId,detail,options)=>{sessionDetails.push({appId,detail,...options});return{ok:true,status:'updated'}};
 for(const folder of ['inbox','needs-decision','unread','starred','archive']){
  f.context.frontierMailOpen({detail:`thread/${first.threadId}/from/${folder}`});
  const saved=JSON.stringify({state:f.context.state,mail:f.context.frontierMailExport()});
@@ -40,16 +40,20 @@ vm.runInContext(fs.readFileSync('run-monitor-frontieros.js','utf8'),f.context);
 const savedRun=JSON.stringify(f.context.state);
 for(const folder of ['inbox','needs-decision','unread','starred','archive']){
  f.context.frontierRunMonitorOpen({detail:`nan/data/return/${first.threadId}/from/${folder}`});
- const run=f.context.frontierRunMonitorSnapshot();assert.equal(run.returnFolder,folder);assert.equal(run.incidentId,'nan');assert.equal(run.view,'data');
+ let run=f.context.frontierRunMonitorSnapshot();assert.equal(run.returnFolder,folder);assert.equal(run.incidentId,'nan');assert.equal(run.view,'data');
+ assert.equal(f.context.frontierRunMonitorSetView('metrics'),true);run=f.context.frontierRunMonitorSnapshot();assert.equal(run.view,'metrics');
+ assert.deepEqual(sessionDetails.at(-1),{appId:'training',detail:`nan/metrics/return/${first.threadId}/from/${folder}`,source:'run-monitor-view'});
  await click({target:{closest:selector=>selector==='[data-rm-return-mail]'?{dataset:{rmReturnMail:first.threadId}}:null}});
  assert.equal(routes.at(-1).app,`frontieros://mail/thread/${first.threadId}/from/${folder}`);
 }
 f.context.frontierRunMonitorOpen({detail:`nan/data/return/${first.threadId}`});
 assert.equal(f.context.frontierRunMonitorSnapshot().returnFolder,null,'Legacy link retained unrelated folder');
+f.context.frontierRunMonitorSetView('profiler');assert.equal(sessionDetails.at(-1).detail,`nan/profiler/return/${first.threadId}`,'Legacy return detail gained a folder');
 await click({target:{closest:()=>({dataset:{rmReturnMail:first.threadId}})}});
 assert.equal(routes.at(-1).app,`frontieros://mail/thread/${first.threadId}`);
 f.context.frontierRunMonitorOpen({detail:'nan/data/return/thread%2Fwith%20space/from/archive'});
 assert.equal(f.context.frontierRunMonitorSnapshot().returnThreadId,'thread/with space');
+f.context.frontierRunMonitorSetView('evidence');assert.equal(sessionDetails.at(-1).detail,'nan/evidence/return/thread%2Fwith%20space/from/archive','Session detail did not encode linked return identity');
 await click({target:{closest:()=>({dataset:{rmReturnMail:'thread/with space'}})}});
 assert.equal(routes.at(-1).app,'frontieros://mail/thread/thread%2Fwith%20space/from/archive');
 for(const detail of ['nan/data','%invalid']){
