@@ -16,11 +16,16 @@ async function reloadRunAndReturn(page,threadId,folder,surface){
  const before=await navigationState(page);
  await page.getByRole('button',{name:'Open Run'}).click();
  await page.locator('[data-frontieros-native-app="training"]').waitFor({state:'visible'});
- assert.equal((await page.evaluate(()=>frontierOsSessionSnapshot())).current.detail,`nan/data/return/${threadId}/from/${folder}`);
+ const beforeTab=await page.evaluate(()=>frontierOsSessionSnapshot());
+ assert.equal(beforeTab.current.detail,`nan/data/return/${threadId}/from/${folder}`);
+ await page.getByRole('button',{name:'Metrics',exact:true}).click();
+ const afterTab=await page.evaluate(()=>frontierOsSessionSnapshot());
+ assert.equal(afterTab.current.detail,`nan/metrics/return/${threadId}/from/${folder}`,`${surface}: Run Monitor tab change did not update session detail`);
+ assert.equal(afterTab.history.length,beforeTab.history.length,`${surface}: Run Monitor tab change created a navigation history entry`);
  await page.reload({waitUntil:'networkidle'});
  await page.locator('[data-frontieros-native-app="training"]').waitFor({state:'visible'});
  const run=await page.evaluate(()=>frontierRunMonitorSnapshot());
- assert.equal(run.returnFolder,folder);assert.equal(run.returnThreadId,threadId);assert.equal(run.incidentId,'nan');assert.equal(run.view,'data');
+ assert.equal(run.returnFolder,folder);assert.equal(run.returnThreadId,threadId);assert.equal(run.incidentId,'nan');assert.equal(run.view,'metrics');
  const back=page.getByRole('button',{name:'← Back to advice'});await back.scrollIntoViewIfNeeded();
  const bounds=await back.boundingBox();assert(bounds.height>=(surface==='phone'?44:40),`${surface}: return target too short: ${bounds.height}`);assert(bounds.x>=0);
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Return control overflows viewport');
